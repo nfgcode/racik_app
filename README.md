@@ -1,5 +1,9 @@
 # Racik
 
+<p align="center">
+  <img src="LOGO_PAPB.png" alt="Logo PAPB" width="220" />
+</p>
+
 Aplikasi mobile pemindai makanan berbasis kecerdasan buatan (Flutter + Supabase + TensorFlow Lite).
 
 ## Menjalankan
