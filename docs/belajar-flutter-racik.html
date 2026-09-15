@@ -1,0 +1,1799 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Belajar Flutter lewat Racik</title>
+
+<meta name="description" content="Panduan belajar Flutter yang membedah kode racik_app berdasarkan use case dan ERD Racik.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400..700&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&display=swap">
+<style>
+:root {
+  --ground: #F3F6F2;
+  --surface: #FFFFFF;
+  --ink: #17211C;
+  --ink-2: #4E5B54;
+  --ink-3: #75827B;
+  --rule: #D6DED8;
+  --rule-strong: #17211C;
+  --pandan: #26704A;
+  --pandan-soft: #E1EEE5;
+  --kunyit: #B87B0B;
+  --kunyit-ink: #7A5100;
+  --kunyit-soft: #FBF0D6;
+  --code-bg: #EBF0EC;
+  --sehat: #2B7A35;
+  --cukup: #9A5E00;
+  --kurang: #B0271F;
+  --tok-comment: #6E7C74;
+  --tok-keyword: #1F6B45;
+  --tok-string: #97550A;
+  --tok-number: #A83A2A;
+  --tok-type: #2A5F8F;
+  --tok-fn: #6B3F9A;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Literata", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0F1512;
+    --surface: #161E1A;
+    --ink: #E3EAE5;
+    --ink-2: #A5B2AA;
+    --ink-3: #7D8B83;
+    --rule: #2A352F;
+    --rule-strong: #C9D3CC;
+    --pandan: #74C495;
+    --pandan-soft: #1C3226;
+    --kunyit: #E6B24A;
+    --kunyit-ink: #F0C872;
+    --kunyit-soft: #33280F;
+    --code-bg: #121A16;
+    --sehat: #7FCB8A;
+    --cukup: #EDB35C;
+    --kurang: #F08A80;
+    --tok-comment: #7F8D86;
+    --tok-keyword: #7ACB9B;
+    --tok-string: #E7B267;
+    --tok-number: #F0937F;
+    --tok-type: #86B7E3;
+    --tok-fn: #C6A3EE;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0F1512;
+  --surface: #161E1A;
+  --ink: #E3EAE5;
+  --ink-2: #A5B2AA;
+  --ink-3: #7D8B83;
+  --rule: #2A352F;
+  --rule-strong: #C9D3CC;
+  --pandan: #74C495;
+  --pandan-soft: #1C3226;
+  --kunyit: #E6B24A;
+  --kunyit-ink: #F0C872;
+  --kunyit-soft: #33280F;
+  --code-bg: #121A16;
+  --sehat: #7FCB8A;
+  --cukup: #EDB35C;
+  --kurang: #F08A80;
+  --tok-comment: #7F8D86;
+  --tok-keyword: #7ACB9B;
+  --tok-string: #E7B267;
+  --tok-number: #F0937F;
+  --tok-type: #86B7E3;
+  --tok-fn: #C6A3EE;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--pandan); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--kunyit); outline-offset: 2px; border-radius: 2px; }
+
+/* ---------- masthead ---------- */
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface);
+}
+.masthead-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 32px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 48px;
+  align-items: end;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pandan);
+  margin: 0 0 14px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.3rem, 5vw, 3.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  margin: 0 0 18px;
+  text-wrap: balance;
+}
+h1 .muted { color: var(--pandan); }
+.deck {
+  font-size: 1.14rem;
+  color: var(--ink-2);
+  max-width: 60ch;
+  margin: 0 0 20px;
+}
+.specline {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+.specline span::before { content: "▪ "; color: var(--rule); }
+.status {
+  border: 1.5px solid var(--rule-strong);
+  padding: 16px 18px 14px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 1.45;
+  background: var(--surface);
+}
+.status h2 {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 5px solid var(--rule-strong);
+}
+.status ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.status li { display: grid; grid-template-columns: 20px 1fr; gap: 6px; }
+.status .ok { color: var(--sehat); font-weight: 700; }
+.status .todo { color: var(--cukup); font-weight: 700; }
+.status .sub { color: var(--ink-3); font-size: 12.5px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--rule); }
+
+/* ---------- layout ---------- */
+.layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 32px 96px;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 56px;
+}
+.toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding: 36px 0 24px;
+}
+.toc-title {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 12px;
+}
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.toc a {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  padding: 5px 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--ink-2);
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  line-height: 1.35;
+}
+.toc a .n { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); padding-top: 1px; }
+.toc a:hover { background: var(--pandan-soft); color: var(--ink); }
+.toc a[aria-current="true"] { background: var(--pandan-soft); color: var(--pandan); font-weight: 600; }
+.toc a[aria-current="true"] .n { color: var(--pandan); }
+.toc-mobile { display: none; }
+
+main { min-width: 0; padding-top: 28px; }
+main > section { padding: 40px 0 8px; border-bottom: 1px solid var(--rule); }
+main > section:last-child { border-bottom: 0; }
+
+/* ---------- type ---------- */
+h2.ch {
+  font-family: var(--font-display);
+  font-weight: 750;
+  font-size: 1.9rem;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin: 0 0 18px;
+  text-wrap: balance;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+h2.ch .n {
+  font-family: var(--font-mono);
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--pandan);
+  letter-spacing: 0;
+}
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.28rem;
+  line-height: 1.25;
+  margin: 36px 0 10px;
+  text-wrap: balance;
+}
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.02rem;
+  margin: 24px 0 6px;
+}
+p, li { max-width: 68ch; }
+p { margin: 0 0 14px; }
+ul, ol { padding-left: 1.3em; margin: 0 0 16px; }
+li { margin: 4px 0; }
+li::marker { color: var(--ink-3); }
+strong { font-weight: 650; }
+.lead { font-size: 1.08rem; color: var(--ink-2); }
+code {
+  font-family: var(--font-mono);
+  font-size: .84em;
+  background: var(--code-bg);
+  padding: .1em .35em;
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+.tags li {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--ink-2);
+  background: var(--surface);
+}
+
+/* ---------- code blocks ---------- */
+figure { margin: 18px 0 22px; }
+figure.code {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--code-bg);
+  overflow: hidden;
+}
+figure.code figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  background: var(--surface);
+}
+figure.code .line { color: var(--ink-3); white-space: nowrap; }
+pre {
+  margin: 0;
+  padding: 14px 16px 16px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+  tab-size: 2;
+}
+pre code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; border-radius: 0; }
+pre.plain {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--code-bg);
+  margin: 16px 0 20px;
+}
+.token.comment, .token.prolog { color: var(--tok-comment); font-style: italic; }
+.token.keyword, .token.boolean, .token.important, .token.atrule { color: var(--tok-keyword); }
+.token.string, .token.char, .token.attr-value, .token.string-literal { color: var(--tok-string); }
+.token.number { color: var(--tok-number); }
+.token.class-name, .token.builtin { color: var(--tok-type); }
+.token.function { color: var(--tok-fn); }
+.token.metadata, .token.annotation { color: var(--tok-fn); }
+.token.punctuation, .token.operator { color: var(--ink-2); }
+.token.property, .token.key { color: var(--tok-type); }
+
+/* ---------- tables ---------- */
+.table-wrap { overflow-x: auto; margin: 16px 0 22px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; line-height: 1.45; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--rule); }
+tr:last-child td { border-bottom: 0; }
+th {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--surface);
+  white-space: nowrap;
+}
+td code { font-size: .8em; }
+tr.group td {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--pandan);
+  background: var(--pandan-soft);
+  padding: 6px 12px;
+}
+td.inc { padding-left: 28px; color: var(--ink-2); }
+td.inc::before { content: "↳ "; color: var(--ink-3); }
+.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* ---------- callouts ---------- */
+.note {
+  background: var(--kunyit-soft);
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin: 18px 0 22px;
+  font-size: 15.5px;
+}
+.note p { margin: 0 0 8px; max-width: none; }
+.note p:last-child { margin: 0; }
+.note .label {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--kunyit-ink);
+  margin-right: 6px;
+}
+
+/* ---------- steps (real sequences) ---------- */
+ol.steps { list-style: none; padding: 0; counter-reset: step; display: grid; gap: 14px; margin: 18px 0 22px; }
+ol.steps > li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  max-width: none;
+  margin: 0;
+}
+ol.steps > li::before {
+  content: counter(step);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--pandan);
+  color: var(--pandan);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin-top: 1px;
+}
+ol.steps > li > div > p { margin-bottom: 6px; }
+ol.steps pre.plain { margin: 8px 0 4px; }
+
+/* ---------- diagrams ---------- */
+figure.diagram {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--surface);
+  padding: 18px 16px 12px;
+}
+figure.diagram .scroll { overflow-x: auto; }
+figure.diagram svg { display: block; width: 100%; height: auto; min-width: 620px; color: var(--ink); }
+figure.diagram figcaption { font-family: var(--font-display); font-size: 13.5px; color: var(--ink-2); margin-top: 10px; line-height: 1.45; }
+.d-box { fill: var(--surface); stroke: currentColor; stroke-opacity: .55; stroke-width: 1.2; }
+.d-box-hl { fill: var(--pandan-soft); stroke: var(--pandan); stroke-width: 1.8; }
+.d-box-ai { fill: var(--kunyit-soft); stroke: var(--kunyit); stroke-width: 1.8; }
+.d-label { font-family: var(--font-mono); font-size: 10.5px; fill: currentColor; fill-opacity: .6; letter-spacing: .04em; }
+.d-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; fill: currentColor; }
+.d-sub { font-family: var(--font-display); font-size: 12px; fill: currentColor; fill-opacity: .8; }
+.d-mono { font-family: var(--font-mono); font-size: 11.5px; fill: currentColor; }
+.d-arrow { stroke: currentColor; stroke-width: 1.4; fill: none; }
+.d-dash { stroke: currentColor; stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; stroke-opacity: .7; }
+.d-bracket { stroke: var(--pandan); stroke-width: 1.4; fill: none; }
+.d-uc { font-family: var(--font-display); font-size: 12.5px; font-weight: 700; fill: var(--pandan); }
+.d-axis { stroke: currentColor; stroke-width: 1; stroke-opacity: .7; }
+.d-grid { stroke: currentColor; stroke-width: 1; stroke-opacity: .12; stroke-dasharray: 3 4; }
+.mf-r { stroke: var(--sehat); stroke-width: 2.6; fill: none; stroke-linejoin: round; }
+.mf-s { stroke: var(--cukup); stroke-width: 2.6; fill: none; stroke-linejoin: round; }
+.mf-t { stroke: var(--kurang); stroke-width: 2.6; fill: none; stroke-linejoin: round; }
+.mf-r-t { fill: var(--sehat); font-family: var(--font-display); font-weight: 700; font-size: 13px; }
+.mf-s-t { fill: var(--cukup); font-family: var(--font-display); font-weight: 700; font-size: 13px; }
+.mf-t-t { fill: var(--kurang); font-family: var(--font-display); font-weight: 700; font-size: 13px; }
+.d-marker { stroke: var(--kunyit); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.d-marker-t { fill: var(--kunyit-ink); font-family: var(--font-mono); font-size: 12px; font-weight: 700; }
+.d-dot { fill: var(--kunyit); stroke: var(--surface); stroke-width: 2; }
+
+/* ---------- label gizi (contoh fuzzy) ---------- */
+.gizi {
+  border: 2px solid var(--rule-strong);
+  background: var(--surface);
+  padding: 12px 16px 10px;
+  max-width: 460px;
+  font-family: var(--font-display);
+  margin: 18px 0 22px;
+}
+.gizi h4 {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.gizi .serving { font-size: 13.5px; color: var(--ink-2); padding-bottom: 6px; border-bottom: 7px solid var(--rule-strong); }
+.gizi .row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 14.5px;
+}
+.gizi .row:last-of-type { border-bottom: 4px solid var(--rule-strong); }
+.gizi .row b { font-weight: 700; }
+.gizi .row .mu { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; }
+.gizi .foot { font-size: 12px; color: var(--ink-3); padding-top: 6px; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 1px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.pill.sehat { color: var(--sehat); background: color-mix(in srgb, var(--sehat) 14%, transparent); }
+.pill.cukup { color: var(--cukup); background: color-mix(in srgb, var(--cukup) 14%, transparent); }
+.pill.kurang { color: var(--kurang); background: color-mix(in srgb, var(--kurang) 14%, transparent); }
+
+.formula {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  line-height: 1.8;
+  white-space: nowrap;
+  margin: 16px 0 22px;
+}
+.formula b { color: var(--pandan); }
+
+dl.glossary { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 0; margin: 16px 0; border-top: 1px solid var(--rule); }
+dl.glossary dt, dl.glossary dd { margin: 0; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+dl.glossary dt { font-family: var(--font-display); font-weight: 700; padding-right: 16px; }
+dl.glossary dd { color: var(--ink-2); }
+
+.level { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+
+footer.end { max-width: 1180px; margin: 0 auto; padding: 24px 32px 48px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); border-top: 1px solid var(--rule); }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1040px) {
+  .masthead-inner { grid-template-columns: 1fr; gap: 28px; padding: 36px 20px 28px; }
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 0 20px 72px; gap: 0; }
+  .toc { display: none; }
+  .toc-mobile { display: block; margin-top: 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+  .toc-mobile summary { cursor: pointer; padding: 10px 14px; font-family: var(--font-display); font-weight: 700; }
+  .toc-mobile ol { margin: 0; padding: 0 14px 12px 36px; font-family: var(--font-display); font-size: 15px; }
+  dl.glossary { grid-template-columns: 1fr; }
+  dl.glossary dt { border-bottom: 0; padding-bottom: 0; }
+  footer.end { padding: 24px 20px 40px; }
+}
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  h2.ch { font-size: 1.55rem; }
+  pre { font-size: 12.5px; }
+}
+</style>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <p class="eyebrow">PAPB · racik_app · Flutter</p>
+      <h1>Belajar Flutter lewat <span class="muted">Racik</span></h1>
+      <p class="deck">Racik adalah aplikasi pemindai makanan berbasis AI. Dokumen ini membedah kode <code>racik_app</code> bab demi bab: setiap bab berangkat dari use case dan ERD Anda, lalu menunjuk file yang mewujudkannya. Baca sambil membuka proyeknya di VS Code.</p>
+      <p class="specline"><span>Flutter 3.44.1</span><span>Dart 3.12.1</span><span>supabase_flutter 2.17</span><span>camera 0.12</span><span>tflite_flutter 0.12</span><span>provider 6.1</span><span>flutter_tts 4.2</span></p>
+    </div>
+    <aside class="status" aria-label="Kondisi kode">
+      <h2>Kondisi kode · 11 Sep 2026</h2>
+      <ul>
+        <li><span class="ok" aria-hidden="true">✓</span><span><code>flutter analyze</code> — 0 masalah</span></li>
+        <li><span class="ok" aria-hidden="true">✓</span><span><code>flutter test</code> — 16 tes lulus</span></li>
+        <li><span class="ok" aria-hidden="true">✓</span><span><code>flutter build apk --debug</code> — berhasil</span></li>
+        <li><span class="todo" aria-hidden="true">○</span><span>Model TFLite — Anda latih sendiri (Bab 10)</span></li>
+        <li><span class="todo" aria-hidden="true">○</span><span>Project Supabase — Anda buat sendiri (Bab 2)</span></li>
+      </ul>
+      <p class="sub">Belum diuji di HP sungguhan, karena butuh project Supabase Anda.</p>
+    </aside>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="Daftar isi">
+    <p class="toc-title">Daftar isi</p>
+    <ol>
+      <li><a href="#peta"><span class="n">01</span>Peta aplikasi</a></li>
+      <li><a href="#menjalankan"><span class="n">02</span>Menjalankan proyek</a></li>
+      <li><a href="#arsitektur"><span class="n">03</span>Arsitektur &amp; folder</a></li>
+      <li><a href="#dart"><span class="n">04</span>Dart yang dipakai</a></li>
+      <li><a href="#flutter"><span class="n">05</span>Dasar Flutter</a></li>
+      <li><a href="#erd"><span class="n">06</span>ERD → model Dart</a></li>
+      <li><a href="#supabase"><span class="n">07</span>Supabase &amp; keamanan</a></li>
+      <li><a href="#state"><span class="n">08</span>State &amp; peran pengguna</a></li>
+      <li><a href="#usecase"><span class="n">09</span>Use case satu per satu</a></li>
+      <li><a href="#ai"><span class="n">10</span>Model AI (TFLite)</a></li>
+      <li><a href="#fuzzy"><span class="n">11</span>Skor kesehatan fuzzy</a></li>
+      <li><a href="#aksesibilitas"><span class="n">12</span>Aksesibilitas kamera</a></li>
+      <li><a href="#uji"><span class="n">13</span>Uji &amp; debug</a></li>
+      <li><a href="#catatan"><span class="n">14</span>Catatan ERD &amp; use case</a></li>
+      <li><a href="#latihan"><span class="n">15</span>Latihan</a></li>
+      <li><a href="#istilah"><span class="n">16</span>Kamus istilah</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <details class="toc-mobile">
+      <summary>Daftar isi</summary>
+      <ol>
+        <li><a href="#peta">Peta aplikasi</a></li>
+        <li><a href="#menjalankan">Menjalankan proyek</a></li>
+        <li><a href="#arsitektur">Arsitektur &amp; folder</a></li>
+        <li><a href="#dart">Dart yang dipakai</a></li>
+        <li><a href="#flutter">Dasar Flutter</a></li>
+        <li><a href="#erd">ERD → model Dart</a></li>
+        <li><a href="#supabase">Supabase &amp; keamanan</a></li>
+        <li><a href="#state">State &amp; peran pengguna</a></li>
+        <li><a href="#usecase">Use case satu per satu</a></li>
+        <li><a href="#ai">Model AI (TFLite)</a></li>
+        <li><a href="#fuzzy">Skor kesehatan fuzzy</a></li>
+        <li><a href="#aksesibilitas">Aksesibilitas kamera</a></li>
+        <li><a href="#uji">Uji &amp; debug</a></li>
+        <li><a href="#catatan">Catatan ERD &amp; use case</a></li>
+        <li><a href="#latihan">Latihan</a></li>
+        <li><a href="#istilah">Kamus istilah</a></li>
+      </ol>
+    </details>
+
+    <!-- 01 ============================================================ -->
+    <section id="peta">
+      <h2 class="ch"><span class="n">01</span>Peta aplikasi</h2>
+      <p class="lead">Diagram use case Racik punya tiga aktor dan 15 use case. Tabel ini adalah indeks dokumen: cari use case-nya, buka file layarnya, lalu ikuti method yang dipanggil.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Use case</th><th>Layar (<code>lib/screens/…</code>)</th><th>Logika &amp; data</th></tr></thead>
+          <tbody>
+            <tr class="group"><td colspan="3">Guest — belum login</td></tr>
+            <tr><td>Mendaftar Akun</td><td><code>auth/register_screen.dart</code></td><td><code>AuthService.register()</code> → trigger <code>handle_new_user</code></td></tr>
+            <tr><td>Melakukan Login <small>(juga Pengguna)</small></td><td><code>auth/login_screen.dart</code></td><td><code>AuthProvider.login()</code></td></tr>
+            <tr><td>Mencari Resep</td><td><code>recipe/recipe_search_screen.dart</code></td><td><code>FoodService.search()</code></td></tr>
+            <tr><td>Melihat Detail Resep</td><td><code>recipe/recipe_detail_screen.dart</code></td><td><code>FoodService.getDetail()</code></td></tr>
+            <tr><td class="inc">Menampilkan Bahan dan Langkah Memasak</td><td><code>widgets/recipe_sections.dart</code></td><td><code>IngredientList</code>, <code>StepList</code></td></tr>
+            <tr><td class="inc">Menampilkan Informasi Nutrisi</td><td><code>widgets/nutrition_card.dart</code></td><td><code>NutritionCard</code></td></tr>
+            <tr class="group"><td colspan="3">Pengguna — sudah login</td></tr>
+            <tr><td>Memindai Makanan</td><td><code>scan/scan_home_screen.dart</code>, <code>scan/camera_capture_screen.dart</code></td><td><code>ScanPipeline.run()</code></td></tr>
+            <tr><td class="inc">Mengidentifikasi Citra Makanan</td><td>—</td><td><code>ai/tflite_food_recognizer.dart</code></td></tr>
+            <tr><td class="inc">Menampilkan Detail Skor Kesehatan dan Informasi Nutrisi</td><td><code>scan/scan_result_screen.dart</code></td><td><code>FuzzyHealthScore.evaluate()</code>, <code>HealthScoreCard</code></td></tr>
+            <tr><td>Melihat Hasil Pemindaian Makanan</td><td><code>history/scan_history_screen.dart</code> + detail</td><td><code>ScanService.historyOf()</code></td></tr>
+            <tr><td>Mengubah Profil Akun</td><td><code>profile/edit_profile_screen.dart</code></td><td><code>AuthProvider.updateProfile()</code>, <code>StorageService</code></td></tr>
+            <tr class="group"><td colspan="3">Admin</td></tr>
+            <tr><td>Mengelola Data Resep</td><td><code>admin/admin_foods_screen.dart</code>, <code>admin/food_form_screen.dart</code></td><td><code>FoodService.saveFood()</code>, <code>setVerified()</code>, <code>deleteFood()</code></td></tr>
+            <tr><td>Mengelola Data Bahan</td><td><code>admin/admin_ingredients_screen.dart</code></td><td><code>IngredientService</code></td></tr>
+            <tr><td>Melihat Statistik Pemindaian Pengguna</td><td><code>admin/admin_stats_screen.dart</code></td><td><code>StatsService.load()</code></td></tr>
+            <tr><td>Mengelola Akun Pengguna</td><td><code>admin/admin_users_screen.dart</code></td><td><code>UserService.updateAccess()</code></td></tr>
+            <tr class="group"><td colspan="3">Ada di kode, belum ada di diagram</td></tr>
+            <tr><td>Resep favorit (tabel <code>favorites</code>)</td><td>tombol hati di detail resep, <code>profile/favorites_screen.dart</code></td><td><code>FavoriteService</code></td></tr>
+            <tr><td>Keluar (logout), hapus riwayat</td><td><code>profile/profile_screen.dart</code>, detail riwayat</td><td><code>AuthProvider.logout()</code>, <code>ScanService.delete()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Baris bertanda ↳ adalah use case <code>&lt;&lt;include&gt;&gt;</code>: ia tidak punya layar sendiri, melainkan menjadi <em>bagian</em> dari layar induknya. Di Flutter, bagian seperti itu paling pas diwujudkan sebagai <strong>widget yang dipakai ulang</strong>. Contohnya <code>NutritionCard</code>: satu widget yang muncul di hasil pindai dan di detail resep.</p>
+    </section>
+
+    <!-- 02 ============================================================ -->
+    <section id="menjalankan">
+      <h2 class="ch"><span class="n">02</span>Menjalankan proyek</h2>
+      <p>Kode sudah lengkap, tetapi Racik butuh database. Urutan di bawah hanya perlu dilakukan sekali.</p>
+      <ol class="steps">
+        <li><div><p><strong>Buat project Supabase</strong> (paket gratis cukup) di supabase.com. Dari pengaturan API project, salin <em>Project URL</em> dan <em>publishable key</em> (di dasbor lama disebut <em>anon key</em>).</p></div></li>
+        <li><div><p><strong>Buat tabel.</strong> Buka <em>SQL Editor</em>, tempel isi <code>supabase/schema.sql</code>, lalu <em>Run</em>. Ulangi dengan <code>supabase/seed.sql</code> untuk enam resep contoh.</p></div></li>
+        <li><div><p><strong>Matikan konfirmasi email selama pengembangan</strong> di pengaturan Authentication → provider Email → <em>Confirm email</em>. Kalau tetap menyala, akun baru harus mengklik tautan di email dulu sebelum bisa masuk (aplikasi sudah menangani kasus ini dengan dialog "Cek email Anda").</p></div></li>
+        <li><div><p><strong>Isi kunci.</strong> Salin <code>env.example.json</code> menjadi <code>env.json</code> di folder proyek, lalu isi dua nilainya. <code>env.json</code> sudah dimasukkan ke <code>.gitignore</code>.</p>
+<pre class="plain"><code class="language-json">{
+  "SUPABASE_URL": "https://xxxxxxxxxxxx.supabase.co",
+  "SUPABASE_KEY": "sb_publishable_xxxxxxxxxxxxxxxxxxxx"
+}</code></pre></div></li>
+        <li><div><p><strong>Jalankan</strong> di HP Android (USB debugging aktif) atau emulator.</p>
+<pre class="plain"><code class="language-bash">flutter pub get
+flutter run --dart-define-from-file=env.json</code></pre>
+<p>Supaya tombol ▶ di VS Code juga memakai kunci ini, buat <code>.vscode/launch.json</code> dengan <code>"args": ["--dart-define-from-file=env.json"]</code>.</p></div></li>
+        <li><div><p><strong>Buat admin pertama.</strong> Daftar akun lewat aplikasi, lalu jalankan di SQL Editor:</p>
+<pre class="plain"><code class="language-sql">update public.users set role = 'admin' where username = 'username_anda';</code></pre>
+<p>Keluar lalu masuk lagi: aplikasi otomatis berganti ke tampilan Admin.</p></div></li>
+      </ol>
+      <div class="note"><p><span class="label">Tanpa model AI</span>Selama <code>assets/models/</code> belum berisi model, fitur pindai berjalan dalam <strong>mode demo</strong>: tebakannya diturunkan dari isi byte foto dan selalu diberi pita "Mode demo". Seluruh alur — kamera, skor fuzzy, simpan riwayat, statistik — tetap bisa dicoba. Cara memasang model ada di Bab 10.</p></div>
+    </section>
+
+    <!-- 03 ============================================================ -->
+    <section id="arsitektur">
+      <h2 class="ch"><span class="n">03</span>Arsitektur &amp; folder</h2>
+      <p>Aturan paling penting di proyek ini: <strong>layar tidak pernah memanggil Supabase secara langsung.</strong> Layar meminta data ke <em>service</em>, service berbicara dengan Supabase, dan hasilnya diubah menjadi objek Dart oleh <em>model</em>. Diagram berikut menelusuri satu permintaan nyata: membuka detail resep.</p>
+      <figure class="diagram">
+        <div class="scroll">
+        <svg viewBox="0 0 760 262" role="img" aria-label="Alur membuka detail resep: RecipeDetailScreen mengambil FoodService lewat context.read, FoodService mengirim select ke Supabase, Supabase mengecek RLS dan mengembalikan JSON, Food.fromMap mengubahnya menjadi objek Food, lalu FutureBuilder membangun ulang layar.">
+          <defs>
+            <marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <!-- kolom 1 -->
+          <rect class="d-box" x="10" y="20" width="180" height="76" rx="6"/>
+          <text class="d-label" x="24" y="40">screens/</text>
+          <text class="d-name" x="24" y="62">RecipeDetailScreen</text>
+          <text class="d-sub" x="24" y="81">initState()</text>
+          <rect class="d-box" x="10" y="170" width="180" height="76" rx="6"/>
+          <text class="d-label" x="24" y="190">screens/</text>
+          <text class="d-name" x="24" y="212">FutureBuilder</text>
+          <text class="d-sub" x="24" y="231">build() dijalankan ulang</text>
+          <!-- kolom 2 -->
+          <rect class="d-box" x="300" y="20" width="180" height="76" rx="6"/>
+          <text class="d-label" x="314" y="40">services/</text>
+          <text class="d-name" x="314" y="62">FoodService</text>
+          <text class="d-sub" x="314" y="81">getDetail(id)</text>
+          <rect class="d-box" x="300" y="170" width="180" height="76" rx="6"/>
+          <text class="d-label" x="314" y="190">models/</text>
+          <text class="d-name" x="314" y="212">Food.fromMap()</text>
+          <text class="d-sub" x="314" y="231">Map → objek Dart</text>
+          <!-- kolom 3 -->
+          <rect class="d-box-hl" x="590" y="20" width="160" height="226" rx="6"/>
+          <text class="d-label" x="604" y="40">Supabase</text>
+          <text class="d-name" x="604" y="62">PostgREST</text>
+          <text class="d-sub" x="604" y="88">1. cek RLS:</text>
+          <text class="d-mono" x="604" y="106">is_verified</text>
+          <text class="d-mono" x="604" y="122">atau is_admin()</text>
+          <text class="d-sub" x="604" y="148">2. join lewat FK:</text>
+          <text class="d-mono" x="604" y="166">nutritions,</text>
+          <text class="d-mono" x="604" y="182">steps,</text>
+          <text class="d-mono" x="604" y="198">food_ingredients</text>
+          <!-- panah -->
+          <line class="d-arrow" x1="190" y1="58" x2="298" y2="58" marker-end="url(#ah1)"/>
+          <text class="d-mono" x="244" y="36" text-anchor="middle">context.read</text>
+          <text class="d-mono" x="244" y="50" text-anchor="middle">&lt;FoodService&gt;()</text>
+          <line class="d-arrow" x1="480" y1="58" x2="588" y2="58" marker-end="url(#ah1)"/>
+          <text class="d-mono" x="534" y="50" text-anchor="middle">select(…)</text>
+          <text class="d-mono" x="534" y="76" text-anchor="middle">HTTPS</text>
+          <line class="d-arrow" x1="590" y1="208" x2="482" y2="208" marker-end="url(#ah1)"/>
+          <text class="d-mono" x="536" y="200" text-anchor="middle">JSON (Map)</text>
+          <line class="d-arrow" x1="300" y1="208" x2="192" y2="208" marker-end="url(#ah1)"/>
+          <text class="d-mono" x="246" y="200" text-anchor="middle">objek Food</text>
+          <line class="d-dash" x1="100" y1="96" x2="100" y2="168" marker-end="url(#ah1)"/>
+          <text class="d-mono" x="110" y="136">Future&lt;Food?&gt;</text>
+        </svg>
+        </div>
+        <figcaption>Satu permintaan melewati tiga folder. Layar hanya mengenal <code>FoodService</code>; hanya service yang mengenal Supabase; hanya model yang mengenal bentuk JSON. Karena itu tiap lapis bisa diubah tanpa membongkar lapis lain.</figcaption>
+      </figure>
+
+<pre class="plain"><code>lib/
+├─ main.dart              titik masuk: menyiapkan Supabase, lalu runApp()
+├─ app.dart               MultiProvider + AuthGate (memilih layar per aktor)
+├─ core/                  config (kunci, ambang AI), theme, errors, formatters
+├─ models/                satu kelas per tabel ERD: fromMap() / toMap()
+├─ services/              akses Supabase, dikelompokkan per use case
+│  └─ scan_pipeline.dart  alur lengkap Memindai Makanan
+├─ ai/                    food_recognizer (kontrak), tflite_, demo_, fuzzy_health_score
+├─ providers/             AuthProvider (siapa yang login), RecognizerProvider (model AI)
+├─ widgets/               komponen yang dipakai ulang: NutritionCard, HealthScoreCard, …
+└─ screens/               auth/ recipe/ scan/ history/ profile/ home/ admin/
+supabase/                 schema.sql (tabel, trigger, RLS, storage) · seed.sql (data contoh)
+test/                     tes logika fuzzy dan parsing model
+assets/models/            tempat racik_food.tflite + labels.txt</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Lapis</th><th>Tanggung jawab</th><th>Boleh meng-import</th></tr></thead>
+          <tbody>
+            <tr><td><code>screens/</code>, <code>widgets/</code></td><td>Menampilkan data dan menerima sentuhan</td><td>providers, services, models, widgets</td></tr>
+            <tr><td><code>providers/</code></td><td>Menyimpan state yang dipakai banyak layar</td><td>services, models</td></tr>
+            <tr><td><code>services/</code></td><td>Query Supabase, unggah file, menjalankan alur</td><td>models, ai, core — <strong>tanpa</strong> widget</td></tr>
+            <tr><td><code>ai/</code></td><td>Mengenali foto, menghitung skor fuzzy</td><td>models — logika Dart murni, mudah dites</td></tr>
+            <tr><td><code>models/</code></td><td>Bentuk data sesuai ERD</td><td>model lain saja</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 04 ============================================================ -->
+    <section id="dart">
+      <h2 class="ch"><span class="n">04</span>Dart yang dipakai</h2>
+      <p>Tidak perlu menguasai seluruh bahasa Dart sebelum mulai. Bab ini hanya membahas fitur yang benar-benar muncul di <code>racik_app</code>, masing-masing dengan contoh dari kodenya.</p>
+
+      <h3>Null safety: <code>?</code>, <code>!</code>, dan <code>??</code></h3>
+      <p>Di Dart, variabel <em>tidak boleh</em> bernilai <code>null</code> kecuali tipenya diberi tanda tanya. Aturan ini selaras dengan ERD: kolom bertanda <strong>NN</strong> (not null) menjadi tipe biasa, kolom tanpa NN menjadi tipe bertanda <code>?</code>. Operator <code>!</code> berarti "saya yakin ini tidak null", dan <code>??</code> memberi nilai cadangan.</p>
+      <figure class="code"><figcaption><span class="path">lib/models/app_user.dart</span><span class="line">baris 30</span></figcaption><pre><code class="language-dart">/// Nama yang ditampilkan di UI: nama lengkap bila ada, kalau tidak username.
+String get displayName =&gt;
+    (fullName == null || fullName!.trim().isEmpty) ? username : fullName!;</code></pre></figure>
+
+      <h3>Kelas, constructor bernama, dan <code>factory</code></h3>
+      <p>Setiap model punya <code>factory fromMap</code> — constructor khusus yang membuat objek dari <code>Map</code> JSON hasil Supabase. Parameter bertanda <code>required</code> wajib diisi saat membuat objek, jadi lupa mengisi kolom NN langsung tertangkap sebelum aplikasi berjalan.</p>
+      <figure class="code"><figcaption><span class="path">lib/models/nutrition.dart</span><span class="line">baris 28</span></figcaption><pre><code class="language-dart">factory Nutrition.fromMap(Map&lt;String, dynamic&gt; map) {
+  return Nutrition(
+    id: map['id'] as String?,
+    foodId: map['food_id'] as String?,
+    calories: _toDouble(map['calories']) ?? 0,
+    proteinG: _toDouble(map['protein_g']),
+    fatG: _toDouble(map['fat_g']),
+    carbsG: _toDouble(map['carbs_g']),
+    sugarG: _toDouble(map['sugar_g']),
+    sodiumMg: _toDouble(map['sodium_mg']),
+    fiberG: _toDouble(map['fiber_g']),
+  );
+}
+// …
+/// Postgres `numeric` bisa datang sebagai int, double, atau String
+/// tergantung nilainya. Fungsi ini menyeragamkannya menjadi double.
+static double? _toDouble(Object? value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
+}</code></pre></figure>
+
+      <h3><code>async</code>, <code>await</code>, <code>Future</code>, dan <code>Stream</code></h3>
+      <p>Semua hal yang butuh waktu — query database, memotret, menjalankan model AI — mengembalikan <code>Future</code>: janji bahwa hasilnya akan datang nanti. <code>await</code> menunggu janji itu tanpa membekukan layar. <code>Stream</code> adalah Future yang datang berkali-kali; Racik memakainya untuk mendengar perubahan status login (<code>onAuthStateChange</code>).</p>
+      <figure class="code"><figcaption><span class="path">lib/main.dart</span><span class="line">baris 12</span></figcaption><pre><code class="language-dart">Future&lt;void&gt; main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (AppConfig.isSupabaseConfigured) {
+    await Supabase.initialize(
+      url: AppConfig.supabaseUrl,
+      publishableKey: AppConfig.supabaseKey,
+    );
+  }
+
+  runApp(const RacikApp());
+}</code></pre></figure>
+
+      <h3>Record dan destructuring</h3>
+      <p>Record adalah "tuple" bawaan Dart: beberapa nilai dibungkus tanpa perlu membuat kelas. <code>NutritionCard</code> memakainya untuk daftar baris nutrisi, lalu membongkarnya kembali di dalam <code>for</code>.</p>
+      <figure class="code"><figcaption><span class="path">lib/widgets/nutrition_card.dart</span><span class="line">baris 19</span></figcaption><pre><code class="language-dart">final rows = &lt;(String, double?, String)&gt;[
+  ('Energi', nutrition.calories, 'kkal'),
+  ('Protein', nutrition.proteinG, 'g'),
+  ('Lemak', nutrition.fatG, 'g'),
+  ('Karbohidrat', nutrition.carbsG, 'g'),
+  ('Gula', nutrition.sugarG, 'g'),
+  ('Natrium', nutrition.sodiumMg, 'mg'),
+  ('Serat', nutrition.fiberG, 'g'),
+];
+// …
+for (final (name, value, unit) in rows)</code></pre></figure>
+
+      <h3>Switch expression</h3>
+      <p>Switch yang menghasilkan nilai. Dart memeriksa bahwa <em>semua</em> nilai enum sudah ditangani — kalau kelak Anda menambah aktor baru dan lupa membuat layarnya, kode tidak bisa dikompilasi.</p>
+      <figure class="code"><figcaption><span class="path">lib/app.dart</span><span class="line">baris 85</span></figcaption><pre><code class="language-dart">return switch (auth.actor) {
+  Actor.memuat =&gt; const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    ),
+  Actor.admin =&gt; const AdminShell(),
+  Actor.guest || Actor.pengguna =&gt; const MainShell(),
+};</code></pre></figure>
+
+      <h3>Collection <code>if</code>, <code>for</code>, dan spread <code>...</code></h3>
+      <p>Di dalam list widget, Anda boleh menulis <code>if</code> dan <code>for</code> langsung. Widget di bawah hanya muncul bila resep punya waktu masak. Dengan <code>...[ ]</code>, beberapa widget sekaligus bisa disisipkan di bawah satu syarat.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/recipe/recipe_detail_screen.dart</span><span class="line">baris 118</span></figcaption><pre><code class="language-dart">if (food.cookTimeMinutes != null)
+  Chip(
+    avatar: const Icon(Icons.timer, size: 18),
+    label: Text('${food.cookTimeMinutes} menit'),
+  ),</code></pre></figure>
+    </section>
+
+    <!-- 05 ============================================================ -->
+    <section id="flutter">
+      <h2 class="ch"><span class="n">05</span>Dasar Flutter</h2>
+      <p>Di Flutter, <strong>semua yang terlihat adalah widget</strong>, dan widget disusun bersarang seperti pohon. Layar detail resep, misalnya, adalah pohon berikut:</p>
+<pre class="plain"><code>Scaffold
+└─ CustomScrollView
+   ├─ SliverAppBar.large        judul resep + tombol favorit
+   └─ SliverList
+      ├─ FoodImage              foto
+      ├─ Wrap → Chip × 4         kategori, waktu, kesulitan, porsi
+      ├─ IngredientList         ← use case "Menampilkan Bahan…"
+      ├─ StepList               ← use case "…dan Langkah Memasak"
+      ├─ NutritionCard          ← use case "Menampilkan Informasi Nutrisi"
+      └─ HealthScoreCard</code></pre>
+
+      <h3>StatelessWidget atau StatefulWidget?</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Jenis</th><th>Kapan dipakai</th><th>Contoh di Racik</th></tr></thead>
+          <tbody>
+            <tr><td><code>StatelessWidget</code></td><td>Tampilan hanya bergantung pada data yang diterima dari luar</td><td><code>NutritionCard</code>, <code>FoodCard</code>, <code>HealthScoreBadge</code>, <code>ProfileScreen</code></td></tr>
+            <tr><td><code>StatefulWidget</code></td><td>Widget menyimpan data sendiri yang berubah, atau memegang sumber daya yang harus dilepas</td><td><code>LoginScreen</code> (isi form, pesan error), <code>CameraCaptureScreen</code> (kamera), <code>RecipeSearchScreen</code> (hasil pencarian)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Siklus hidup State</h3>
+      <p>Empat method yang akan Anda temui di hampir setiap layar:</p>
+      <ul>
+        <li><code>initState()</code> — dipanggil sekali saat widget muncul. Tempat memulai query awal.</li>
+        <li><code>didChangeDependencies()</code> — dipanggil setelah <code>initState</code> dan setiap kali <em>InheritedWidget</em> yang dipakai berubah (tema, ukuran layar). Tidak dipakai di Racik, tetapi sering muncul di tutorial lain.</li>
+        <li><code>build()</code> — dipanggil setiap kali tampilan perlu digambar ulang (bisa puluhan kali). Jangan memulai query di sini.</li>
+        <li><code>dispose()</code> — dipanggil saat widget dibuang. Lepaskan <code>TextEditingController</code>, <code>Timer</code>, dan kamera di sini.</li>
+      </ul>
+      <p>Satu aturan lagi yang sering terlupa: setelah <code>await</code>, layar bisa saja sudah ditutup pengguna. Selalu periksa <code>mounted</code> sebelum memakai <code>context</code> atau memanggil <code>setState</code>.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/auth/login_screen.dart</span><span class="line">baris 23</span></figcaption><pre><code class="language-dart">void dispose() {
+  // Controller memegang sumber daya — selalu dispose.
+  _email.dispose();
+  _password.dispose();
+  super.dispose();
+}
+// …
+Future&lt;void&gt; _submit() async {
+  if (!_formKey.currentState!.validate()) return;
+  final auth = context.read&lt;AuthProvider&gt;();
+  final error = await auth.login(_email.text, _password.text);
+
+  // Setelah await, widget bisa saja sudah ditutup. Selalu cek mounted.
+  if (!mounted) return;
+  if (error != null) {
+    setState(() =&gt; _error = error);
+    return;
+  }
+  // AuthGate di app.dart akan otomatis menampilkan layar sesuai peran.
+  Navigator.of(context).popUntil((route) =&gt; route.isFirst);
+}</code></pre></figure>
+
+      <h3>FutureBuilder — menampilkan data yang sedang dimuat</h3>
+      <p><code>FutureBuilder</code> membangun tampilan berbeda untuk tiap tahap Future: sedang memuat, gagal, atau selesai. Jebakan paling umum: membuat Future di dalam <code>build()</code>. Karena <code>build()</code> berjalan berulang kali, query ikut terkirim berulang kali. Simpan Future di State.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/recipe/recipe_detail_screen.dart</span><span class="line">baris 29</span></figcaption><pre><code class="language-dart">late Future&lt;Food?&gt; _future;
+
+@override
+void initState() {
+  super.initState();
+  // Future disimpan di state, BUKAN dibuat di build(). Kalau dibuat di
+  // build(), setiap rebuild akan memicu query baru ke database.
+  _future = context.read&lt;FoodService&gt;().getDetail(widget.foodId);
+}</code></pre></figure>
+
+      <h3>Navigator — pindah layar dan membawa hasil pulang</h3>
+      <p><code>Navigator.push</code> membuka layar baru; <code>Navigator.pop</code> menutupnya — dan boleh membawa nilai kembali ke layar sebelumnya. Layar kamera memakai pola ini: ia tidak tahu apa yang akan dilakukan pada foto, ia hanya mengembalikan byte-nya.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/scan/scan_home_screen.dart</span><span class="line">baris 33</span></figcaption><pre><code class="language-dart">Future&lt;void&gt; _openCamera() async {
+  final bytes = await Navigator.of(context).push&lt;Uint8List&gt;(
+    MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) =&gt; const CameraCaptureScreen(),
+    ),
+  );
+  if (bytes != null) _showResult(bytes);
+}</code></pre></figure>
+      <figure class="code"><figcaption><span class="path">lib/screens/scan/camera_capture_screen.dart</span><span class="line">baris 109</span></figcaption><pre><code class="language-dart">final photo = await controller.takePicture();
+final bytes = await photo.readAsBytes();
+if (!mounted) return;
+Navigator.of(context).pop(bytes);</code></pre></figure>
+      <p>Varian lain yang dipakai: <code>pushReplacement</code> (Login ↔ Daftar, agar tidak menumpuk) dan <code>popUntil((route) =&gt; route.isFirst)</code> (kembali ke layar utama setelah login).</p>
+
+      <h3>Widget tata letak yang dipakai</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Widget</th><th>Gunanya</th><th>Dipakai di</th></tr></thead>
+          <tbody>
+            <tr><td><code>Scaffold</code>, <code>AppBar</code></td><td>Kerangka satu layar</td><td>semua layar</td></tr>
+            <tr><td><code>ListView</code>, <code>ListView.builder</code></td><td>Daftar yang bisa digulir; <code>.builder</code> hanya membangun item yang terlihat</td><td>hasil pencarian, riwayat, form</td></tr>
+            <tr><td><code>Column</code>, <code>Row</code>, <code>Expanded</code></td><td>Menyusun vertikal/horizontal; <code>Expanded</code> mengisi sisa ruang</td><td><code>NutritionCard</code>, form resep</td></tr>
+            <tr><td><code>Wrap</code></td><td>Seperti Row, tetapi turun baris bila penuh</td><td>chip info resep, isian nutrisi</td></tr>
+            <tr><td><code>Stack</code>, <code>Positioned</code></td><td>Menumpuk widget</td><td>bingkai &amp; tombol di atas pratinjau kamera</td></tr>
+            <tr><td><code>CustomScrollView</code>, <code>SliverAppBar</code></td><td>Judul besar yang mengecil saat digulir</td><td>detail resep</td></tr>
+            <tr><td><code>NavigationBar</code> + <code>IndexedStack</code></td><td>Tab bawah yang menjaga state tiap tab</td><td><code>MainShell</code>, <code>AdminShell</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note"><p><span class="label">Hot reload</span>Tekan <code>r</code> di terminal <code>flutter run</code> (atau simpan file di VS Code) untuk melihat perubahan UI dalam satu detik tanpa kehilangan state. Perubahan pada <code>main()</code>, <code>initState()</code>, assets, atau <code>AndroidManifest.xml</code> butuh <strong>hot restart</strong> (<code>R</code>) atau menjalankan ulang aplikasi.</p></div>
+    </section>
+
+    <!-- 06 ============================================================ -->
+    <section id="erd">
+      <h2 class="ch"><span class="n">06</span>ERD → model Dart</h2>
+      <p>Setiap tabel di ERD punya satu file di <code>lib/models/</code>, dan setiap kolom menjadi satu field. Tipe kolom Postgres diterjemahkan menurut tabel ini:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tipe di ERD</th><th>Tipe Dart</th><th>Contoh kolom</th><th>Catatan</th></tr></thead>
+          <tbody>
+            <tr><td><code>uuid</code></td><td><code>String</code></td><td><code>id</code>, <code>food_id</code></td><td>Dibuat database (<code>gen_random_uuid()</code>), jadi <code>null</code> sebelum disimpan</td></tr>
+            <tr><td><code>varchar(n)</code></td><td><code>String</code></td><td><code>username</code>, <code>name</code></td><td><code>n</code> dipakai sebagai <code>maxLength</code> di form</td></tr>
+            <tr><td><code>text</code></td><td><code>String</code></td><td><code>description</code>, <code>image_url</code></td><td></td></tr>
+            <tr><td><code>int</code></td><td><code>int</code></td><td><code>cook_time_minutes</code>, <code>step_order</code></td><td></td></tr>
+            <tr><td><code>numeric(p,s)</code></td><td><code>double</code></td><td><code>calories</code>, <code>ai_confidence</code></td><td>Bisa datang sebagai angka <em>atau teks</em> — lewat <code>_toDouble()</code></td></tr>
+            <tr><td><code>boolean</code></td><td><code>bool</code></td><td><code>is_verified</code>, <code>is_active</code></td><td></td></tr>
+            <tr><td><code>timestamptz</code></td><td><code>DateTime</code></td><td><code>created_at</code></td><td><code>DateTime.parse()</code>, tampilkan dengan <code>.toLocal()</code></td></tr>
+            <tr><td>NN / tanpa NN</td><td><code>T</code> / <code>T?</code></td><td><code>calories</code> / <code>protein_g</code></td><td>Aturan null safety di Bab 4</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Relasi</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relasi di ERD</th><th>Wujud di Dart</th><th>Cara dimuat</th></tr></thead>
+          <tbody>
+            <tr><td>foods 1 — 1 nutritions</td><td><code>Food.nutrition</code> (<code>Nutrition?</code>)</td><td><code>select('*, nutritions(*)')</code></td></tr>
+            <tr><td>foods 1 — * steps</td><td><code>List&lt;RecipeStep&gt;</code>, diurutkan <code>step_order</code></td><td><code>steps(*)</code></td></tr>
+            <tr><td>foods * — * ingredients</td><td><code>List&lt;FoodIngredient&gt;</code>, masing-masing membawa <code>.ingredient</code></td><td><code>food_ingredients(*, ingredients(*))</code></td></tr>
+            <tr><td>users 1 — * scan_history</td><td><code>List&lt;ScanHistory&gt;</code></td><td><code>ScanService.historyOf(userId)</code></td></tr>
+            <tr><td>foods 1 — * scan_history</td><td><code>ScanHistory.foodName</code></td><td><code>select('*, foods(name)')</code></td></tr>
+            <tr><td>users 1 — * foods (dua kali: <code>created_by</code>, <code>verified_by</code>)</td><td>Hanya id (<code>String?</code>)</td><td>Tidak di-join. Karena ada dua FK ke tabel yang sama, join butuh nama FK: <code>users!foods_created_by_fkey(*)</code></td></tr>
+            <tr><td>users/foods 1 — * favorites</td><td><code>Favorite</code></td><td><code>FavoriteService</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Supabase mengirim relasi sebagai JSON bersarang, dan <code>fromMap</code> bertugas membongkarnya. Dua detail kecil yang sering membuat bingung pemula ditangani di <code>Food.fromMap</code>: langkah memasak diurutkan di sisi aplikasi, dan relasi 1 : 1 bisa datang sebagai objek maupun list.</p>
+      <figure class="code"><figcaption><span class="path">lib/models/food.dart</span><span class="line">baris 58</span></figcaption><pre><code class="language-dart">final steps = (map['steps'] as List&lt;dynamic&gt;? ?? [])
+    .map((e) =&gt; RecipeStep.fromMap(e as Map&lt;String, dynamic&gt;))
+    .toList()
+  ..sort((a, b) =&gt; a.stepOrder.compareTo(b.stepOrder));
+// …
+/// Supabase mengembalikan relasi 1 : 1 sebagai objek, tetapi versi lama
+/// PostgREST mengembalikannya sebagai list berisi satu objek. Keduanya
+/// ditangani di sini.
+static Nutrition? _parseNutrition(Object? value) {
+  if (value is Map&lt;String, dynamic&gt;) return Nutrition.fromMap(value);
+  if (value is List &amp;&amp; value.isNotEmpty) {
+    return Nutrition.fromMap(value.first as Map&lt;String, dynamic&gt;);
+  }
+  return null;
+}</code></pre></figure>
+      <div class="note"><p><span class="label">Nama kelas</span>Tabel <code>steps</code> menjadi kelas <code>RecipeStep</code>, bukan <code>Step</code>, karena Flutter sudah punya widget bernama <code>Step</code> (dipakai <code>Stepper</code>). Dua kelas bernama sama akan bentrok saat meng-import <code>material.dart</code>.</p></div>
+    </section>
+
+    <!-- 07 ============================================================ -->
+    <section id="supabase">
+      <h2 class="ch"><span class="n">07</span>Supabase &amp; keamanan</h2>
+      <p>ERD Anda memakai tipe khas PostgreSQL (<code>uuid</code>, <code>timestamptz</code>, <code>numeric</code>), dan tabel <code>users</code>-nya tidak punya kolom email maupun password. Keduanya cocok dengan Supabase: database Postgres plus layanan login (Auth) dan penyimpanan file (Storage) dalam satu paket.</p>
+
+      <h3>Kenapa <code>users</code> tidak punya password?</h3>
+      <p>Email dan hash password disimpan Supabase Auth di tabel terpisah (<code>auth.users</code>) yang tidak bisa dibaca aplikasi. Tabel <code>public.users</code> milik Anda hanya menyimpan profil, dan <code>id</code>-nya sama dengan id akun Auth. Barisnya dibuat otomatis oleh trigger setiap ada pendaftaran:</p>
+      <figure class="code"><figcaption><span class="path">supabase/schema.sql</span><span class="line">baris 151</span></figcaption><pre><code class="language-sql">create or replace function public.handle_new_user()
+returns trigger
+language plpgsql security definer set search_path = ''
+as $$
+begin
+  insert into public.users (id, username, full_name)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data -&gt;&gt; 'username', split_part(new.email, '@', 1)),
+    new.raw_user_meta_data -&gt;&gt; 'full_name'
+  );
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();</code></pre></figure>
+      <p>Tulis penjelasan ini di laporan, supaya penguji tidak mengira kolom password terlupa.</p>
+
+      <h3>Row Level Security: hak akses per aktor</h3>
+      <p>Kunci Supabase di aplikasi (<em>publishable key</em>) boleh terlihat siapa saja — yang menjaga data adalah <strong>Row Level Security (RLS)</strong>: aturan di database yang memeriksa setiap baris sebelum dibaca atau diubah. Aktor use case Anda terpetakan langsung ke aturan-aturan itu.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tabel</th><th>Guest</th><th>Pengguna</th><th>Admin</th></tr></thead>
+          <tbody>
+            <tr><td><code>users</code></td><td>—</td><td>baca &amp; ubah profil sendiri, kecuali <code>role</code> dan <code>is_active</code></td><td>baca &amp; ubah semua</td></tr>
+            <tr><td><code>foods</code></td><td>baca yang terverifikasi</td><td>baca yang terverifikasi</td><td>baca, tambah, ubah, hapus semua</td></tr>
+            <tr><td><code>nutritions</code>, <code>steps</code>, <code>food_ingredients</code>, <code>ingredients</code></td><td>baca</td><td>baca</td><td>semua</td></tr>
+            <tr><td><code>scan_history</code></td><td>—</td><td>baca, tambah, hapus milik sendiri</td><td>baca semua (statistik)</td></tr>
+            <tr><td><code>favorites</code></td><td>—</td><td>semua, milik sendiri</td><td>milik sendiri</td></tr>
+            <tr><td>Storage</td><td>lihat lewat URL publik</td><td>unggah ke folder <code>&lt;user_id&gt;/</code></td><td>+ unggah foto resep</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="code"><figcaption><span class="path">supabase/schema.sql</span><span class="line">baris 239</span></figcaption><pre><code class="language-sql">create policy "foods: baca yang terverifikasi" on public.foods
+  for select to anon, authenticated
+  using (is_verified or public.is_admin());
+create policy "foods: admin tambah" on public.foods
+  for insert to authenticated with check (public.is_admin());</code></pre></figure>
+      <p><code>is_admin()</code> adalah fungsi SQL yang memeriksa <code>role = 'admin'</code> dan <code>is_active</code> milik orang yang sedang login. Fungsi ini <code>security definer</code> agar bisa membaca tabel <code>users</code> tanpa terjebak aturan RLS tabel <code>users</code> itu sendiri.</p>
+
+      <h3>Query dengan join</h3>
+      <p>Supabase membuat REST API otomatis dari tabel Anda (PostgREST). Relasi di-join dengan menulis nama tabel anak di dalam <code>select</code>; Supabase mengikuti foreign key yang sama dengan garis di ERD.</p>
+      <figure class="code"><figcaption><span class="path">lib/services/food_service.dart</span><span class="line">baris 17</span></figcaption><pre><code class="language-dart">static const _detailColumns =
+    '*, nutritions(*), steps(*), food_ingredients(*, ingredients(*))';
+// …
+Future&lt;Food?&gt; getDetail(String id) async {
+  final row = await _client
+      .from('foods')
+      .select(_detailColumns)
+      .eq('id', id)
+      .maybeSingle();
+  return row == null ? null : Food.fromMap(row);
+}</code></pre></figure>
+
+      <h3>Yang dikerjakan database (Function, Trigger, dan Procedure)</h3>
+      <p>Operasi penting dipindahkan ke level database untuk menjamin integritas dan keamanan data:</p>
+      <ul>
+        <li><strong>Stored Functions:</strong> <code>username_available(text)</code> memeriksa ketersediaan username saat registrasi tamu lewat RPC, dan <code>is_admin()</code> memvalidasi peran admin aktif untuk aturan RLS (keduanya bertipe <code>security definer</code>).</li>
+        <li><strong>Trigger:</strong> <code>handle_new_user</code> otomatis mengisi profil di <code>public.users</code> saat user baru mendaftar di Auth; <code>protect_user_access_columns</code> mencegah manipulasi hak akses profil; dan <code>increment_scan_count</code> otomatis menaikkan counter <code>foods.scan_count</code>.</li>
+        <li><strong>Stored Procedures:</strong> <code>sp_verify_food(food_id, admin_id)</code> untuk verifikasi resep oleh admin, serta <code>sp_clear_user_history(user_id)</code> untuk menghapus seluruh riwayat pindai akun tertentu.</li>
+        <li><strong>Pesan error:</strong> kode error PostgreSQL diterjemahkan <code>friendlyError()</code> di <code>lib/core/errors.dart</code> (misalnya <code>23505</code> untuk data kembar, <code>23503</code> jika data masih berelasi, dan <code>42501</code> untuk izin ditolak).</li>
+      </ul>
+    </section>
+
+    <!-- 08 ============================================================ -->
+    <section id="state">
+      <h2 class="ch"><span class="n">08</span>State &amp; peran pengguna</h2>
+      <p><em>State</em> adalah data yang bisa berubah saat aplikasi berjalan. Data yang hanya dipakai satu layar cukup disimpan di <code>State</code> layar itu dengan <code>setState</code>. Data yang dipakai banyak layar — siapa yang sedang login — disimpan di <strong>Provider</strong>.</p>
+      <p><code>app.dart</code> menaruh semua service dan provider di puncak pohon widget. Layar mana pun bisa mengambilnya tanpa dioper dari layar ke layar lewat constructor.</p>
+      <figure class="code"><figcaption><span class="path">lib/app.dart</span><span class="line">baris 38</span></figcaption><pre><code class="language-dart">return MultiProvider(
+  providers: [
+    Provider(create: (_) =&gt; FoodService(client)),
+    Provider(create: (_) =&gt; IngredientService(client)),
+    Provider(create: (_) =&gt; ScanService(client)),
+    Provider(create: (_) =&gt; StorageService(client)),
+    Provider(create: (_) =&gt; FavoriteService(client)),
+    Provider(create: (_) =&gt; UserService(client)),
+    Provider(create: (_) =&gt; StatsService(client)),
+    ChangeNotifierProvider(create: (_) =&gt; AuthProvider(AuthService(client))),
+    ChangeNotifierProvider(create: (_) =&gt; RecognizerProvider()),
+  ],
+  child: MaterialApp(</code></pre></figure>
+
+      <h3>Tiga cara mengambil provider</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Cara</th><th>Artinya</th><th>Contoh</th></tr></thead>
+          <tbody>
+            <tr><td><code>context.read&lt;T&gt;()</code></td><td>Ambil sekali, tidak berlangganan. Untuk event handler dan <code>initState</code>.</td><td>Tombol Masuk memanggil <code>read&lt;AuthProvider&gt;().login()</code></td></tr>
+            <tr><td><code>context.watch&lt;T&gt;()</code></td><td>Berlangganan: <code>build()</code> diulang setiap provider memanggil <code>notifyListeners()</code>.</td><td><code>AuthGate</code>; tombol yang menampilkan loading saat <code>isBusy</code></td></tr>
+            <tr><td><code>context.select&lt;T, R&gt;()</code></td><td>Berlangganan pada satu nilai saja.</td><td>Riwayat hanya bereaksi saat id pengguna berubah</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="code"><figcaption><span class="path">lib/screens/history/scan_history_screen.dart</span><span class="line">baris 36</span></figcaption><pre><code class="language-dart">// context.select: hanya bereaksi bila id pengguna berubah (tamu → login,
+// atau ganti akun), bukan pada setiap perubahan lain di AuthProvider.
+// select hanya boleh dipanggil di dalam build().
+final userId = context.select&lt;AuthProvider, String?&gt;((a) =&gt; a.user?.id);
+if (userId != _loadedFor) {
+  // Query dikirim HANYA saat pengguna berganti, bukan di setiap build.
+  _loadedFor = userId;
+  _future = userId == null
+      ? null
+      : context.read&lt;ScanService&gt;().historyOf(userId);
+}</code></pre></figure>
+      <p>Dua hal yang perlu diperhatikan. Pertama, <code>watch</code> dan <code>select</code> hanya boleh dipanggil di dalam <code>build()</code>; <code>provider</code> melempar error bila <code>select</code> dipanggil di <code>initState</code> atau <code>didChangeDependencies</code>. Kedua, Future di sini memang dibuat di <code>build()</code> — pengecualian yang disengaja dari aturan di Bab 5, karena dijaga <code>if</code> sehingga query hanya terkirim saat id pengguna berubah.</p>
+
+      <h3>Dari aktor use case ke layar</h3>
+      <p><code>AuthProvider</code> mendengarkan <code>onAuthStateChange</code> dari Supabase. Setiap kali status login berubah, ia membaca profil dari tabel <code>users</code> lalu menentukan aktor. <code>AuthGate</code> (switch expression di Bab 4) memilih kerangka layar berdasarkan aktor itu.</p>
+      <figure class="code"><figcaption><span class="path">lib/providers/auth_provider.dart</span><span class="line">baris 10</span></figcaption><pre><code class="language-dart">/// Tiga aktor pada diagram use case + satu status sebelum sesi terbaca.
+enum Actor { memuat, guest, pengguna, admin }
+// …
+Actor get actor {
+  if (!_sessionRead) return Actor.memuat;
+  if (_user == null) return Actor.guest;
+  return _user!.isAdmin ? Actor.admin : Actor.pengguna;
+}</code></pre></figure>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Aktor</th><th>Kondisi</th><th>Yang ditampilkan</th></tr></thead>
+          <tbody>
+            <tr><td><code>memuat</code></td><td>Sesi tersimpan di HP belum selesai dibaca</td><td>indikator loading</td></tr>
+            <tr><td><code>guest</code></td><td>Tidak ada sesi</td><td><code>MainShell</code>: tab Pindai, Riwayat, dan Profil berisi ajakan masuk</td></tr>
+            <tr><td><code>pengguna</code></td><td>Sesi ada, <code>role = 'pengguna'</code></td><td><code>MainShell</code> penuh</td></tr>
+            <tr><td><code>admin</code></td><td>Sesi ada, <code>role = 'admin'</code></td><td><code>AdminShell</code>: Resep · Bahan · Statistik · Akun</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Akun dengan <code>is_active = false</code> langsung dikeluarkan saat masuk, dan pesan "Akun Anda dinonaktifkan oleh admin" ditampilkan.</p>
+    </section>
+
+    <!-- 09 ============================================================ -->
+    <section id="usecase">
+      <h2 class="ch"><span class="n">09</span>Use case satu per satu</h2>
+      <p>Setiap subbab menyebut konsep Flutter yang paling banyak dipelajari dari use case itu. Urutannya mengikuti diagram: Guest, Pengguna, lalu Admin.</p>
+
+      <h3>Mendaftar Akun</h3>
+      <ul class="tags"><li>Form</li><li>TextFormField + validator</li><li>RPC Supabase</li></ul>
+      <p><code>Form</code> dengan <code>GlobalKey&lt;FormState&gt;</code> memvalidasi semua isian sekaligus lewat <code>_formKey.currentState!.validate()</code>. Batas panjang mengikuti ERD (<code>username</code> varchar(50), <code>full_name</code> varchar(100)). Sebelum mendaftar, aplikasi memanggil fungsi SQL <code>username_available</code> — tamu belum login, jadi tidak boleh membaca tabel <code>users</code> secara langsung. Nama dan username dikirim sebagai metadata; trigger di Bab 7 yang memasukkannya ke tabel.</p>
+      <figure class="code"><figcaption><span class="path">lib/services/auth_service.dart</span><span class="line">baris 36</span></figcaption><pre><code class="language-dart">Future&lt;bool&gt; register({
+  required String email,
+  required String password,
+  required String username,
+  required String fullName,
+}) async {
+  final response = await _client.auth.signUp(
+    email: email,
+    password: password,
+    data: {'username': username, 'full_name': fullName},
+  );
+  return response.session != null;
+}</code></pre></figure>
+
+      <h3>Melakukan Login</h3>
+      <ul class="tags"><li>mounted</li><li>popUntil</li></ul>
+      <p>Layar login tidak memutuskan ke mana pengguna pergi setelah berhasil. Ia cukup menutup diri; <code>AuthGate</code> yang mendengar perubahan di <code>AuthProvider</code> akan menampilkan <code>MainShell</code> atau <code>AdminShell</code>. Kodenya ada di Bab 5.</p>
+
+      <h3>Mencari Resep</h3>
+      <ul class="tags"><li>Timer (debounce)</li><li>ChoiceChip</li><li>RefreshIndicator</li></ul>
+      <p>Pencarian berjalan saat pengguna mengetik, tetapi ditunda 400 ms sampai ketikan berhenti — kalau tidak, kata "rendang" mengirim tujuh query. Filter kategori memakai <code>ChoiceChip</code>, dan tarik-ke-bawah memuat ulang lewat <code>RefreshIndicator</code>.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/recipe/recipe_search_screen.dart</span><span class="line">baris 73</span></figcaption><pre><code class="language-dart">/// Debounce: tunggu pengguna berhenti mengetik 400 ms sebelum mencari,
+/// supaya tidak mengirim satu query per huruf.
+void _onQueryChanged(String _) {
+  _debounce?.cancel();
+  _debounce = Timer(const Duration(milliseconds: 400), _search);
+}</code></pre></figure>
+      <figure class="code"><figcaption><span class="path">lib/services/food_service.dart</span><span class="line">baris 27</span></figcaption><pre><code class="language-dart">var request = _client.from('foods').select('*, nutritions(*)');
+if (query.trim().isNotEmpty) {
+  request = request.ilike('name', '%${query.trim()}%');
+}
+if (category != null) request = request.eq('category', category);
+if (!includeUnverified) request = request.eq('is_verified', true);
+
+final rows = await request.order('name');
+return rows.map(Food.fromMap).toList();</code></pre></figure>
+
+      <h3>Melihat Detail Resep</h3>
+      <ul class="tags"><li>FutureBuilder</li><li>Sliver</li><li>widget dipakai ulang</li></ul>
+      <p>Dua use case <code>&lt;&lt;include&gt;&gt;</code>-nya menjadi tiga widget yang disusun berurutan. Widget-widget ini tidak tahu apa pun tentang Supabase: mereka hanya menerima data lewat constructor, sehingga bisa dipakai lagi di layar hasil pindai.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/recipe/recipe_detail_screen.dart</span><span class="line">baris 140</span></figcaption><pre><code class="language-dart">IngredientList(items: food.ingredients),
+StepList(steps: food.steps),
+if (food.nutrition != null) ...[
+  NutritionCard(
+    nutrition: food.nutrition!,
+    servingSize: food.servingSize,
+  ),
+  HealthScoreCard.fromResult(
+    FuzzyHealthScore.evaluate(food.nutrition!),
+  ),
+],</code></pre></figure>
+
+      <h3>Memindai Makanan</h3>
+      <ul class="tags"><li>camera</li><li>WidgetsBindingObserver</li><li>image_picker</li><li>pipeline</li></ul>
+      <p>Use case terpenting Racik, dan satu-satunya yang punya dua tingkat <code>&lt;&lt;include&gt;&gt;</code>. Seluruh alurnya dikumpulkan di satu kelas, <code>ScanPipeline</code>, supaya layar tetap sederhana dan urutannya bisa dibaca dari atas ke bawah.</p>
+      <figure class="diagram">
+        <div class="scroll">
+        <svg viewBox="0 0 880 330" role="img" aria-label="Alur Memindai Makanan: foto menjadi Uint8List, recognize menghasilkan label dan keyakinan, findByName mengambil Food dan Nutrition, evaluate menghitung skor fuzzy, lalu foto diunggah dan scan_history disimpan. Status ditentukan setelah findByName: keyakinan di bawah 0,60 berarti tidak_yakin, resep tidak ada berarti tidak_ditemukan, selain itu berhasil.">
+          <defs>
+            <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <!-- kurung use case -->
+          <path class="d-bracket" d="M10,74 V64 H160 V74"/>
+          <text class="d-uc" x="85" y="54" text-anchor="middle">Memindai Makanan</text>
+          <path class="d-bracket" d="M190,74 V64 H520 V74"/>
+          <text class="d-uc" x="355" y="54" text-anchor="middle">Mengidentifikasi Citra Makanan</text>
+          <path class="d-bracket" d="M550,74 V64 H700 V74"/>
+          <text class="d-uc" x="625" y="38" text-anchor="middle">Detail Skor Kesehatan</text>
+          <text class="d-uc" x="625" y="54" text-anchor="middle">&amp; Informasi Nutrisi</text>
+          <path class="d-bracket" d="M730,74 V64 H870 V74"/>
+          <text class="d-uc" x="800" y="54" text-anchor="middle">Simpan riwayat</text>
+          <!-- kotak -->
+          <rect class="d-box" x="10" y="100" width="150" height="80" rx="6"/>
+          <text class="d-label" x="22" y="120">screens/scan</text>
+          <text class="d-name" x="22" y="143">Ambil foto</text>
+          <text class="d-sub" x="22" y="164">→ Uint8List</text>
+          <rect class="d-box-ai" x="190" y="100" width="150" height="80" rx="6"/>
+          <text class="d-label" x="202" y="120">ai/</text>
+          <text class="d-name" x="202" y="143">recognize()</text>
+          <text class="d-sub" x="202" y="164">→ label + keyakinan</text>
+          <rect class="d-box" x="370" y="100" width="150" height="80" rx="6"/>
+          <text class="d-label" x="382" y="120">services/</text>
+          <text class="d-name" x="382" y="143">findByName()</text>
+          <text class="d-sub" x="382" y="164">→ Food + Nutrition</text>
+          <rect class="d-box-ai" x="550" y="100" width="150" height="80" rx="6"/>
+          <text class="d-label" x="562" y="120">ai/</text>
+          <text class="d-name" x="562" y="143">evaluate()</text>
+          <text class="d-sub" x="562" y="164">→ skor + label fuzzy</text>
+          <rect class="d-box" x="730" y="100" width="140" height="80" rx="6"/>
+          <text class="d-label" x="742" y="120">services/</text>
+          <text class="d-name" x="742" y="143">upload + save()</text>
+          <text class="d-sub" x="742" y="164">→ scan_history</text>
+          <!-- panah antarkotak -->
+          <line class="d-arrow" x1="160" y1="140" x2="188" y2="140" marker-end="url(#ah2)"/>
+          <line class="d-arrow" x1="340" y1="140" x2="368" y2="140" marker-end="url(#ah2)"/>
+          <line class="d-arrow" x1="520" y1="140" x2="548" y2="140" marker-end="url(#ah2)"/>
+          <line class="d-arrow" x1="700" y1="140" x2="728" y2="140" marker-end="url(#ah2)"/>
+          <!-- penentuan status -->
+          <line class="d-dash" x1="445" y1="180" x2="445" y2="228" marker-end="url(#ah2)"/>
+          <rect class="d-box" x="190" y="230" width="510" height="86" rx="6"/>
+          <text class="d-label" x="206" y="250">scan_status ditentukan setelah findByName()</text>
+          <text class="d-mono" x="206" y="272">keyakinan &lt; 0,60</text>
+          <text class="d-mono" x="430" y="272">→ tidak_yakin</text>
+          <text class="d-mono" x="206" y="290">resep tidak ada di foods</text>
+          <text class="d-mono" x="430" y="290">→ tidak_ditemukan</text>
+          <text class="d-mono" x="206" y="308">selain itu</text>
+          <text class="d-mono" x="430" y="308">→ berhasil</text>
+          <path class="d-arrow" d="M700,273 H800 V182" marker-end="url(#ah2)"/>
+          <text class="d-mono" x="712" y="266">scan_status</text>
+        </svg>
+        </div>
+        <figcaption>Kurung hijau menandai use case; kotak kuning adalah dua bagian "kecerdasan buatan": pengenalan citra (TFLite) dan skor kesehatan (fuzzy). Kegagalan menyimpan riwayat — misalnya internet putus — tidak membatalkan hasil; pengguna tetap melihat hasil pindainya.</figcaption>
+      </figure>
+      <figure class="code"><figcaption><span class="path">lib/services/scan_pipeline.dart</span><span class="line">baris 60</span></figcaption><pre><code class="language-dart">// 1. AI menebak label makanan dari foto.
+final recognition = await recognizer.recognize(imageBytes);
+final top = recognition.top;
+
+// 2. Cocokkan label ke tabel foods.
+final food = await foods.findByName(top.label);
+
+// 3. Hitung skor kesehatan dari data nutrisi dengan logika fuzzy.
+final health = food?.nutrition == null
+    ? null
+    : FuzzyHealthScore.evaluate(food!.nutrition!);
+
+final String status;
+if (top.confidence &lt; AppConfig.confidenceThreshold) {
+  status = ScanHistory.statusTidakYakin;
+} else if (food == null) {
+  status = ScanHistory.statusTidakDitemukan;
+} else {
+  status = ScanHistory.statusBerhasil;
+}</code></pre></figure>
+
+      <h4>Kamera</h4>
+      <p><code>CameraController</code> harus diinisialisasi sebelum dipakai dan dilepas sesudahnya; kalau lupa, kamera terkunci untuk aplikasi lain. Saat aplikasi ke latar belakang (misalnya ada telepon masuk), kamera dilepas, lalu dibuka lagi saat kembali. Informasi itu datang dari <code>WidgetsBindingObserver</code>.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/scan/camera_capture_screen.dart</span><span class="line">baris 64</span></figcaption><pre><code class="language-dart">final controller = CameraController(
+  back,
+  ResolutionPreset.high,
+  enableAudio: false, // kita hanya memotret, tidak merekam suara
+);
+await controller.initialize(); // di sini izin kamera diminta
+// …
+void didChangeAppLifecycleState(AppLifecycleState state) {
+  final controller = _controller;
+  if (controller == null || !controller.value.isInitialized) return;
+
+  if (state == AppLifecycleState.inactive) {
+    controller.dispose();
+    setState(() =&gt; _controller = null);
+  } else if (state == AppLifecycleState.resumed) {
+    _setupCamera();
+  }
+}</code></pre></figure>
+      <p>Kamera sengaja tidak dibuka langsung di tab Pindai. Tab itu berisi dua tombol besar (Buka kamera, Pilih dari galeri) lalu petunjuk memotret; kamera baru menyala di layar penuh terpisah dan otomatis mati saat layar itu ditutup. Izin kamera diminta saat <code>initialize()</code> dipanggil, dan penolakan izin ditampilkan sebagai pesan yang menjelaskan cara mengaktifkannya.</p>
+
+      <h3>Mengidentifikasi Citra Makanan</h3>
+      <p>Dikerjakan <code>FoodRecognizer</code> — dibahas lengkap di <a href="#ai">Bab 10</a>.</p>
+
+      <h3>Menampilkan Detail Skor Kesehatan dan Informasi Nutrisi</h3>
+      <ul class="tags"><li>ExpansionTile</li><li>widget dipakai ulang</li></ul>
+      <p>Layar hasil menampilkan foto, nama makanan beserta tingkat keyakinan AI, <code>HealthScoreCard</code>, dan <code>NutritionCard</code> yang sama dengan detail resep. Kata "Detail" di nama use case diwujudkan dengan bagian yang bisa dibuka, "Mengapa skornya segini?": derajat keanggotaan setiap zat gizi dan aturan fuzzy terkuat. Cara menghitungnya ada di <a href="#fuzzy">Bab 11</a>.</p>
+
+      <h3>Melihat Hasil Pemindaian Makanan</h3>
+      <ul class="tags"><li>join foods(name)</li><li>Key</li></ul>
+      <p>Daftar riwayat mengambil <code>scan_history</code> milik pengguna beserta nama makanannya dalam satu query. Karena tab memakai <code>IndexedStack</code> (state tiap tab dijaga), riwayat tidak otomatis memuat ulang setelah pindai baru. Solusinya: beri widget riwayat <code>Key</code> baru setiap tabnya dibuka. Flutter menganggap widget dengan Key berbeda sebagai widget baru, sehingga state lamanya dibuang.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/home/main_shell.dart</span><span class="line">baris 34</span></figcaption><pre><code class="language-dart">// Key baru setiap tab Riwayat dibuka → state lama dibuang dan
+// riwayat dimuat ulang, jadi hasil pindai terbaru langsung muncul.
+ScanHistoryScreen(key: ValueKey(_historyVisits)),
+// …
+onDestinationSelected: (i) =&gt; setState(() {
+  if (i == 2) _historyVisits++;
+  _index = i;
+}),</code></pre></figure>
+
+      <h3>Mengubah Profil Akun</h3>
+      <ul class="tags"><li>image_picker</li><li>Storage</li><li>copyWith</li></ul>
+      <p>Foto dipilih dari galeri, diunggah ke bucket <code>avatars</code> di folder bernama id pengguna, lalu URL publiknya disimpan ke <code>avatar_url</code>. Model <code>AppUser</code> tidak pernah diubah langsung: <code>copyWith()</code> membuat salinan dengan beberapa field berbeda — pola umum untuk data yang tidak boleh berubah diam-diam.</p>
+      <figure class="code"><figcaption><span class="path">lib/services/storage_service.dart</span><span class="line">baris 14</span></figcaption><pre><code class="language-dart">Future&lt;String&gt; uploadJpeg({
+  required String bucket,
+  required String folder,
+  required Uint8List bytes,
+}) async {
+  final path = '$folder/${DateTime.now().millisecondsSinceEpoch}.jpg';
+  await _client.storage.from(bucket).uploadBinary(
+        path,
+        bytes,
+        fileOptions: const FileOptions(contentType: 'image/jpeg'),
+      );
+  return _client.storage.from(bucket).getPublicUrl(path);
+}</code></pre></figure>
+
+      <h3>Mengelola Data Resep</h3>
+      <ul class="tags"><li>form dinamis</li><li>upsert</li><li>DropdownButtonFormField</li></ul>
+      <p>Satu formulir mengisi empat tabel sekaligus: <code>foods</code>, <code>nutritions</code>, <code>food_ingredients</code>, dan <code>steps</code>. Baris bahan dan langkah bisa ditambah dan dihapus; masing-masing punya <code>TextEditingController</code> sendiri yang ikut di-<code>dispose</code>. Nutrisi disimpan dengan <code>upsert</code> karena relasinya 1 : 1, sedangkan daftar anak cukup dihapus lalu diisi ulang.</p>
+      <figure class="code"><figcaption><span class="path">lib/services/food_service.dart</span><span class="line">baris 96</span></figcaption><pre><code class="language-dart">// nutritions berelasi 1 : 1 → upsert berdasarkan food_id yang unik.
+await _client.from('nutritions').upsert(
+      {...nutrition.toMap(), 'food_id': foodId},
+      onConflict: 'food_id',
+    );
+
+// Cara paling sederhana untuk daftar anak: hapus semua, lalu isi ulang.
+await _client.from('food_ingredients').delete().eq('food_id', foodId);
+if (ingredients.isNotEmpty) {
+  await _client
+      .from('food_ingredients')
+      .insert(ingredients.map((e) =&gt; e.toMap(foodId)).toList());
+}</code></pre></figure>
+      <p>Verifikasi dilakukan dari menu ⋮ di daftar resep; <code>setVerified()</code> mengisi <code>is_verified</code>, <code>verified_by</code>, dan <code>verified_at</code> sekaligus. Resep yang belum diverifikasi tidak terlihat oleh Guest dan Pengguna — aturan RLS di Bab 7.</p>
+
+      <h3>Mengelola Data Bahan</h3>
+      <ul class="tags"><li>showDialog</li><li>pop dengan nilai</li></ul>
+      <p>Dialog tambah/ubah bahan mengembalikan objek <code>Ingredient</code> lewat <code>Navigator.pop</code> — pola yang sama dengan kamera. Bahan yang masih dipakai resep tidak bisa dihapus (<code>ON DELETE RESTRICT</code>), dan pesan errornya sudah diterjemahkan.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/admin/admin_ingredients_screen.dart</span><span class="line">baris 32</span></figcaption><pre><code class="language-dart">final result = await showDialog&lt;Ingredient&gt;(
+  context: context,
+  builder: (_) =&gt; _IngredientDialog(initial: ingredient),
+);
+// …
+Navigator.pop(
+  context,
+  Ingredient(
+    id: widget.initial?.id,
+    name: _name.text.trim(),
+    unit: _unit.text.trim().isEmpty ? null : _unit.text.trim(),
+  ),
+);</code></pre></figure>
+
+      <h3>Melihat Statistik Pemindaian Pengguna</h3>
+      <ul class="tags"><li>Future.wait</li><li>grafik tanpa paket</li></ul>
+      <p>Empat query dikirim bersamaan dengan <code>Future.wait</code>, bukan satu per satu, sehingga waktu tunggunya sama dengan query paling lambat. Data 7 hari terakhir dijumlahkan di Dart. Diagram batangnya hanya <code>Container</code> yang tingginya sebanding dengan jumlah pindai — cukup untuk belajar, tanpa paket grafik.</p>
+      <figure class="code"><figcaption><span class="path">lib/services/stats_service.dart</span><span class="line">baris 48</span></figcaption><pre><code class="language-dart">// Empat query berjalan bersamaan, bukan bergantian.
+final results = await Future.wait&lt;Object&gt;([
+  _client.from('scan_history').count(),
+  _client.from('users').count(),
+  _client
+      .from('scan_history')
+      .select('created_at, scan_status, fuzzy_label, ai_confidence')
+      .gte('created_at', start.toUtc().toIso8601String()),
+  _client
+      .from('foods')
+      .select('id, name, category, scan_count')
+      .gt('scan_count', 0)
+      .order('scan_count', ascending: false)
+      .limit(5),
+]);</code></pre></figure>
+
+      <h3>Mengelola Akun Pengguna</h3>
+      <ul class="tags"><li>Switch</li><li>SimpleDialog</li></ul>
+      <p>Admin bisa mengubah peran dan menonaktifkan akun. Menghapus akun Auth butuh <em>secret key</em> yang tidak boleh ada di aplikasi, jadi "hapus" diwujudkan sebagai nonaktif. Admin tidak bisa menonaktifkan dirinya sendiri agar tidak terkunci.</p>
+      <figure class="code"><figcaption><span class="path">lib/screens/admin/admin_users_screen.dart</span><span class="line">baris 109</span></figcaption><pre><code class="language-dart">// Admin tidak bisa menonaktifkan akunnya sendiri,
+// supaya tidak terkunci dari aplikasi.
+trailing: Switch(
+  value: user.isActive,
+  onChanged: isMe
+      ? null
+      : (v) =&gt; _update(user.copyWith(isActive: v)),
+),</code></pre></figure>
+    </section>
+
+    <!-- 10 ============================================================ -->
+    <section id="ai">
+      <h2 class="ch"><span class="n">10</span>Model AI (TFLite)</h2>
+      <p>Racik mengenali makanan <strong>di dalam HP</strong> memakai TensorFlow Lite. Keuntungannya: bekerja tanpa internet, cepat, gratis, dan foto tidak perlu dikirim ke server untuk dikenali. Konsekuensinya: model hanya mengenal makanan yang ada saat pelatihan, dan Anda yang harus melatihnya.</p>
+
+      <h3>Melatih model dengan Teachable Machine</h3>
+      <ol class="steps">
+        <li><div><p>Buka <em>Teachable Machine</em> (teachablemachine.withgoogle.com) → <em>Image Project</em> → <em>Standard image model</em>.</p></div></li>
+        <li><div><p>Buat satu <em>class</em> per makanan. <strong>Nama class harus sama persis dengan <code>foods.name</code></strong> di database — misalnya <code>Nasi Goreng</code> — karena hasil tebakan dicocokkan ke resep lewat nama (huruf besar/kecil boleh beda).</p></div></li>
+        <li><div><p>Isi setiap class dengan foto yang beragam: sudut, cahaya, piring, dan latar berbeda. Makin banyak dan makin beragam, makin baik. Tambahkan satu class <code>Bukan makanan</code> berisi foto meja, tangan, dan ruangan; label ini tidak ada di <code>foods</code>, sehingga hasilnya menjadi "tidak ditemukan" alih-alih menebak asal.</p></div></li>
+        <li><div><p><em>Train Model</em> → <em>Export Model</em> → tab <em>Tensorflow Lite</em> → <em>Floating point</em> → <em>Download</em>. Zip-nya berisi file <code>.tflite</code> dan <code>labels.txt</code>.</p></div></li>
+        <li><div><p>Ganti nama file <code>.tflite</code> menjadi <code>racik_food.tflite</code>, lalu taruh bersama <code>labels.txt</code> di <code>assets/models/</code>. Jalankan ulang aplikasi (bukan hot reload). Pita "Mode demo" akan hilang.</p></div></li>
+      </ol>
+
+      <h3>Cara kodenya bekerja</h3>
+      <p>Model menerima gambar persegi berukuran tetap (umumnya 224 × 224 piksel, tiga kanal warna) dan mengeluarkan satu angka keyakinan untuk setiap label. Karena itu foto harus <em>diproses dulu</em>: dipotong tengah, dikecilkan, lalu setiap nilai piksel dinormalisasi ke rentang −1 sampai 1 seperti saat pelatihan.</p>
+      <figure class="code"><figcaption><span class="path">lib/ai/tflite_food_recognizer.dart</span><span class="line">baris 98</span></figcaption><pre><code class="language-dart">// Potong tengah menjadi persegi lalu kecilkan, sama seperti yang
+// dilakukan Teachable Machine saat pelatihan.
+final square = img.copyResizeCropSquare(decoded, size: size);
+
+num normalize(num channel) =&gt; floatInput ? channel / 127.5 - 1 : channel;</code></pre></figure>
+      <p>Mengolah 50.176 piksel cukup berat untuk dikerjakan di thread UI, jadi <code>Isolate.run</code> memindahkannya ke thread lain. Ukuran input dan tipe data (float atau kuantisasi) dibaca dari model itu sendiri, sehingga kode tidak perlu diubah bila model diganti.</p>
+      <figure class="code"><figcaption><span class="path">lib/ai/tflite_food_recognizer.dart</span><span class="line">baris 49</span></figcaption><pre><code class="language-dart">final inputTensor = _interpreter.getInputTensor(0);
+final outputTensor = _interpreter.getOutputTensor(0);
+final size = inputTensor.shape[1]; // shape: [1, 224, 224, 3]
+final floatInput = inputTensor.type == TensorType.float32;
+
+// Decode + resize foto itu berat. Isolate.run menjalankannya di thread
+// lain supaya animasi loading di UI tidak patah-patah.
+final input = await Isolate.run(
+  () =&gt; _preprocess(imageBytes, size, floatInput),
+);
+
+final classCount = outputTensor.shape.last; // shape: [1, jumlahLabel]
+final floatOutput = outputTensor.type == TensorType.float32;
+final output = [
+  floatOutput
+      ? List&lt;double&gt;.filled(classCount, 0)
+      : List&lt;int&gt;.filled(classCount, 0),
+];
+
+_interpreter.run(input, output);</code></pre></figure>
+      <p>Hasilnya diurutkan dan tiga teratas dikembalikan. Tebakan pertama dipakai, dua lainnya ditampilkan sebagai "Kemungkinan lain". Bila keyakinan tertinggi di bawah <code>AppConfig.confidenceThreshold</code> (0,60), status pindai menjadi <code>tidak_yakin</code> dan pengguna diberi saran memotret ulang.</p>
+
+      <h3>Kenapa ada kelas abstrak <code>FoodRecognizer</code>?</h3>
+      <p>Layar dan <code>ScanPipeline</code> hanya mengenal kontrak <code>FoodRecognizer</code>. Ada dua implementasi — <code>TfliteFoodRecognizer</code> dan <code>DemoFoodRecognizer</code> — dan <code>loadFoodRecognizer()</code> memilih yang pertama bila file model ada. Implementasi ketiga bisa ditambahkan tanpa mengubah satu layar pun, misalnya pengenal berbasis API cloud yang dipanggil lewat Supabase Edge Function. Pendekatan cloud juga bisa memperkirakan gizi makanan yang belum ada di database; hasilnya disimpan dengan <code>foods.source = 'ai'</code> dan <code>is_verified = false</code> sampai Admin memeriksanya. Kolom-kolom itu sudah ada di ERD Anda.</p>
+      <div class="note"><p><span class="label">Kunci API</span>Bila memakai API cloud, jangan pernah menaruh kuncinya di kode Flutter — APK bisa dibongkar. Simpan di Edge Function, lalu panggil dari aplikasi dengan <code>Supabase.instance.client.functions.invoke()</code>.</p></div>
+    </section>
+
+    <!-- 11 ============================================================ -->
+    <section id="fuzzy">
+      <h2 class="ch"><span class="n">11</span>Skor kesehatan fuzzy</h2>
+      <p>Batas "gula tinggi" tidak tajam: 11,9 gram tidak tiba-tiba sehat dan 12,1 gram tidak tiba-tiba berbahaya. Logika fuzzy mengizinkan satu nilai menjadi <em>sebagian rendah dan sebagian sedang</em> sekaligus. Racik memakai metode <strong>Sugeno orde-nol</strong> di <code>lib/ai/fuzzy_health_score.dart</code> — logika Dart murni tanpa Flutter, sehingga mudah dites.</p>
+
+      <h3>Input dan himpunan fuzzy</h3>
+      <p>Empat kolom <code>nutritions</code> dipakai sebagai input, semuanya per porsi. Tiap input dipetakan ke himpunan <em>rendah</em>, <em>sedang</em>, <em>tinggi</em> (serat hanya rendah dan tinggi).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Input</th><th>Kolom</th><th>Rendah</th><th>Sedang</th><th>Tinggi</th></tr></thead>
+          <tbody>
+            <tr><td>Gula</td><td><code>sugar_g</code></td><td>1 sampai 5 g, 0 di 12 g</td><td>segitiga 5 – 12 – 25 g</td><td>0 di 12 g, 1 mulai 25 g</td></tr>
+            <tr><td>Lemak</td><td><code>fat_g</code></td><td>1 sampai 5 g, 0 di 12 g</td><td>segitiga 5 – 12 – 21 g</td><td>0 di 12 g, 1 mulai 21 g</td></tr>
+            <tr><td>Natrium</td><td><code>sodium_mg</code></td><td>1 sampai 300 mg, 0 di 600 mg</td><td>segitiga 300 – 600 – 1000 mg</td><td>0 di 600 mg, 1 mulai 1000 mg</td></tr>
+            <tr><td>Serat</td><td><code>fiber_g</code></td><td>1 sampai 2 g, 0 di 5 g</td><td>—</td><td>0 di 2 g, 1 mulai 5 g</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="diagram">
+        <div class="scroll">
+        <svg viewBox="0 0 640 280" role="img" aria-label="Fungsi keanggotaan gula. Rendah bernilai 1 sampai 5 gram lalu turun ke 0 di 12 gram. Sedang naik dari 5 gram ke puncak di 12 gram lalu turun ke 0 di 25 gram. Tinggi naik dari 12 gram dan bernilai 1 mulai 25 gram. Pada 9 gram, derajat rendah 0,43 dan sedang 0,57.">
+          <!-- grid -->
+          <line class="d-grid" x1="60" y1="135" x2="610" y2="135"/>
+          <line class="d-grid" x1="60" y1="50" x2="610" y2="50"/>
+          <!-- sumbu -->
+          <line class="d-axis" x1="60" y1="220" x2="610" y2="220"/>
+          <line class="d-axis" x1="60" y1="220" x2="60" y2="44"/>
+          <text class="d-mono" x="50" y="224" text-anchor="end">0</text>
+          <text class="d-mono" x="50" y="139" text-anchor="end">0,5</text>
+          <text class="d-mono" x="50" y="54" text-anchor="end">1</text>
+          <text class="d-sub" x="22" y="139" text-anchor="middle">μ</text>
+          <line class="d-axis" x1="60" y1="220" x2="60" y2="226"/>
+          <line class="d-axis" x1="151.67" y1="220" x2="151.67" y2="226"/>
+          <line class="d-axis" x1="280" y1="220" x2="280" y2="226"/>
+          <line class="d-axis" x1="518.33" y1="220" x2="518.33" y2="226"/>
+          <line class="d-axis" x1="610" y1="220" x2="610" y2="226"/>
+          <text class="d-mono" x="60" y="242" text-anchor="middle">0</text>
+          <text class="d-mono" x="151.67" y="242" text-anchor="middle">5</text>
+          <text class="d-marker-t" x="225" y="242" text-anchor="middle">9</text>
+          <text class="d-mono" x="280" y="242" text-anchor="middle">12</text>
+          <text class="d-mono" x="518.33" y="242" text-anchor="middle">25</text>
+          <text class="d-mono" x="610" y="242" text-anchor="middle">30</text>
+          <text class="d-sub" x="335" y="268" text-anchor="middle">Gula per porsi (gram)</text>
+          <!-- himpunan -->
+          <polyline class="mf-r" points="60,50 151.67,50 280,220"/>
+          <polyline class="mf-s" points="151.67,220 280,50 518.33,220"/>
+          <polyline class="mf-t" points="280,220 518.33,50 610,50"/>
+          <text class="mf-r-t" x="105" y="40" text-anchor="middle">rendah</text>
+          <text class="mf-s-t" x="280" y="40" text-anchor="middle">sedang</text>
+          <text class="mf-t-t" x="565" y="40" text-anchor="middle">tinggi</text>
+          <!-- penanda Gado-Gado -->
+          <line class="d-marker" x1="225" y1="220" x2="225" y2="60"/>
+          <circle class="d-dot" cx="225" cy="122.86" r="5"/>
+          <circle class="d-dot" cx="225" cy="147.14" r="5"/>
+          <text class="d-marker-t" x="242" y="119">μ sedang = 0,57</text>
+          <text class="d-marker-t" x="242" y="158">μ rendah = 0,43</text>
+        </svg>
+        </div>
+        <figcaption>Fungsi keanggotaan Gula. Gado-Gado contoh (9 g gula) berada 43 % di "rendah" dan 57 % di "sedang". Di setiap titik, jumlah derajat ketiga himpunan selalu 1 — tes <code>tiga himpunan selalu berjumlah 1</code> memastikannya.</figcaption>
+      </figure>
+
+      <h3>Aturan</h3>
+      <p>Kombinasi himpunan menghasilkan 3 × 3 × 3 × 2 = <strong>54 aturan</strong>. Daripada menulis 54 baris, konsekuen setiap aturan dihitung dengan rumus yang sama, sehingga tidak ada kombinasi yang terlewat:</p>
+      <div class="formula">z = 90 − penalti(gula) − penalti(lemak) − penalti(natrium) + bonus(serat)<br>penalti: rendah <b>0</b> · sedang <b>10</b> · tinggi <b>30</b> &nbsp;&nbsp; bonus serat tinggi: <b>+10</b> &nbsp;&nbsp; z dibatasi 0–100</div>
+      <p>Kekuatan setiap aturan, α, adalah derajat terkecil dari keempat syaratnya (operator DAN = <code>min</code>). Skor akhir adalah rata-rata z yang dibobot α:</p>
+      <div class="formula">skor = Σ(α · z) ÷ Σα &nbsp;&nbsp;&nbsp; <span class="pill sehat">✓ Sehat</span> ≥ 75 &nbsp; <span class="pill cukup">– Cukup Sehat</span> ≥ 50 &nbsp; <span class="pill kurang">! Kurang Sehat</span> &lt; 50</div>
+      <figure class="code"><figcaption><span class="path">lib/ai/fuzzy_health_score.dart</span><span class="line">baris 85</span></figcaption><pre><code class="language-dart">static const gula = FuzzyVariable('Gula', 'g', 5, 12, 25);
+static const lemak = FuzzyVariable('Lemak', 'g', 5, 12, 21);
+static const natrium = FuzzyVariable('Natrium', 'mg', 300, 600, 1000);
+// …
+static const skorDasar = 90.0;
+static const penalti = {'rendah': 0.0, 'sedang': 10.0, 'tinggi': 30.0};
+static const bonusSerat = 10.0;
+// …
+final alpha = [g.value, l.value, s.value, f.value]
+    .reduce((a, b) =&gt; a &lt; b ? a : b);
+if (alpha &lt;= 0) continue;
+
+var z = skorDasar -
+    penalti[g.key]! -
+    penalti[l.key]! -
+    penalti[s.key]!;
+if (f.key == 'tinggi') z += bonusSerat;
+// …
+// 3. Defuzzifikasi (weighted average)
+var sumAlphaZ = 0.0;
+var sumAlpha = 0.0;
+for (final r in fired) {
+  sumAlphaZ += r.alpha * r.z;
+  sumAlpha += r.alpha;
+}
+final score = sumAlpha == 0 ? 0.0 : sumAlphaZ / sumAlpha;</code></pre></figure>
+
+      <h3>Contoh hitungan: Gado-Gado</h3>
+      <p>Nilai gizi Gado-Gado di <code>seed.sql</code>, setelah difuzzifikasi:</p>
+      <div class="gizi" role="group" aria-label="Contoh fuzzifikasi Gado-Gado">
+        <h4>Informasi Nilai Gizi</h4>
+        <div class="serving">Takaran saji 1 piring (350 g) · derajat keanggotaan μ</div>
+        <div class="row"><span><b>Gula</b> 9 g</span><span class="mu">rendah 0,4286 · sedang 0,5714</span></div>
+        <div class="row"><span><b>Lemak</b> 20 g</span><span class="mu">sedang 0,1111 · tinggi 0,8889</span></div>
+        <div class="row"><span><b>Natrium</b> 600 mg</span><span class="mu">sedang 1,0000</span></div>
+        <div class="row"><span><b>Serat</b> 7 g</span><span class="mu">tinggi 1,0000</span></div>
+        <p class="foot">Himpunan dengan μ = 0 tidak ditulis. Angka gizi contoh, bukan data resmi.</p>
+      </div>
+      <p>Hanya 4 dari 54 aturan yang α-nya lebih dari nol:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Gula</th><th>Lemak</th><th>Natrium</th><th>Serat</th><th class="num">α (min)</th><th class="num">z</th><th class="num">α · z</th></tr></thead>
+          <tbody>
+            <tr><td>sedang</td><td>tinggi</td><td>sedang</td><td>tinggi</td><td class="num">0,5714</td><td class="num">90 − 10 − 30 − 10 + 10 = 50</td><td class="num">28,57</td></tr>
+            <tr><td>rendah</td><td>tinggi</td><td>sedang</td><td>tinggi</td><td class="num">0,4286</td><td class="num">90 − 0 − 30 − 10 + 10 = 60</td><td class="num">25,71</td></tr>
+            <tr><td>rendah</td><td>sedang</td><td>sedang</td><td>tinggi</td><td class="num">0,1111</td><td class="num">90 − 0 − 10 − 10 + 10 = 80</td><td class="num">8,89</td></tr>
+            <tr><td>sedang</td><td>sedang</td><td>sedang</td><td>tinggi</td><td class="num">0,1111</td><td class="num">90 − 10 − 10 − 10 + 10 = 70</td><td class="num">7,78</td></tr>
+            <tr><td colspan="4"><strong>Jumlah</strong></td><td class="num"><strong>1,2222</strong></td><td class="num"></td><td class="num"><strong>70,95</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="formula">skor = 70,95 ÷ 1,2222 = <b>58,05</b> → <span class="pill cukup">– Cukup Sehat</span></div>
+      <p>Angka ini dicetak ulang oleh tes <code>contoh Gado-Gado</code>. Hasil untuk seluruh data contoh:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Makanan</th><th class="num">Gula</th><th class="num">Lemak</th><th class="num">Natrium</th><th class="num">Serat</th><th class="num">Skor</th><th>Label</th></tr></thead>
+          <tbody>
+            <tr><td>Sayur Bening Bayam</td><td class="num">2 g</td><td class="num">1 g</td><td class="num">350 mg</td><td class="num">3 g</td><td class="num">91,25</td><td><span class="pill sehat">✓ Sehat</span></td></tr>
+            <tr><td>Gado-Gado</td><td class="num">9 g</td><td class="num">20 g</td><td class="num">600 mg</td><td class="num">7 g</td><td class="num">58,05</td><td><span class="pill cukup">– Cukup Sehat</span></td></tr>
+            <tr><td>Pisang Goreng</td><td class="num">18 g</td><td class="num">16 g</td><td class="num">150 mg</td><td class="num">3 g</td><td class="num">54,72</td><td><span class="pill cukup">– Cukup Sehat</span></td></tr>
+            <tr><td>Soto Ayam</td><td class="num">3 g</td><td class="num">12 g</td><td class="num">1.100 mg</td><td class="num">2 g</td><td class="num">50,00</td><td><span class="pill cukup">– Cukup Sehat</span></td></tr>
+            <tr><td>Nasi Goreng</td><td class="num">5 g</td><td class="num">18 g</td><td class="num">950 mg</td><td class="num">2,5 g</td><td class="num">46,82</td><td><span class="pill kurang">! Kurang Sehat</span></td></tr>
+            <tr><td>Rendang</td><td class="num">4 g</td><td class="num">37 g</td><td class="num">800 mg</td><td class="num">2 g</td><td class="num">40,00</td><td><span class="pill kurang">! Kurang Sehat</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note"><p><span class="label">Sesuaikan</span>Batas himpunan, penalti, dan ambang label di atas adalah <strong>contoh awal</strong>, bukan standar gizi. Samakan dengan rancangan fuzzy di proposal tim dan sumber gizi yang Anda kutip (misalnya Tabel Komposisi Pangan Indonesia). Semuanya berupa konstanta di bagian atas <code>FuzzyHealthScore</code>; setelah mengubahnya, jalankan <code>flutter test</code> dan perbarui angka harapan di tes.</p></div>
+    </section>
+
+    <!-- 12 ============================================================ -->
+    <section id="aksesibilitas">
+      <h2 class="ch"><span class="n">12</span>Aksesibilitas kamera</h2>
+      <p>Kamera membuat Racik bisa dipakai tanpa mengetik: cukup arahkan HP ke piring. Agar manfaat itu juga sampai ke pengguna dengan penglihatan terbatas atau tangan yang kurang stabil, beberapa hal berikut sudah dipasang:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kebutuhan</th><th>Wujud di kode</th><th>File</th></tr></thead>
+          <tbody>
+            <tr><td>Aksi utama terjangkau tanpa menggulir, walau huruf diperbesar</td><td>Tombol "Buka kamera" dan "Pilih foto dari galeri" diletakkan sebelum petunjuk</td><td><code>scan_home_screen.dart</code></td></tr>
+            <tr><td>Tombol rana mudah ditemukan</td><td>Lingkaran 80 dp dengan label pembaca layar "Ambil foto makanan"</td><td><code>camera_capture_screen.dart</code></td></tr>
+            <tr><td>Tahu foto sudah diambil tanpa melihat layar</td><td>Getaran singkat <code>HapticFeedback.mediumImpact()</code></td><td><code>camera_capture_screen.dart</code></td></tr>
+            <tr><td>Mendengar hasil</td><td>Tombol "Bacakan hasil" (<code>flutter_tts</code>, bahasa <code>id-ID</code>) dan pengumuman otomatis untuk TalkBack</td><td><code>scan_result_screen.dart</code></td></tr>
+            <tr><td>Tahu proses sedang berjalan</td><td><code>Semantics(liveRegion: true)</code> pada teks "Mengenali makanan…"</td><td><code>scan_result_screen.dart</code></td></tr>
+            <tr><td>Cahaya kurang</td><td>Tombol senter (<code>FlashMode.torch</code>)</td><td><code>camera_capture_screen.dart</code></td></tr>
+            <tr><td>Sulit memegang HP dengan stabil</td><td>Alternatif "Pilih foto dari galeri"</td><td><code>scan_home_screen.dart</code></td></tr>
+            <tr><td>Buta warna</td><td>Label skor selalu ikon + teks, tidak hanya warna</td><td><code>core/theme.dart</code> (<code>HealthStyle</code>)</td></tr>
+            <tr><td>Pembaca layar membaca baris utuh</td><td><code>MergeSemantics</code>: "Protein 16 g", bukan dua potong</td><td><code>nutrition_card.dart</code></td></tr>
+            <tr><td>Target sentuh cukup besar</td><td><code>MaterialTapTargetSize.padded</code>, tombol utama setinggi 52 dp</td><td><code>core/theme.dart</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="code"><figcaption><span class="path">lib/screens/scan/camera_capture_screen.dart</span><span class="line">baris 199</span></figcaption><pre><code class="language-dart">return Semantics(
+  button: true,
+  label: 'Ambil foto makanan',
+  excludeSemantics: true,
+  child: GestureDetector(</code></pre></figure>
+      <figure class="code"><figcaption><span class="path">lib/screens/scan/scan_result_screen.dart</span><span class="line">baris 68</span></figcaption><pre><code class="language-dart">// Pengguna pembaca layar (TalkBack) langsung mendengar hasilnya.
+if (mounted) {
+  SemanticsService.sendAnnouncement(
+    View.of(context),
+    _spokenSummary(outcome),
+    TextDirection.ltr,
+  );
+}
+// …
+Future&lt;void&gt; _speak(ScanOutcome outcome) async {
+  await _tts.setLanguage('id-ID');
+  await _tts.setSpeechRate(0.5);
+  await _tts.speak(_spokenSummary(outcome));
+}</code></pre></figure>
+      <p><code>SemanticsService.sendAnnouncement</code> adalah pengganti <code>SemanticsService.announce</code> yang sudah usang di Flutter 3.44 — contoh bahwa tutorial lama di internet tidak selalu cocok dengan versi Flutter Anda. Bila kode dari internet memunculkan peringatan <em>deprecated</em>, cari penggantinya di dokumentasi resmi.</p>
+      <h4>Cara menguji</h4>
+      <ul>
+        <li>Aktifkan <strong>TalkBack</strong> di Pengaturan → Aksesibilitas, lalu lakukan satu pindai dengan mata tertutup.</li>
+        <li>Setel ukuran huruf sistem ke maksimum dan pastikan tidak ada teks yang terpotong.</li>
+        <li>Nyalakan mode abu-abu (opsi pengembang → simulasi ruang warna) untuk memastikan label skor tetap terbaca tanpa warna.</li>
+        <li>Pasang aplikasi <em>Accessibility Scanner</em> dari Google untuk memeriksa ukuran target sentuh dan kontras.</li>
+      </ul>
+    </section>
+
+    <!-- 13 ============================================================ -->
+    <section id="uji">
+      <h2 class="ch"><span class="n">13</span>Uji &amp; debug</h2>
+<pre class="plain"><code class="language-bash">flutter analyze      # memeriksa kesalahan &amp; gaya kode tanpa menjalankan aplikasi
+flutter test         # menjalankan semua tes di folder test/</code></pre>
+      <p>Saat dokumen ini dibuat, keduanya bersih: <strong>0 masalah</strong> dan <strong>16 tes lulus</strong>, dan <code>flutter build apk --debug</code> berhasil. Tes berada di tiga file:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Jenis</th><th>Yang diperiksa</th></tr></thead>
+          <tbody>
+            <tr><td><code>fuzzy_health_score_test.dart</code></td><td>unit</td><td>partisi keanggotaan, kasus ekstrem, skor tidak naik saat gula bertambah, contoh Gado-Gado, label semua data contoh</td></tr>
+            <tr><td><code>models_test.dart</code></td><td>unit</td><td>membaca JSON hasil join Supabase, membersihkan label Teachable Machine</td></tr>
+            <tr><td><code>app_smoke_test.dart</code></td><td>widget</td><td>seluruh aplikasi dibangun sebagai Guest, Pengguna, dan Admin memakai service palsu — tanpa Supabase, tanpa internet</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Logika yang tidak bergantung pada Flutter paling mudah dites — itulah alasan fuzzy dan model dipisahkan dari widget.</p>
+      <figure class="code"><figcaption><span class="path">test/fuzzy_health_score_test.dart</span><span class="line">baris 59</span></figcaption><pre><code class="language-dart">test('contoh Gado-Gado', () {
+  final r = FuzzyHealthScore.evaluate(const Nutrition(
+    calories: 380, sugarG: 9, fatG: 20, sodiumMg: 600, fiberG: 7,
+  ));
+  expect(r.firedRules.length, 4);
+  expect(r.score, closeTo(58.05, 0.01));
+  expect(r.label, 'Cukup Sehat');
+});</code></pre></figure>
+
+      <h3>Tes widget dengan service palsu</h3>
+      <p>Layar bergantung pada service, dan service bergantung pada Supabase. Supaya layar bisa dites tanpa internet, tes membuat service <em>palsu</em> dengan <code>implements</code>, lalu menaruhnya di <code>MultiProvider</code> yang sama seperti <code>app.dart</code>. Berkat <code>noSuchMethod</code>, cukup method yang dipakai layar yang perlu ditulis.</p>
+      <figure class="code"><figcaption><span class="path">test/app_smoke_test.dart</span><span class="line">baris 102</span></figcaption><pre><code class="language-dart">class FakeFoodService implements FoodService {
+  @override
+  Future&lt;List&lt;Food&gt;&gt; search({
+    String query = '',
+    String? category,
+    bool includeUnverified = false,
+  }) async =&gt; [gadoGado];
+
+  @override
+  Future&lt;List&lt;String&gt;&gt; categories() async =&gt; ['Sayuran'];
+
+  @override
+  Future&lt;Food?&gt; getDetail(String id) async =&gt; gadoGado;
+
+  @override
+  Future&lt;Food?&gt; findByName(String name) async =&gt; gadoGado;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =&gt; super.noSuchMethod(invocation);
+}</code></pre></figure>
+      <p>Tes ini tidak sekadar formalitas. Saat pertama dijalankan, ia menemukan <strong>tiga masalah nyata</strong> yang lolos dari <code>flutter analyze</code>, dan ketiganya sudah diperbaiki:</p>
+      <ul>
+        <li><strong><code>context.select</code> di luar <code>build()</code>.</strong> Riwayat pindai semula memanggilnya di <code>didChangeDependencies</code>; <code>provider</code> melempar error dan tab Riwayat akan merah. Sekarang dipanggil di <code>build()</code> (Bab 8).</li>
+        <li><strong>Dua FAB dengan hero tag yang sama.</strong> Tab Resep dan Bahan di Admin sama-sama punya <code>FloatingActionButton</code>; karena <code>IndexedStack</code> menyimpan keduanya, membuka formulir resep memicu error <em>"multiple heroes that share the same tag"</em>. Solusinya: <code>heroTag: 'fab-resep'</code> dan <code>heroTag: 'fab-bahan'</code>.</li>
+        <li><strong>Tombol "Buka kamera" terdorong keluar layar</strong> saat teks petunjuk panjang — persis yang dialami pengguna dengan ukuran huruf besar di HP kecil. Tombol dipindah ke atas petunjuk (Bab 12).</li>
+      </ul>
+
+      <h3>Masalah yang mungkin Anda temui</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Gejala</th><th>Penyebab &amp; solusi</th></tr></thead>
+          <tbody>
+            <tr><td>Layar "Racik belum terhubung ke Supabase"</td><td>Aplikasi dijalankan tanpa <code>--dart-define-from-file=env.json</code>, atau nama kuncinya salah ketik.</td></tr>
+            <tr><td>"Anda tidak punya izin untuk tindakan ini."</td><td>Ditolak RLS (kode 42501). Pastikan akun Anda benar-benar <code>role = 'admin'</code>, lalu keluar dan masuk lagi.</td></tr>
+            <tr><td>"Email belum dikonfirmasi."</td><td>Konfirmasi email masih menyala di Supabase. Matikan (Bab 2) atau klik tautan di email.</td></tr>
+            <tr><td>"Pendaftaran gagal. Username mungkin sudah dipakai."</td><td>Trigger <code>handle_new_user</code> gagal. Pastikan <code>schema.sql</code> sudah dijalankan seluruhnya.</td></tr>
+            <tr><td>Pita "Mode demo" tidak hilang</td><td>Nama file bukan <code>racik_food.tflite</code> / <code>labels.txt</code>, atau aplikasi hanya di-hot-reload. Jalankan ulang.</td></tr>
+            <tr><td>Setiap pindai berstatus "Data belum ada"</td><td>Nama class di Teachable Machine berbeda dengan <code>foods.name</code>, atau resepnya belum diverifikasi Admin.</td></tr>
+            <tr><td>Pratinjau kamera hitam di emulator</td><td>Di Device Manager Android Studio, setel <em>Camera Back</em> emulator ke <em>VirtualScene</em> atau <em>Webcam</em>. Lebih mudah lagi: uji di HP sungguhan.</td></tr>
+            <tr><td>Build gagal: <em>Could not close incremental caches</em></td><td>Proyek ada di drive <code>D:</code>, sedangkan cache paket Flutter di <code>C:</code>; kompilasi Kotlin inkremental tidak bisa bekerja lintas drive. Sudah diatasi dengan <code>kotlin.incremental=false</code> di <code>android/gradle.properties</code>.</td></tr>
+            <tr><td>Build gagal: <em>Inconsistent JVM-target compatibility</em> di <code>tflite_flutter</code></td><td>Bug plugin <code>tflite_flutter</code> 0.12.1 (Java 11, Kotlin 17). Sudah diatasi dengan <code>kotlin.jvm.target.validation.mode=warning</code> di file yang sama.</td></tr>
+            <tr><td>Peringatan "plugins that apply Kotlin Gradle Plugin: flutter_tts"</td><td>Belum error, tetapi versi Flutter mendatang akan menolaknya. Perbarui <code>flutter_tts</code> begitu versi yang mendukung <em>Built-in Kotlin</em> terbit.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Untuk mengintip isi variabel, pakai <code>debugPrint()</code> (hasilnya muncul di terminal <code>flutter run</code>). Untuk melihat pohon widget dan ukuran tiap widget, buka <strong>Flutter DevTools</strong> → <em>Widget Inspector</em> dari VS Code.</p>
+    </section>
+
+    <!-- 14 ============================================================ -->
+    <section id="catatan">
+      <h2 class="ch"><span class="n">14</span>Catatan untuk ERD &amp; use case</h2>
+      <p>Saat menerjemahkan diagram ke kode, beberapa bagian ternyata perlu keputusan tambahan. Semuanya sudah ditangani di kode seperti tertulis di kolom terakhir, tetapi sebaiknya juga dirapikan di diagram dan laporan.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Temuan</th><th>Usulan untuk diagram/laporan</th><th>Di kode sekarang</th></tr></thead>
+          <tbody>
+            <tr><td>Tabel <code>favorites</code> ada di ERD, tetapi tidak ada use case-nya.</td><td>Tambah use case "Menyimpan Resep Favorit" untuk Pengguna.</td><td>Sudah ada: tombol hati + layar Resep favorit.</td></tr>
+            <tr><td>Admin tidak terhubung ke "Melakukan Login".</td><td>Tarik garis Admin → Melakukan Login.</td><td>Admin masuk lewat layar login yang sama.</td></tr>
+            <tr><td>Pengguna tidak terhubung ke Mencari Resep dan Melihat Detail Resep, padahal wajar bisa.</td><td>Generalisasi: Pengguna mewarisi Guest (panah bermata segitiga dari Pengguna ke Guest).</td><td>Pengguna bisa memakai semua fitur Guest.</td></tr>
+            <tr><td>"Menampilkan Informasi Nutrisi" muncul dua kali dengan nama berbeda.</td><td>Jadikan satu use case yang di-<code>&lt;&lt;include&gt;&gt;</code> oleh keduanya.</td><td>Sudah satu widget: <code>NutritionCard</code>.</td></tr>
+            <tr><td><code>scan_history</code> tidak menyimpan label tebakan AI. Saat <code>food_id</code> kosong, Admin tidak tahu makanan apa yang perlu ditambahkan.</td><td>Tambah kolom <code>predicted_label varchar(120)</code>.</td><td>Belum — dijadikan Latihan 3.</td></tr>
+            <tr><td>Logout dan hapus riwayat tidak ada di diagram.</td><td>Tambahkan, atau sebutkan sebagai bagian dari use case yang ada.</td><td>Ada di Profil dan detail riwayat.</td></tr>
+            <tr><td><code>users</code> tidak punya email/password.</td><td>Sudah benar untuk Supabase Auth — jelaskan di laporan.</td><td>Bab 7.</td></tr>
+            <tr><td><code>foods.name</code> tidak unik, padahal label AI dicocokkan lewat nama.</td><td>Tandai unik di ERD.</td><td>Indeks unik <code>lower(name)</code> di <code>schema.sql</code> [TAMBAHAN].</td></tr>
+            <tr><td>Favorit bisa tercatat ganda; nilai <code>role</code>, <code>difficulty</code>, <code>source</code>, <code>scan_status</code> tidak dibatasi.</td><td>Tambahkan UNIQUE dan daftar nilai yang diizinkan.</td><td>UNIQUE dan CHECK di <code>schema.sql</code> [TAMBAHAN].</td></tr>
+            <tr><td><code>foods.scan_count</code> adalah data turunan yang bisa tidak sinkron dengan <code>scan_history</code>.</td><td>Sebutkan bahwa nilainya dijaga trigger.</td><td>Trigger <code>increment_scan_count</code>.</td></tr>
+            <tr><td>Halaman 3 PDF adalah salinan halaman 2.</td><td>Hapus salah satu.</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 15 ============================================================ -->
+    <section id="latihan">
+      <h2 class="ch"><span class="n">15</span>Latihan</h2>
+      <p>Cara tercepat memahami kode adalah mengubahnya. Latihan diurutkan dari yang paling ringan; setiap latihan menyebut file tempat memulai.</p>
+      <ol class="steps">
+        <li><div><p><strong>Ganti warna identitas.</strong> <span class="level">mudah</span><br>Ubah <code>AppTheme.seed</code> di <code>core/theme.dart</code>, simpan, lihat hot reload mewarnai ulang seluruh aplikasi.</p></div></li>
+        <li><div><p><strong>Hapus riwayat dengan menggeser.</strong> <span class="level">mudah</span><br>Bungkus <code>ListTile</code> di <code>scan_history_screen.dart</code> dengan <code>Dismissible</code> dan panggil <code>ScanService.delete()</code>.</p></div></li>
+        <li><div><p><strong>Simpan label tebakan AI.</strong> <span class="level">sedang</span><br>Tambah kolom <code>predicted_label</code> di SQL, field di <code>ScanHistory</code>, isi di <code>ScanPipeline</code>, lalu tampilkan "label tanpa resep" di statistik Admin. Latihan ini menyentuh semua lapis dari Bab 3.</p></div></li>
+        <li><div><p><strong>Kalori sebagai input fuzzy kelima.</strong> <span class="level">sedang</span><br>Tambah <code>FuzzyVariable</code> untuk <code>calories</code>, satu perulangan lagi di inferensi, dan penaltinya. Perbarui angka harapan di tes.</p></div></li>
+        <li><div><p><strong>Widget test pertama Anda.</strong> <span class="level">sedang</span><br>Tulis tes yang memanggil <code>tester.pumpWidget(MaterialApp(home: Scaffold(body: NutritionCard(...))))</code> lalu memastikan <code>find.text('Protein')</code> ditemukan. Contek pola <code>app_smoke_test.dart</code>.</p></div></li>
+        <li><div><p><strong>Foto pindai yang privat.</strong> <span class="level">sulit</span><br>Jadikan bucket <code>scan-images</code> privat, simpan path (bukan URL) di <code>image_url</code>, lalu tampilkan foto dengan <code>createSignedUrl()</code>.</p></div></li>
+        <li><div><p><strong>Inferensi di isolate.</strong> <span class="level">sulit</span><br>Saat ini hanya pra-pemrosesan yang berjalan di isolate. <code>tflite_flutter</code> menyediakan <code>IsolateInterpreter</code>; pakai itu agar <code>run()</code> juga tidak menahan UI.</p></div></li>
+      </ol>
+    </section>
+
+    <!-- 16 ============================================================ -->
+    <section id="istilah">
+      <h2 class="ch"><span class="n">16</span>Kamus istilah</h2>
+      <dl class="glossary">
+        <dt>Widget</dt><dd>Satuan penyusun tampilan Flutter: teks, tombol, tata letak, bahkan satu layar penuh.</dd>
+        <dt>State</dt><dd>Data milik widget yang bisa berubah; <code>setState()</code> memberi tahu Flutter agar menggambar ulang.</dd>
+        <dt>BuildContext</dt><dd>Posisi sebuah widget di pohon. Dipakai untuk mencari hal di atasnya: tema, Navigator, provider.</dd>
+        <dt>Future / async / await</dt><dd>Nilai yang datang nanti, dan cara menunggunya tanpa membekukan layar.</dd>
+        <dt>Stream</dt><dd>Aliran nilai yang datang berkali-kali, misalnya perubahan status login.</dd>
+        <dt>Provider, ChangeNotifier</dt><dd>Cara berbagi state ke banyak layar. <code>notifyListeners()</code> memicu widget yang mendengarkan untuk membangun ulang.</dd>
+        <dt>Navigator, route</dt><dd>Tumpukan layar. <code>push</code> menambah, <code>pop</code> menutup dan bisa membawa nilai.</dd>
+        <dt>Hot reload</dt><dd>Menyuntikkan kode baru ke aplikasi yang sedang berjalan tanpa kehilangan state.</dd>
+        <dt>Isolate</dt><dd>Thread terpisah di Dart, dipakai untuk pekerjaan berat agar UI tetap lancar.</dd>
+        <dt>Supabase</dt><dd>Layanan backend: PostgreSQL, Auth, Storage, dan REST API otomatis (PostgREST).</dd>
+        <dt>RLS</dt><dd>Row Level Security — aturan di database yang menentukan baris mana yang boleh dibaca atau diubah siapa.</dd>
+        <dt>Trigger</dt><dd>Fungsi SQL yang berjalan otomatis saat baris ditambah, diubah, atau dihapus.</dd>
+        <dt>Stored Function</dt><dd>Fungsi SQL yang mengembalikan nilai (return value), misalnya <code>username_available</code>.</dd>
+        <dt>Stored Procedure</dt><dd>Blok program SQL yang dipanggil dengan perintah <code>CALL</code> untuk menjalankan logika data, misalnya <code>sp_verify_food</code>.</dd>
+        <dt>RPC</dt><dd>Remote Procedure Call — memanggil fungsi atau prosedur SQL dari aplikasi.</dd>
+        <dt>Bucket</dt><dd>"Folder" utama di Supabase Storage tempat foto disimpan.</dd>
+        <dt>TFLite</dt><dd>TensorFlow Lite, format model AI yang ringan untuk HP.</dd>
+        <dt>Inferensi</dt><dd>Menjalankan model pada data baru (satu foto) untuk mendapat tebakan.</dd>
+        <dt>Confidence</dt><dd>Keyakinan model terhadap tebakannya, 0–1; disimpan sebagai persen di <code>ai_confidence</code>.</dd>
+        <dt>Fuzzifikasi</dt><dd>Mengubah angka tegas (9 g gula) menjadi derajat keanggotaan himpunan fuzzy.</dd>
+        <dt>Derajat keanggotaan (μ)</dt><dd>Seberapa besar sebuah nilai termasuk ke suatu himpunan, dari 0 sampai 1.</dd>
+        <dt>Defuzzifikasi</dt><dd>Mengubah hasil aturan-aturan fuzzy kembali menjadi satu angka tegas (skor).</dd>
+        <dt>Semantics</dt><dd>Keterangan yang dibaca pembaca layar seperti TalkBack.</dd>
+        <dt>TTS</dt><dd>Text-to-Speech — mengubah teks menjadi suara.</dd>
+      </dl>
+    </section>
+  </main>
+</div>
+
+<footer class="end">Dibuat untuk racik_app · berdasarkan diagram use case dan ERD "PAPB-Asik.Project-Racik.pdf" · potongan kode diambil langsung dari file proyek</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-dart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+<script>
+  // Tandai bab yang sedang dibaca di daftar isi.
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    if (!('IntersectionObserver' in window) || !links.length) return;
+    var byId = {};
+    links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        links.forEach(function (a) { a.removeAttribute('aria-current'); });
+        var link = byId[entry.target.id];
+        if (link) link.setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    document.querySelectorAll('main > section[id]').forEach(function (s) { observer.observe(s); });
+  })();
+</script>
+
+</html>
