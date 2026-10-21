@@ -1,17 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:racik_app/ai/tflite_food_recognizer.dart';
-import 'package:racik_app/models/food.dart';
-import 'package:racik_app/models/scan_history.dart';
+import 'package:racik_app/model/app_user.dart';
+import 'package:racik_app/model/food.dart';
 
 void main() {
-  test('Food.fromMap membaca relasi hasil join Supabase', () {
+  test('Food.fromJson membaca relasi hasil join Supabase', () {
     // Bentuk JSON persis seperti balasan
     // select('*, nutritions(*), steps(*), food_ingredients(*, ingredients(*))')
-    final food = Food.fromMap({
+    final food = Food.fromJson({
       'id': 'f1',
       'name': 'Nasi Goreng',
       'cook_time_minutes': 20,
-      'is_verified': true,
       'nutritions': {'calories': '520.00', 'sugar_g': 5, 'sodium_mg': 950.5},
       'steps': [
         {'step_order': 2, 'instruction': 'Goreng'},
@@ -19,9 +17,8 @@ void main() {
       ],
       'food_ingredients': [
         {
-          'ingredient_id': 'i1',
           'quantity': 2,
-          'ingredients': {'id': 'i1', 'name': 'Telur ayam', 'unit': 'butir'},
+          'ingredients': {'name': 'Telur ayam', 'unit': 'butir'},
         },
       ],
     });
@@ -34,7 +31,8 @@ void main() {
   });
 
   test('nutritions sebagai list berisi satu objek juga terbaca', () {
-    final food = Food.fromMap({
+    final food = Food.fromJson({
+      'id': 'f2',
       'name': 'Soto Ayam',
       'nutritions': [
         {'calories': 310},
@@ -43,24 +41,12 @@ void main() {
     expect(food.nutrition!.calories, 310);
   });
 
-  test('ScanHistory.fromMap membaca nama makanan dari join foods(name)', () {
-    final scan = ScanHistory.fromMap({
-      'id': 's1',
-      'user_id': 'u1',
-      'food_id': 'f1',
-      'ai_confidence': '87.50',
-      'scan_status': 'berhasil',
-      'created_at': '2026-09-11T06:05:00+00:00',
-      'foods': {'name': 'Rendang'},
+  test('AppUser.displayName memakai username bila nama lengkap kosong', () {
+    final user = AppUser.fromJson({
+      'id': 'u1',
+      'username': 'racik',
+      'full_name': ' ',
     });
-    expect(scan.foodName, 'Rendang');
-    expect(scan.aiConfidence, 87.5);
-  });
-
-  test('label Teachable Machine dibersihkan dari nomor urut', () {
-    final labels = TfliteFoodRecognizer.parseLabels(
-      '0 Nasi Goreng\n1 Gado-Gado\r\n2 Soto Ayam\n\n',
-    );
-    expect(labels, ['Nasi Goreng', 'Gado-Gado', 'Soto Ayam']);
+    expect(user.displayName, 'racik');
   });
 }

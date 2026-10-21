@@ -18,23 +18,4 @@ class AppConfig {
 
   static bool get isSupabaseConfigured =>
       supabaseUrl.isNotEmpty && supabaseKey.isNotEmpty;
-
-  /// Kunci API OpenRouter untuk model Vision pengenal makanan.
-  static const openRouterApiKey = String.fromEnvironment('OPENROUTER_API_KEY');
-
-  /// Model Vision OpenRouter yang dipakai (default: Qwen 2.5 VL 72B Instruct).
-  static const openRouterModel = String.fromEnvironment(
-    'OPENROUTER_MODEL',
-    defaultValue: 'qwen/qwen-2.5-vl-72b-instruct',
-  );
-
-  static bool get isOpenRouterConfigured => openRouterApiKey.isNotEmpty;
-
-  /// Di bawah angka ini hasil AI dianggap "tidak yakin".
-  static const confidenceThreshold = 0.60;
-
-  // Nama bucket di Supabase Storage (dibuat oleh supabase/schema.sql).
-  static const scanBucket = 'scan-images';
-  static const foodBucket = 'food-images';
-  static const avatarBucket = 'avatars';
 }

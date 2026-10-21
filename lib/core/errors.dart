@@ -19,26 +19,13 @@ String friendlyError(Object error) {
     if (msg.contains('email not confirmed')) {
       return 'Email belum dikonfirmasi. Buka tautan di email Anda dulu.';
     }
-    if (msg.contains('password')) {
-      return 'Password minimal 6 karakter.';
-    }
+    if (msg.contains('password')) return 'Password minimal 6 karakter.';
     if (msg.contains('database error')) {
       return 'Pendaftaran gagal. Username mungkin sudah dipakai.';
     }
     return error.message;
   }
-  if (error is PostgrestException) {
-    // 23505 = unique_violation, 23503 = foreign_key_violation
-    if (error.code == '23505') return 'Data dengan nama itu sudah ada.';
-    if (error.code == '23503') {
-      return 'Data ini masih dipakai di tempat lain, jadi belum bisa dihapus.';
-    }
-    if (error.code == '42501') {
-      return 'Anda tidak punya izin untuk tindakan ini.';
-    }
-    return error.message;
-  }
-  if (error is StorageException) return 'Gagal mengunggah foto: ${error.message}';
+  if (error is PostgrestException) return error.message;
   if (error is FormatException) return error.message;
   return 'Terjadi kesalahan: $error';
 }
