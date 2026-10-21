@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 
 import '../models/nutrition.dart';
@@ -21,7 +21,8 @@ class OpenRouterFoodRecognizer implements FoodRecognizer {
 
   final String apiKey;
   final String model;
-  final HttpClient _client = HttpClient();
+  // package:http (bukan HttpClient dari dart:io) supaya jalan di HP dan web.
+  final http.Client _client = http.Client();
 
   static const String _freeFallbackModel = 'inclusionai/ling-3.0-flash-vl:free';
 
@@ -52,13 +53,6 @@ class OpenRouterFoodRecognizer implements FoodRecognizer {
   }
 
   Future<RecognitionResult> _queryModel(String activeModel, String base64Image) async {
-    final uri = Uri.parse('https://openrouter.ai/api/v1/chat/completions');
-    final request = await _client.postUrl(uri);
-    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $apiKey');
-    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
-    request.headers.set('HTTP-Referer', 'https://racik.app');
-    request.headers.set('X-Title', 'Racik Food Scanner');
-
     const systemPrompt = '''
 Anda adalah pakar kuliner dan gizi terkemuka di Indonesia.
 Tugas:
@@ -112,9 +106,17 @@ Catatan nilai gizi: calories (kkal), protein_g (gram), fat_g (gram), carbs_g (gr
       'temperature': 0.1,
     });
 
-    request.write(requestPayload);
-    final response = await request.close();
-    final responseBody = await response.transform(utf8.decoder).join();
+    final response = await _client.post(
+      Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://racik.app',
+        'X-Title': 'Racik Food Scanner',
+      },
+      body: requestPayload,
+    );
+    final responseBody = utf8.decode(response.bodyBytes);
 
     if (response.statusCode != 200) {
       throw Exception(
@@ -208,6 +210,6 @@ Catatan nilai gizi: calories (kkal), protein_g (gram), fat_g (gram), carbs_g (gr
 
   @override
   void dispose() {
-    _client.close(force: true);
+    _client.close();
   }
 }

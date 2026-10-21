@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:http/http.dart' show ClientException;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Mengubah exception teknis menjadi kalimat yang bisa dibaca pengguna.
 String friendlyError(Object error) {
-  if (error is SocketException || error is TimeoutException) {
+  // Di web, gangguan jaringan datang sebagai ClientException, bukan SocketException.
+  if (error is SocketException ||
+      error is TimeoutException ||
+      error is ClientException) {
     return 'Tidak ada koneksi internet. Periksa jaringan lalu coba lagi.';
   }
   if (error is AuthException) {
