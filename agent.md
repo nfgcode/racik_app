@@ -18,7 +18,7 @@ Rujukan desain utama adalah `PAPB-Asik.Project-Racik.pdf`: halaman 1 berisi use 
 | | |
 |---|---|
 | Flutter / Dart | 3.44.1 / 3.12.1 (`sdk: ^3.12.1`) |
-| Platform | **Android saja** (tidak ada `ios/`) — AGP 9.0.1, Kotlin 2.3.20, Gradle 9.1.0, Java 17 |
+| Platform | **Android** (AGP 9.0.1, Kotlin 2.3.20, Gradle 9.1.0, Java 17) + **Web/Chrome** untuk demo & dokumentasi tampilan. Tidak ada `ios/`. Di web TFLite tidak tersedia (butuh `dart:ffi`), jadi pindai memakai OpenRouter atau mode demo |
 | Backend | Supabase (Postgres + Auth + Storage) |
 | State | `provider` (ChangeNotifier) |
 | AI | Multimodal Vision (OpenRouter Qwen 2.5 VL 72B / TFLite) + Logika Fuzzy Sugeno (Dart) |
@@ -34,6 +34,7 @@ flutter pub get
 flutter analyze                               # harus bersih sebelum commit
 flutter test
 flutter run --dart-define-from-file=env.json  # HP/emulator Android
+flutter run -d chrome --dart-define-from-file=env.json  # Chrome
 flutter build apk --debug
 ```
 

@@ -4,7 +4,9 @@ import '../core/config.dart';
 import '../models/nutrition.dart';
 import 'demo_food_recognizer.dart';
 import 'openrouter_food_recognizer.dart';
-import 'tflite_food_recognizer.dart';
+// TFLite butuh dart:ffi yang tidak ada di web, jadi web memakai versi stub.
+import 'tflite_food_recognizer_stub.dart'
+    if (dart.library.ffi) 'tflite_food_recognizer.dart';
 
 /// Satu tebakan model: label makanan + tingkat keyakinan 0..1 + estimasi gizi opsional.
 class Prediction {
