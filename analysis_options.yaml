@@ -1,1 +1,7 @@
 include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Konvensi praktikum PAPB: setiap Row dan Column dibungkus Container,
+    # termasuk Container tanpa properti tambahan.
+    avoid_unnecessary_containers: false
