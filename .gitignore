@@ -46,3 +46,18 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Konfigurasi lokal Claude Code / editor
+.claude/
+
+# Draf & laporan tugas (dikumpulkan terpisah, tidak perlu masuk repo)
+docs/Nama2*.docx
+docs/Progress*_*.docx
+docs/Progress*_*.pdf
+docs/screenshots/
+docs/*.zip
+~$*.docx
+~$*.pptx
+
+# Salinan dokumen di root (versi resmi ada di docs/)
+/Racik - Penjelasan Aplikasi.pdf
