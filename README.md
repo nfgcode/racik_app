@@ -6,6 +6,8 @@
 
 Aplikasi mobile pemindai makanan berbasis kecerdasan buatan (Flutter + Supabase + TensorFlow Lite).
 
+GitHub Repository: [https://github.com/nfgcode/racik_app](https://github.com/nfgcode/racik_app)
+
 ## Menjalankan
 
 1. Buat project di [supabase.com](https://supabase.com), buka **SQL Editor**, jalankan
