@@ -10,7 +10,7 @@ import 'recipe_step.dart';
 ///   foods 1 ── * food_ingredients * ── 1 ingredients
 class Food {
   Food({
-    required this.id,
+    this.id,
     required this.name,
     this.description,
     this.imageUrl,
@@ -23,7 +23,8 @@ class Food {
     this.ingredients = const [],
   });
 
-  final String id;
+  /// Kosong untuk makanan hasil AI yang belum ada di tabel `foods`.
+  final String? id;
   final String name;
   final String? description;
   final String? imageUrl;
@@ -37,7 +38,7 @@ class Food {
   final List<FoodIngredient> ingredients;
 
   factory Food.fromJson(Map<String, dynamic> json) => Food(
-    id: json['id'] as String,
+    id: json['id'] as String?,
     name: json['name'] as String,
     description: json['description'] as String?,
     imageUrl: json['image_url'] as String?,

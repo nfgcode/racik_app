@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../ai/fuzzy_health_score.dart';
 import '../core/formatters.dart';
 import '../core/spacing.dart';
 import '../model/food.dart';
 import 'food_image.dart';
+import 'health_score_card.dart';
 
 /// Satu baris resep di halaman daftar resep.
 class FoodCard extends StatelessWidget {
@@ -15,6 +17,10 @@ class FoodCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final nutrition = food.nutrition;
+    final health = nutrition == null
+        ? null
+        : FuzzyHealthScore.evaluate(nutrition);
     final info = [
       if (food.category != null) food.category!,
       if (food.cookTimeMinutes != null) '${food.cookTimeMinutes} menit',
@@ -45,6 +51,13 @@ class FoodCard extends StatelessWidget {
                           'Tingkat ${food.difficulty}',
                           style: textTheme.bodySmall,
                         ),
+                      if (health != null) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        HealthScoreBadge(
+                          label: health.label,
+                          score: health.score,
+                        ),
+                      ],
                     ],
                   ),
                 ),

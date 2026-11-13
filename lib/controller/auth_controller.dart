@@ -1,20 +1,24 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/config.dart';
 import '../core/errors.dart';
 import '../enum/auth_status.dart';
 import '../enum/load_state.dart';
 import '../model/app_user.dart';
 import '../service/auth_service.dart';
+import '../service/storage_service.dart';
 
 /// Menyimpan siapa yang sedang memakai aplikasi (Guest atau Pengguna) dan
-/// status proses login/daftar. Halaman mendengarkan lewat ListenableBuilder.
+/// status proses login, daftar, dan ubah profil. Halaman mendengarkan lewat ListenableBuilder.
 class AuthController extends ChangeNotifier {
   final AuthService authService;
+  final StorageService storageService;
 
-  AuthController({required this.authService}) {
+  AuthController({required this.authService, required this.storageService}) {
     // Supabase langsung memancarkan event initialSession saat didengarkan,
     // jadi sesi login yang tersimpan di HP terbaca otomatis.
     _subscription = authService.authChanges.listen(_onAuthChanged);
@@ -94,6 +98,22 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> logout() => authService.logout();
+
+  /// Use case: Mengubah Profil Akun.
+  Future<bool> updateProfile(AppUser updated) {
+    return _run(() async {
+      _user = await authService.updateProfile(updated);
+    });
+  }
+
+  /// Unggah foto profil ke bucket `avatars`, mengembalikan URL publiknya.
+  Future<String> uploadAvatar(Uint8List bytes) {
+    return storageService.uploadJpeg(
+      bucket: AppConfig.avatarBucket,
+      folder: _user!.id,
+      bytes: bytes,
+    );
+  }
 
   Future<bool> _run(Future<void> Function() action) async {
     _loadState = LoadState.loading;

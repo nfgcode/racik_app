@@ -7,10 +7,11 @@ Panduan kerja untuk siapa pun (manusia atau AI agent) yang mengubah kode ini.
 **Racik** adalah aplikasi mobile pemindai makanan berbasis kecerdasan buatan (tugas PAPB).
 
 Branch:
-- `main` — versi **progress**: tampilan + login/daftar Supabase + daftar & detail resep.
-  Struktur mengikuti template praktikum (https://github.com/yuisa-scarlet/praktikum_papb).
-- `uas` — versi **lengkap** untuk UAS: pindai AI (OpenRouter/TFLite), skor fuzzy, riwayat,
-  ubah profil, favorit, dan halaman admin. Fitur dari sini dipindah ke `main` bertahap.
+- `uts` — versi aktif. Struktur mengikuti template praktikum
+  (https://github.com/yuisa-scarlet/praktikum_papb) dan berisi ketujuh use case: daftar, login,
+  cari resep, detail resep, pindai makanan (AI + fuzzy), riwayat pindai, dan ubah profil.
+- `uas` / `main` — versi lama berstruktur `screens/` + `provider` (termasuk admin, favorit, TFLite).
+  Dipakai sebagai rujukan saja.
 
 ## 2. Stack
 
@@ -18,10 +19,12 @@ Branch:
 |---|---|
 | Flutter / Dart | 3.44.1 / 3.12.1 (`sdk: ^3.12.1`) |
 | Platform | Android + Web (Chrome) |
-| Backend | Supabase (Postgres + Auth) |
+| Backend | Supabase (Postgres + Auth + Storage) |
+| AI | OpenRouter Vision (`OPENROUTER_API_KEY` di env.json) atau mode demo + logika fuzzy Sugeno (Dart) |
 | State | `ChangeNotifier` + `ListenableBuilder`, controller dioper lewat konstruktor (tanpa paket `provider`) |
 
-Paket: `supabase_flutter`, `http` (hanya untuk mengenali `ClientException`). Dev: `flutter_lints`.
+Paket: `supabase_flutter`, `http`, `camera`, `image_picker`, `image` (kompres foto), `flutter_tts`.
+Dev: `flutter_lints`. Versi dikunci sama dengan branch `uas` (sudah terbukti build di AGP 9).
 
 ## 3. Perintah
 
@@ -42,16 +45,20 @@ Di VS Code pakai konfigurasi **Racik** / **Racik (Chrome)** di `.vscode/launch.j
 ```
 lib/
   main.dart        init Supabase → buat service & controller → runApp(RacikApp)
-  controller/      AuthController, FoodController (ChangeNotifier)
+  controller/      AuthController, FoodController, ScanController, HistoryController
   enum/            LoadState (initial, loading, loaded, error), AuthStatus
-  model/           AppUser, Food, Nutrition, Ingredient, FoodIngredient, RecipeStep (fromJson)
-  service/         AuthService, FoodService — hanya bicara ke Supabase, tanpa widget
-  pages/           splash, main, food_list, food_detail, login, register, scan, history, profile, setup
-  widget/          food_card, food_image, nutrition_card, recipe_sections, state_views
-  core/            config, errors (friendlyError), formatters, theme
+  model/           AppUser, Food, Nutrition, Ingredient, FoodIngredient, RecipeStep, ScanHistory
+  service/         AuthService, FoodService, ScanService, StorageService — hanya bicara ke Supabase
+  ai/              FoodRecognizer (OpenRouter / demo), FuzzyHealthScore (Sugeno, Dart murni)
+  pages/           splash, main, food_list, food_detail, login, register, scan, camera,
+                   scan_result, history, history_detail, profile, edit_profile, setup
+  widget/          food_card, food_image, nutrition_card, recipe_sections, health_score_card,
+                   scan_widgets, state_views
+  core/            config, errors (friendlyError), formatters, spacing, theme
 assets/images/     logo_racik.png (dipakai SplashPage)
 supabase/          schema.sql, seed.sql (skema lengkap, dipakai juga oleh branch uas)
-test/              models_test, widget_test (service palsu, tanpa internet)
+test/              models_test, fuzzy_health_score_test, widget_test (service palsu, tanpa internet)
+tool/              test_supabase_api.ps1 (uji endpoint Supabase, baca env.json)
 ```
 
 ## 5. Splash screen
@@ -68,7 +75,7 @@ Bila logo diganti, buat ulang `assets/images/logo_racik.png`, `drawable-xxhdpi/s
 (432 px), `drawable-xxhdpi/splash_icon.png` (864 px, logo ±390 px di tengah), dan
 `web/icons/splash_logo.png`.
 
-## 6. Use case → kode (progress)
+## 6. Use case → kode
 
 | Aktor | Use case | Halaman | Logika |
 |---|---|---|---|
@@ -76,9 +83,24 @@ Bila logo diganti, buat ulang `assets/images/logo_racik.png`, `drawable-xxhdpi/s
 | Guest, Pengguna | Melakukan Login | `LoginPage` | `AuthController.login` |
 | Guest | Mencari Resep | `FoodListPage` | `FoodController.loadFoods`, `search` (debounce 400 ms), `selectCategory` |
 | Guest | Melihat Detail Resep (+ bahan, langkah, nutrisi) | `FoodDetailPage` | data sudah lengkap dari `FoodService.getFoods` |
-| Pengguna | Memindai Makanan | `ScanPage` | tampilan saja — fitur di branch `uas` |
-| Pengguna | Melihat Hasil Pemindaian | `HistoryPage` | tampilan saja — fitur di branch `uas` |
-| Pengguna | Mengubah Profil Akun | `ProfilePage` | baru tampil profil + Keluar — ubah profil di branch `uas` |
+| Pengguna | Memindai Makanan | `ScanPage` → `CameraPage` / galeri → `ScanResultPage` | `ScanController.scan` |
+| ↳ include | Mengidentifikasi Citra Makanan | | `FoodRecognizer.recognize` (OpenRouter / demo) |
+| ↳ include | Detail Skor Kesehatan & Informasi Nutrisi | `HealthScoreCard`, `NutritionCard` | `FuzzyHealthScore.evaluate` |
+| Pengguna | Melihat Hasil Pemindaian | `HistoryPage`, `HistoryDetailPage` | `HistoryController.loadHistory`, `delete` |
+| Pengguna | Mengubah Profil Akun | `ProfilePage` → `EditProfilePage` | `AuthController.updateProfile`, `uploadAvatar` (bucket `avatars`) |
+
+### Alur pindai (`ScanController.scan`)
+1. `FoodRecognizer.recognize` menebak makanan (label + keyakinan + perkiraan gizi bila OpenRouter).
+2. `FoodService.findByName` mencari resep terverifikasi. Bila tidak ada tetapi AI yakin dan memberi
+   perkiraan gizi, dibuat `Food` sementara tanpa `id` (tidak disimpan ke `foods`; hanya admin yang
+   boleh menambah resep).
+3. `FuzzyHealthScore.evaluate` menghitung skor dari nutrisi.
+4. Status: keyakinan < 0,60 → `tidak_yakin`; tidak ada data → `tidak_ditemukan`; selain itu `berhasil`.
+5. Foto diunggah ke `scan-images/<userId>/…`, lalu baris `scan_history` di-insert. Bila gagal,
+   hasil tetap tampil dan halaman menampilkan `InlineError`.
+
+`HistoryController` mengikuti akun yang login lewat listener di `main.dart`
+(`authController.addListener(() => historyController.setUser(...))`).
 
 ## 7. Konvensi kode
 

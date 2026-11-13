@@ -2,7 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../model/app_user.dart';
 
-/// Use case: Mendaftar Akun dan Melakukan Login (+ Logout).
+/// Use case: Mendaftar Akun, Melakukan Login, Mengubah Profil Akun (+ Logout).
 ///
 /// Service hanya berbicara dengan Supabase. Ia tidak tahu apa pun tentang
 /// widget — tugas memberi tahu UI ada di AuthController.
@@ -60,5 +60,15 @@ class AuthService {
         .eq('id', userId)
         .maybeSingle();
     return row == null ? null : AppUser.fromJson(row);
+  }
+
+  Future<AppUser> updateProfile(AppUser user) async {
+    final row = await _client
+        .from('users')
+        .update(user.toProfileJson())
+        .eq('id', user.id)
+        .select('id, username, full_name, avatar_url')
+        .single();
+    return AppUser.fromJson(row);
   }
 }

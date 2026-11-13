@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../ai/fuzzy_health_score.dart';
 import '../core/spacing.dart';
 import '../model/food.dart';
 import '../widget/food_image.dart';
+import '../widget/health_score_card.dart';
 import '../widget/nutrition_card.dart';
 import '../widget/recipe_sections.dart';
 
 /// Use case: Melihat Detail Resep
 ///   └─ `<<include>>` Menampilkan Bahan dan Langkah Memasak
 ///       └─ `<<include>>` Menampilkan Informasi Nutrisi
+/// ditambah skor kesehatan fuzzy dari data nutrisinya.
 ///
 /// Data resep sudah lengkap sejak dimuat di halaman daftar, jadi halaman
 /// ini cukup menampilkan objek [food] yang dioper lewat konstruktor.
@@ -73,11 +76,15 @@ class FoodDetailPage extends StatelessWidget {
                 const SizedBox(height: AppSpacing.md),
                 IngredientList(items: food.ingredients),
                 StepList(steps: food.steps),
-                if (food.nutrition != null)
+                if (food.nutrition != null) ...[
                   NutritionCard(
                     nutrition: food.nutrition!,
                     servingSize: food.servingSize,
                   ),
+                  HealthScoreCard.fromResult(
+                    FuzzyHealthScore.evaluate(food.nutrition!),
+                  ),
+                ],
               ],
             ),
           ),

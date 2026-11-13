@@ -4,9 +4,9 @@ import '../controller/auth_controller.dart';
 import '../core/spacing.dart';
 import '../model/app_user.dart';
 import '../widget/state_views.dart';
+import 'edit_profile_page.dart';
 
-/// Tab Profil — menampilkan akun yang sedang login dan tombol Keluar.
-/// Use case Mengubah Profil Akun dikerjakan untuk UAS.
+/// Tab Profil — pintu ke use case Mengubah Profil Akun dan Keluar.
 class ProfilePage extends StatelessWidget {
   final AuthController authController;
 
@@ -41,6 +41,18 @@ class ProfilePage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.xl),
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('Ubah profil'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        EditProfilePage(authController: authController),
+                  ),
+                ),
+              ),
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.logout),

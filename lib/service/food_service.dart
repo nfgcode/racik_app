@@ -40,4 +40,31 @@ class FoodService {
     final set = {for (final r in rows) r['category'] as String};
     return set.toList()..sort();
   }
+
+  /// Satu resep lengkap berdasarkan id (dipakai detail riwayat pindai).
+  Future<Food?> getById(String id) async {
+    final row = await _client
+        .from('foods')
+        .select(_columns)
+        .eq('id', id)
+        .maybeSingle();
+    return row == null ? null : Food.fromJson(row);
+  }
+
+  /// Cocokkan label hasil AI ke nama resep: persis dulu (tanpa beda huruf
+  /// besar/kecil), lalu mengandung kata tersebut.
+  Future<Food?> findByName(String name) async {
+    final clean = name.trim();
+    if (clean.isEmpty) return null;
+    for (final pattern in [clean, '%$clean%']) {
+      final rows = await _client
+          .from('foods')
+          .select(_columns)
+          .eq('is_verified', true)
+          .ilike('name', pattern)
+          .limit(1);
+      if (rows.isNotEmpty) return Food.fromJson(rows.first);
+    }
+    return null;
+  }
 }

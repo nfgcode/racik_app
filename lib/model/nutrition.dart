@@ -1,7 +1,7 @@
 /// Tabel `nutritions` pada ERD. Relasinya 1 : 1 dengan `foods`, dan semua
 /// angka adalah nilai per satu porsi (`foods.serving_size`).
 class Nutrition {
-  Nutrition({
+  const Nutrition({
     required this.calories,
     this.proteinG,
     this.fatG,

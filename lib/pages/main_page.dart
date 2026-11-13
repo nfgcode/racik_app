@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../controller/auth_controller.dart';
 import '../controller/food_controller.dart';
+import '../controller/history_controller.dart';
+import '../controller/scan_controller.dart';
 import 'food_list_page.dart';
 import 'history_page.dart';
 import 'profile_page.dart';
@@ -15,11 +17,15 @@ import 'scan_page.dart';
 class MainPage extends StatefulWidget {
   final AuthController authController;
   final FoodController foodController;
+  final ScanController scanController;
+  final HistoryController historyController;
 
   const MainPage({
     super.key,
     required this.authController,
     required this.foodController,
+    required this.scanController,
+    required this.historyController,
   });
 
   @override
@@ -33,8 +39,15 @@ class _MainPageState extends State<MainPage> {
   // saat berpindah tab.
   late final List<Widget> _pages = [
     FoodListPage(foodController: widget.foodController),
-    ScanPage(authController: widget.authController),
-    HistoryPage(authController: widget.authController),
+    ScanPage(
+      authController: widget.authController,
+      scanController: widget.scanController,
+      historyController: widget.historyController,
+    ),
+    HistoryPage(
+      authController: widget.authController,
+      historyController: widget.historyController,
+    ),
     ProfilePage(authController: widget.authController),
   ];
 

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../controller/auth_controller.dart';
 import '../controller/food_controller.dart';
+import '../controller/history_controller.dart';
+import '../controller/scan_controller.dart';
 import '../core/spacing.dart';
 import '../enum/auth_status.dart';
 import 'main_page.dart';
@@ -13,11 +15,15 @@ import 'main_page.dart';
 class SplashPage extends StatefulWidget {
   final AuthController authController;
   final FoodController foodController;
+  final ScanController scanController;
+  final HistoryController historyController;
 
   const SplashPage({
     super.key,
     required this.authController,
     required this.foodController,
+    required this.scanController,
+    required this.historyController,
   });
 
   static const minDuration = Duration(milliseconds: 1800);
@@ -69,6 +75,8 @@ class _SplashPageState extends State<SplashPage>
         pageBuilder: (_, _, _) => MainPage(
           authController: widget.authController,
           foodController: widget.foodController,
+          scanController: widget.scanController,
+          historyController: widget.historyController,
         ),
         transitionsBuilder: (_, animation, _, child) =>
             FadeTransition(opacity: animation, child: child),

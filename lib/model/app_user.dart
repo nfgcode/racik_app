@@ -26,4 +26,19 @@ class AppUser {
     fullName: json['full_name'] as String?,
     avatarUrl: json['avatar_url'] as String?,
   );
+
+  /// Kolom yang boleh diubah pengguna sendiri (use case "Mengubah Profil Akun").
+  Map<String, dynamic> toProfileJson() => {
+    'username': username,
+    'full_name': fullName,
+    'avatar_url': avatarUrl,
+  };
+
+  AppUser copyWith({String? username, String? fullName, String? avatarUrl}) =>
+      AppUser(
+        id: id,
+        username: username ?? this.username,
+        fullName: fullName ?? this.fullName,
+        avatarUrl: avatarUrl ?? this.avatarUrl,
+      );
 }
