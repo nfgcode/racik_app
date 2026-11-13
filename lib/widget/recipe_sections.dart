@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/spacing.dart';
 import '../model/food_ingredient.dart';
 import '../model/recipe_step.dart';
 
@@ -14,17 +15,17 @@ class IngredientList extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Card(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Bahan', style: textTheme.titleMedium),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             if (items.isEmpty) const Text('Belum ada data bahan.'),
             for (final item in items)
               MergeSemantics(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -67,17 +68,17 @@ class StepList extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return Card(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Langkah memasak', style: textTheme.titleMedium),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             if (steps.isEmpty) const Text('Belum ada langkah memasak.'),
             for (final step in steps)
               MergeSemantics(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -90,7 +91,7 @@ class StepList extends StatelessWidget {
                           style: TextStyle(color: scheme.onPrimaryContainer),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Container(
                           child: Column(

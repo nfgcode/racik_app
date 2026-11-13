@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../controller/auth_controller.dart';
+import '../core/spacing.dart';
+import '../widget/state_views.dart';
 import 'register_page.dart';
 
 /// Use case: Melakukan Login (Guest → Pengguna).
@@ -51,13 +53,13 @@ class _LoginPageState extends State<LoginPage> {
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.all(24),
+            padding: AppSpacing.page,
             children: [
               Text(
                 'Masuk untuk memindai makanan dan menyimpan riwayat.',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
               TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
@@ -68,7 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                     ? 'Masukkan email yang valid'
                     : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _password,
                 obscureText: _hidePassword,
@@ -91,13 +93,10 @@ class _LoginPageState extends State<LoginPage> {
                     (v == null || v.isEmpty) ? 'Password wajib diisi' : null,
               ),
               if (_error != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
+                const SizedBox(height: AppSpacing.lg),
+                InlineError(message: _error!),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
               ListenableBuilder(
                 listenable: widget.authController,
                 builder: (context, _) {
@@ -113,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                   );
                 },
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
               TextButton(
                 onPressed: () => Navigator.of(context).pushReplacement(
                   MaterialPageRoute(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'spacing.dart';
+
 /// Tema Material 3. Semua warna diturunkan dari satu warna dasar (seed),
 /// jadi mengganti identitas warna cukup mengubah [seed].
 class AppTheme {
@@ -18,6 +20,11 @@ class AppTheme {
     return ThemeData(
       colorScheme: scheme,
       useMaterial3: true,
+      // Kartu hanya diberi jarak atas-bawah, supaya tepi kirinya sejajar
+      // dengan padding halaman (AppSpacing.lg) seperti kolom pencarian.
+      cardTheme: const CardThemeData(
+        margin: EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      ),
       inputDecorationTheme: const InputDecorationTheme(
         border: OutlineInputBorder(),
       ),

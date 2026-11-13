@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheatsheet Racik</title>
+<meta name="description" content="Cheatsheet belajar layout Flutter yang dibedah langsung dari kode Racik (branch uts).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400..700&family=Literata:opsz,wght@7..72,400..700&display=swap">
+<style>
+:root {
+  --ground: #F3F6F2;
+  --surface: #FFFFFF;
+  --ink: #17211C;
+  --ink-2: #4E5B54;
+  --ink-3: #75827B;
+  --rule: #D6DED8;
+  --pandan: #26704A;
+  --pandan-soft: #E1EEE5;
+  --kunyit: #B87B0B;
+  --kunyit-soft: #FBF0D6;
+  --code-bg: #EBF0EC;
+  --tok-comment: #6E7C74;
+  --guide: #C0392B;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Literata", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0F1512;
+    --surface: #161E1A;
+    --ink: #E3EAE5;
+    --ink-2: #A5B2AA;
+    --ink-3: #7D8B83;
+    --rule: #2A352F;
+    --pandan: #74C495;
+    --pandan-soft: #1C3226;
+    --kunyit: #E6B24A;
+    --kunyit-soft: #33280F;
+    --code-bg: #121A16;
+    --tok-comment: #7F8D86;
+    --guide: #F08A80;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0F1512; --surface: #161E1A; --ink: #E3EAE5; --ink-2: #A5B2AA; --ink-3: #7D8B83;
+  --rule: #2A352F; --pandan: #74C495; --pandan-soft: #1C3226; --kunyit: #E6B24A;
+  --kunyit-soft: #33280F; --code-bg: #121A16; --tok-comment: #7F8D86; --guide: #F08A80;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font: 17px/1.65 var(--font-body);
+}
+main { max-width: 980px; margin: 0 auto; padding: 40px 16px 80px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; letter-spacing: -0.01em; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 0 0 8px; }
+h2 { font-size: 1.6rem; margin: 56px 0 12px; padding-top: 16px; border-top: 2px solid var(--ink); }
+h3 { font-size: 1.15rem; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+.lede { font-size: 1.12rem; color: var(--ink-2); max-width: 64ch; }
+.meta { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-3); margin-bottom: 24px; }
+a { color: var(--pandan); }
+code { font-family: var(--font-mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre {
+  font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55;
+  background: var(--code-bg); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 14px 16px; overflow-x: auto; margin: 0 0 16px;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+.c { color: var(--tok-comment); }
+.k { color: var(--pandan); font-weight: 600; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 8px; }
+nav.toc a {
+  font-family: var(--font-display); font-size: 0.9rem; text-decoration: none; color: var(--ink);
+  border: 1px solid var(--rule); background: var(--surface); padding: 6px 12px; border-radius: 999px;
+}
+nav.toc a:hover { border-color: var(--pandan); color: var(--pandan); }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0 20px; }
+.rule-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; }
+.rule-card b { display: block; font-family: var(--font-display); font-size: 1.05rem; margin-bottom: 4px; }
+.rule-card .n { font-family: var(--font-mono); font-size: 0.75rem; color: var(--pandan); }
+.note { border-left: 4px solid var(--kunyit); background: var(--kunyit-soft); padding: 12px 16px; border-radius: 0 10px 10px 0; margin: 16px 0; }
+.note b { font-family: var(--font-display); }
+table { width: 100%; border-collapse: collapse; margin: 8px 0 20px; font-size: 0.92rem; background: var(--surface); border-radius: 10px; overflow: hidden; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--font-display); font-weight: 650; background: var(--pandan-soft); }
+td code { white-space: nowrap; }
+.scroll-x { overflow-x: auto; margin: 8px 0 20px; }
+.scroll-x table { min-width: 560px; margin: 0; }
+.bar { display: inline-block; height: 12px; background: var(--pandan); border-radius: 3px; vertical-align: middle; }
+.screen { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start; margin: 16px 0 8px; }
+.screen > * { min-width: 0; }
+.screen.pair { grid-template-columns: repeat(2, minmax(0, 240px)); }
+.screen figure { margin: 0; }
+.screen img { width: 100%; height: auto; border-radius: 18px; border: 1px solid var(--rule); display: block; }
+.screen figcaption { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-3); margin-top: 6px; }
+.tree { font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; margin: 0 0 12px; }
+.tree .w { color: var(--pandan); font-weight: 700; }
+.tree .p { color: var(--kunyit); }
+.box-demo { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; margin: 12px 0 20px; }
+.box-demo svg { width: 100%; height: auto; display: block; }
+.check { list-style: none; padding: 0; }
+.check li { padding-left: 28px; position: relative; margin-bottom: 8px; }
+.check li::before { content: "✓"; position: absolute; left: 0; color: var(--pandan); font-weight: 700; }
+footer { margin-top: 56px; color: var(--ink-3); font-size: 0.85rem; }
+@media (max-width: 700px) {
+  .screen { grid-template-columns: 1fr; }
+  .screen figure { max-width: 260px; }
+  .screen.pair { grid-template-columns: 1fr 1fr; }
+  body { font-size: 16px; }
+}
+
+@page { size: A4; margin: 14mm 13mm 16mm; }
+@media print {
+  :root { color-scheme: light; }
+  body { background: #fff; font-size: 10pt; line-height: 1.5; }
+  main { max-width: none; padding: 0; }
+  h1 { font-size: 24pt; }
+  h2 { font-size: 15pt; margin-top: 22px; break-after: avoid; }
+  h3 { font-size: 11.5pt; break-after: avoid; }
+  h2#jarak, h2#container { break-before: page; }
+  nav.toc a { border-color: #ccc; }
+  pre, .tree { white-space: pre-wrap; word-break: break-word; font-size: 7.6pt; overflow: visible; }
+  pre, .tree, table, .box-demo, .note, .rule-card, .screen figure, .check li { break-inside: avoid; }
+  .screen { grid-template-columns: 52mm 1fr; gap: 14px; break-inside: avoid; }
+  .screen.pair { grid-template-columns: 52mm 52mm; }
+  .scroll-x { overflow: visible; }
+  .scroll-x table { min-width: 0; }
+  table { font-size: 8.6pt; }
+  td code { white-space: normal; }
+  footer { margin-top: 24px; }
+}
+</style>
+</head>
+<body>
+<main>
+
+<h1>Cheatsheet Racik</h1>
+<p class="lede">Struktur proyek, layout, dan navigasi Flutter yang dibedah langsung dari kode Racik (branch <code>uts</code>). Tiap konsep bisa kamu cari dan coba ubah di file aslinya.</p>
+<div class="meta">Nurfauzan Gymnastiar · 11231073 · PAPB A · github.com/nfgcode/racik_app</div>
+
+<nav class="toc" aria-label="Daftar isi">
+  <a href="#peta">1. Peta proyek</a>
+  <a href="#aturan">2. Aturan emas</a>
+  <a href="#jarak">3. Skala jarak</a>
+  <a href="#kerangka">4. Kerangka halaman</a>
+  <a href="#bedah">5. Bedah layar</a>
+  <a href="#pola-row">6. Pola Row</a>
+  <a href="#kamus">7. Kamus widget</a>
+  <a href="#container">8. Container vs Padding vs SizedBox</a>
+  <a href="#routing">9. Navigasi &amp; routing</a>
+  <a href="#error">10. Error</a>
+  <a href="#checklist">11. Checklist</a>
+</nav>
+
+<!-- ───────────────────────────────────────────── peta -->
+<h2 id="peta">1. Peta proyek</h2>
+<p>Struktur <code>lib/</code> mengikuti template praktikum PAPB. Setiap folder punya satu tugas, sehingga kamu selalu tahu harus mencari kode di mana.</p>
+<div class="tree"><span class="w">lib/</span>
+├─ main.dart        <span class="p">init Supabase → buat service &amp; controller → runApp</span>
+├─ <span class="w">service/</span>         <span class="p">bicara ke Supabase (AuthService, FoodService)</span>
+├─ <span class="w">controller/</span>      <span class="p">menyimpan state + LoadState (AuthController, FoodController)</span>
+├─ <span class="w">model/</span>           <span class="p">satu kelas per tabel ERD, dibuat lewat fromJson</span>
+├─ <span class="w">enum/</span>            <span class="p">LoadState, AuthStatus</span>
+├─ <span class="w">pages/</span>           <span class="p">satu file per halaman</span>
+├─ <span class="w">widget/</span>          <span class="p">potongan UI yang dipakai ulang (FoodCard, NutritionCard, …)</span>
+└─ <span class="w">core/</span>            <span class="p">config, theme, spacing, errors, formatters</span></div>
+<h3>Alur data satu arah</h3>
+<div class="tree">Supabase
+  ↓  <span class="w">FoodService</span>.getFoods()        <span class="p">mengembalikan List&lt;Food&gt;</span>
+  ↓  <span class="w">FoodController</span>.loadFoods()    <span class="p">ubah LoadState + notifyListeners()</span>
+  ↓  <span class="w">FoodListPage</span>                  <span class="p">ListenableBuilder menggambar ulang</span></div>
+<pre><code><span class="c">// controller/food_controller.dart</span>
+Future&lt;<span class="k">void</span>&gt; loadFoods() <span class="k">async</span> {
+  _loadState = LoadState.loading;
+  notifyListeners();                 <span class="c">// halaman menampilkan spinner</span>
+  <span class="k">try</span> {
+    _foods = <span class="k">await</span> foodService.getFoods(query: _query, category: _category);
+    _loadState = LoadState.loaded;
+  } <span class="k">catch</span> (e) {
+    _errorMessage = friendlyError(e);
+    _loadState = LoadState.error;
+  }
+  notifyListeners();                 <span class="c">// halaman menampilkan daftar / pesan error</span>
+}
+
+<span class="c">// pages/food_list_page.dart</span>
+<span class="k">switch</span> (controller.loadState) {
+  <span class="k">case</span> LoadState.initial:
+  <span class="k">case</span> LoadState.loading: <span class="k">return</span> Center(child: CircularProgressIndicator());
+  <span class="k">case</span> LoadState.error:   <span class="k">return</span> ErrorState(message: controller.errorMessage, ...);
+  <span class="k">case</span> LoadState.loaded:  <span class="k">return</span> ListView.builder(...);
+}</code></pre>
+<div class="note"><b>Aturan:</b> halaman tidak pernah memanggil Supabase langsung. Urutannya selalu halaman → controller → service → Supabase. Controller dioper lewat konstruktor dari <code>main.dart</code>, tanpa paket <code>provider</code>.</div>
+
+<!-- ───────────────────────────────────────────── 1 -->
+<h2 id="aturan">2. Aturan emas layout Flutter</h2>
+<p>Seluruh sistem layout Flutter bisa diringkas jadi tiga kalimat. Kalau tampilan aneh, hampir selalu salah satu dari tiga aturan ini yang dilanggar.</p>
+<div class="rules">
+  <div class="rule-card"><span class="n">01</span><b>Batasan turun ke bawah</b>Induk memberi tahu anak: “lebarmu boleh 0–343, tinggimu 0–tak hingga.”</div>
+  <div class="rule-card"><span class="n">02</span><b>Ukuran naik ke atas</b>Anak memilih ukurannya sendiri di dalam batasan itu, lalu melapor ke induk.</div>
+  <div class="rule-card"><span class="n">03</span><b>Induk yang menentukan posisi</b>Anak tidak tahu dirinya ada di mana; induklah yang menaruhnya.</div>
+</div>
+<p>Contoh di Racik: di <code>FoodCard</code>, <code>Row</code> memberi gambar lebar bebas (gambar memilih 72), lalu sisa lebar diberikan ke <code>Expanded</code>. Tanpa <code>Expanded</code>, teks nama resep yang panjang akan meminta lebar lebih dari yang tersedia, sehingga muncul error <i>overflow</i> bergaris kuning-hitam.</p>
+
+<!-- ───────────────────────────────────────────── 2 -->
+<h2 id="jarak">3. Skala jarak (<code>AppSpacing</code>)</h2>
+<p>Semua padding dan <code>SizedBox</code> di Racik memakai satu skala kelipatan 4 dari <code>lib/core/spacing.dart</code>. Dengan begitu, jarak di setiap halaman pasti konsisten, dan mengubah satu nilai cukup di satu tempat.</p>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Token</th><th>Nilai</th><th></th><th>Dipakai untuk</th></tr></thead>
+  <tbody>
+    <tr><td><code>AppSpacing.xs</code></td><td>4</td><td><span class="bar" style="width:4px"></span></td><td>Jarak atas-bawah tiap baris bahan dan nutrisi; margin atas-bawah kartu</td></tr>
+    <tr><td><code>AppSpacing.sm</code></td><td>8</td><td><span class="bar" style="width:8px"></span></td><td>Antarchip, judul kartu → isi, tombol → tautan di bawahnya</td></tr>
+    <tr><td><code>AppSpacing.md</code></td><td>12</td><td><span class="bar" style="width:12px"></span></td><td>Gambar → teks di kartu resep, antarbagian di detail resep</td></tr>
+    <tr><td><code>AppSpacing.lg</code></td><td>16</td><td><span class="bar" style="width:16px"></span></td><td><b>Tepi semua halaman</b>, isi kartu, antarkolom isian</td></tr>
+    <tr><td><code>AppSpacing.xl</code></td><td>24</td><td><span class="bar" style="width:24px"></span></td><td>Antarbagian besar, sebelum tombol utama</td></tr>
+    <tr><td><code>AppSpacing.xxl</code></td><td>32</td><td><span class="bar" style="width:32px"></span></td><td>Ruang lega di tengah layar (splash, state kosong), bawah halaman detail</td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code><span class="k">class</span> AppSpacing {
+  <span class="k">static const double</span> lg = 16; <span class="c">// tepi halaman, isi kartu</span>
+  <span class="k">static const</span> page = EdgeInsets.all(lg);
+}
+
+<span class="c">// pemakaian</span>
+ListView(padding: AppSpacing.page, children: [...])
+<span class="k">const</span> SizedBox(height: AppSpacing.xl)</code></pre>
+<div class="note"><b>Kenapa kartu sejajar dengan kolom pencarian?</b> <code>Card</code> punya margin bawaan 4 di semua sisi, sehingga kartu menjorok ke dalam (16 + 4 = 20). Di <code>lib/core/theme.dart</code> margin kartu diganti jadi atas-bawah saja, supaya tepi kiri kartu tepat di 16 seperti elemen lain.</div>
+<pre><code>cardTheme: <span class="k">const</span> CardThemeData(
+  margin: EdgeInsets.symmetric(vertical: AppSpacing.xs),
+),</code></pre>
+
+<!-- ───────────────────────────────────────────── 3 -->
+<h2 id="kerangka">4. Kerangka setiap halaman</h2>
+<p>Setiap halaman Racik dimulai dari <code>Scaffold</code>, yang menyediakan “slot” standar halaman Material.</p>
+<div class="tree"><span class="w">Scaffold</span>
+├─ appBar:              <span class="w">AppBar</span>(title: Text('Cari resep'))
+├─ body:                isi halaman
+└─ bottomNavigationBar: <span class="w">NavigationBar</span>  <span class="p">← hanya di MainPage</span></div>
+<p><code>MainPage</code> memakai <code>IndexedStack</code> untuk empat tab (Resep, Pindai, Riwayat, Profil). Semua tab tetap hidup di belakang layar, jadi kata kunci pencarian tidak hilang saat kamu pindah tab lalu kembali.</p>
+<pre><code>body: IndexedStack(index: _selectedIndex, children: _pages),
+bottomNavigationBar: NavigationBar(
+  selectedIndex: _selectedIndex,
+  onDestinationSelected: _onTabSelected,
+  destinations: <span class="k">const</span> [ ... ],
+),</code></pre>
+
+<!-- ───────────────────────────────────────────── 4 -->
+<h2 id="bedah">5. Bedah layar</h2>
+<p>Garis merah di screenshot daftar dan detail ada di x = 16 dan x = 359, yaitu tepi halaman. Perhatikan bagaimana kolom pencarian, chip, dan kartu semuanya menempel di garis yang sama.</p>
+
+<h3>Daftar resep — <code>pages/food_list_page.dart</code></h3>
+<div class="screen">
+  <figure><img src="cheatsheet-layout/daftar.png" alt="Halaman daftar resep Racik" width="375" height="812" loading="lazy"><figcaption>FoodListPage</figcaption></figure>
+  <div>
+<div class="tree"><span class="w">Container</span>
+└─ <span class="w">Column</span>
+   ├─ <span class="w">Padding</span> <span class="p">(lg, sm, lg, sm)</span>
+   │  └─ TextField                      <span class="p">← kolom pencarian</span>
+   ├─ <span class="w">SizedBox</span> <span class="p">(height: 48)</span>
+   │  └─ ListView <span class="p">horizontal, padding lg</span>
+   │     └─ ChoiceChip × n              <span class="p">← jarak kanan sm</span>
+   └─ <span class="w">Expanded</span>                        <span class="p">← sisa tinggi layar</span>
+      └─ ListView.builder <span class="p">padding (lg, 0, lg, lg)</span>
+         └─ FoodCard × n</div>
+<p><b>Kenapa ada <code>SizedBox(height: 48)</code>?</b> <code>ListView</code> horizontal di dalam <code>Column</code> tidak tahu tingginya. <code>SizedBox</code> memberinya tinggi pasti.</p>
+<p><b>Kenapa ada <code>Expanded</code>?</b> <code>ListView</code> vertikal ingin setinggi mungkin (tak hingga). <code>Expanded</code> membatasinya ke sisa tinggi di bawah chip.</p>
+  </div>
+</div>
+
+<h3>Kartu resep — <code>widget/food_card.dart</code></h3>
+<div class="box-demo">
+<svg viewBox="0 0 640 150" role="img" aria-label="Diagram jarak di dalam kartu resep: padding 12, gambar 72, jarak 12, teks mengisi sisa lebar, ikon panah">
+  <rect x="1" y="1" width="638" height="148" rx="14" fill="none" stroke="currentColor" stroke-opacity=".35"/>
+  <rect x="20" y="20" width="110" height="110" rx="12" fill="#26704A" fill-opacity=".18" stroke="#26704A"/>
+  <text x="75" y="80" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="currentColor">72×72</text>
+  <rect x="150" y="34" width="420" height="82" rx="6" fill="#B87B0B" fill-opacity=".14" stroke="#B87B0B" stroke-dasharray="4 3"/>
+  <text x="360" y="70" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="currentColor">Expanded → Container → Column</text>
+  <text x="360" y="92" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="currentColor" fill-opacity=".7">nama · info · tingkat</text>
+  <text x="600" y="80" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="18" fill="currentColor">›</text>
+  <g font-family="JetBrains Mono, monospace" font-size="11" fill="#C0392B">
+    <line x1="1" y1="140" x2="20" y2="140" stroke="#C0392B"/><text x="4" y="136">12</text>
+    <line x1="130" y1="75" x2="150" y2="75" stroke="#C0392B"/><text x="132" y="70">12</text>
+  </g>
+</svg>
+</div>
+<pre><code>Card(
+  child: InkWell(
+    onTap: onTap,
+    child: Container(
+      padding: <span class="k">const</span> EdgeInsets.all(AppSpacing.md),
+      child: Row(
+        children: [
+          FoodImage(url: food.imageUrl, size: 72),
+          <span class="k">const</span> SizedBox(width: AppSpacing.md),
+          Expanded(child: Container(child: Column(...))), <span class="c">// isi sisa lebar</span>
+          <span class="k">const</span> Icon(Icons.chevron_right),
+        ],
+      ),
+    ),
+  ),
+)</code></pre>
+
+<h3>Detail resep — <code>pages/food_detail_page.dart</code></h3>
+<div class="screen">
+  <figure><img src="cheatsheet-layout/detail.png" alt="Halaman detail resep Soto Ayam" width="375" height="812" loading="lazy"><figcaption>FoodDetailPage</figcaption></figure>
+  <div>
+<div class="tree"><span class="w">Scaffold</span>
+└─ <span class="w">CustomScrollView</span>
+   ├─ <span class="w">SliverAppBar.large</span>              <span class="p">← judul besar, mengecil saat digulir</span>
+   └─ <span class="w">SliverPadding</span> <span class="p">(lg, 0, lg, xxl)</span>
+      └─ SliverList.list
+         ├─ <span class="w">Wrap</span> <span class="p">spacing sm, runSpacing sm</span>
+         │  └─ Chip × 4                <span class="p">← pindah baris otomatis</span>
+         ├─ Text(deskripsi)
+         ├─ IngredientList   <span class="p">(Card)</span>
+         ├─ StepList         <span class="p">(Card)</span>
+         └─ NutritionCard    <span class="p">(Card)</span></div>
+<p><b>Sliver</b> adalah potongan isi yang bisa digulir bersama-sama. <code>SliverAppBar.large</code> membuat judul “Soto Ayam” besar di atas, lalu menempel kecil di app bar saat halaman digulir.</p>
+<p><b><code>Wrap</code> vs <code>Row</code>:</b> chip kategori, waktu, tingkat, dan porsi tidak muat di satu baris. <code>Row</code> akan overflow, sedangkan <code>Wrap</code> otomatis memindahkan chip ke baris berikutnya.</p>
+  </div>
+</div>
+
+<h3>Masuk & Daftar — <code>pages/login_page.dart</code></h3>
+<div class="screen">
+  <figure><img src="cheatsheet-layout/masuk.png" alt="Halaman Masuk Racik" width="375" height="812" loading="lazy"><figcaption>LoginPage</figcaption></figure>
+  <div>
+<div class="tree"><span class="w">Scaffold</span>
+└─ <span class="w">SafeArea</span>                         <span class="p">← hindari notch & status bar</span>
+   └─ <span class="w">Form</span>
+      └─ <span class="w">ListView</span> <span class="p">padding: AppSpacing.page</span>
+         ├─ Text(pengantar)
+         ├─ SizedBox(xl)
+         ├─ TextFormField(Email)
+         ├─ SizedBox(lg)
+         ├─ TextFormField(Password)
+         ├─ SizedBox(lg) + InlineError  <span class="p">← hanya saat gagal</span>
+         ├─ SizedBox(xl)
+         ├─ FilledButton(Masuk)       <span class="p">← tinggi 52 dari tema</span>
+         ├─ SizedBox(sm)
+         └─ TextButton(Daftar)</div>
+<p><b>Kenapa <code>ListView</code>, bukan <code>Column</code>?</b> Saat keyboard muncul, ruang layar menyempit. <code>Column</code> akan overflow, sedangkan <code>ListView</code> bisa digulir.</p>
+<p>Polanya: <b>16 antarkolom isian, 24 sebelum tombol utama, 8 sebelum tautan kecil.</b> Halaman Daftar memakai pola yang sama.</p>
+  </div>
+</div>
+
+<h3>Splash & state kosong — <code>pages/splash_page.dart</code>, <code>widget/state_views.dart</code></h3>
+<div class="screen">
+  <figure><img src="cheatsheet-layout/splash.png" alt="Splash screen Racik dengan logo" width="375" height="812" loading="lazy"><figcaption>SplashPage</figcaption></figure>
+  <div>
+<div class="tree"><span class="w">Center</span>
+└─ <span class="w">Container</span> <span class="p">padding: xxl</span>
+   └─ <span class="w">Column</span> <span class="p">mainAxisSize: MainAxisSize.min</span>
+      ├─ FadeTransition → ScaleTransition → Image.asset(logo, 168)
+      ├─ SizedBox(xl)
+      ├─ Text('Pemindai makanan berbasis AI')
+      ├─ SizedBox(xxl)
+      └─ CircularProgressIndicator</div>
+<p><b><code>mainAxisSize: MainAxisSize.min</code></b> membuat <code>Column</code> hanya setinggi isinya. Tanpa itu, <code>Column</code> memenuhi seluruh tinggi layar dan isinya menempel di atas, bukan di tengah.</p>
+<p><code>EmptyState</code> (layar “Masuk untuk memindai makanan”, “Segera hadir”) memakai pola yang sama, ditambah <code>SingleChildScrollView</code> supaya tidak overflow di HP kecil.</p>
+  </div>
+</div>
+
+<!-- ───────────────────────────────────────────── 5 -->
+<h2 id="pola-row">6. Tiga pola <code>Row</code> yang dipakai berulang</h2>
+
+<h3>A. Label kiri, nilai kanan — <code>NutritionCard</code></h3>
+<pre><code>Row(children: [
+  Expanded(child: Text('Protein')),   <span class="c">// mendorong nilai ke kanan</span>
+  Text('22 g'),
+])</code></pre>
+
+<h3>B. Kolom lebar tetap + sisa — <code>IngredientList</code></h3>
+<pre><code>Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+  SizedBox(width: 96, child: Text('150 gram')),  <span class="c">// takaran selalu sejajar</span>
+  Expanded(child: Text('Daging ayam')),
+])</code></pre>
+
+<h3>C. Penanda + teks banyak baris — <code>StepList</code></h3>
+<pre><code>Row(crossAxisAlignment: CrossAxisAlignment.start, children: [   <span class="c">// bulatan nomor tetap di atas</span>
+  CircleAvatar(radius: 14, child: Text('1')),
+  <span class="k">const</span> SizedBox(width: AppSpacing.md),
+  Expanded(child: Container(child: Column(children: [instruksi, durasi]))),
+])</code></pre>
+<p><b>Sumbu:</b> di <code>Row</code>, <i>main axis</i> = horizontal dan <i>cross axis</i> = vertikal. Di <code>Column</code> sebaliknya. <code>crossAxisAlignment.start</code> pada <code>Row</code> berarti “rata atas”.</p>
+
+<!-- ───────────────────────────────────────────── 6 -->
+<h2 id="kamus">7. Kamus widget layout</h2>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Widget</th><th>Fungsinya</th><th>Contoh di Racik</th></tr></thead>
+  <tbody>
+    <tr><td><code>Container</code></td><td>Kotak serbaguna: padding, margin, warna, ukuran, dekorasi</td><td>Pembungkus setiap Row/Column (konvensi praktikum)</td></tr>
+    <tr><td><code>Padding</code></td><td>Hanya memberi jarak di sekeliling anak</td><td>Kolom pencarian, jarak antarchip</td></tr>
+    <tr><td><code>SizedBox</code></td><td>Ukuran pasti, atau jarak kosong antarwidget</td><td><code>SizedBox(height: 48)</code> untuk chip, jarak antarisian</td></tr>
+    <tr><td><code>Row</code> / <code>Column</code></td><td>Menyusun anak mendatar / menurun</td><td>Isi kartu resep / isi kartu bahan</td></tr>
+    <tr><td><code>Expanded</code></td><td>Anak Row/Column mengambil sisa ruang</td><td>Teks di FoodCard, ListView di FoodListPage</td></tr>
+    <tr><td><code>Wrap</code></td><td>Seperti Row, tetapi pindah baris saat penuh</td><td>Chip info di detail resep</td></tr>
+    <tr><td><code>Center</code></td><td>Menaruh anak di tengah ruang yang ada</td><td>Splash, state kosong</td></tr>
+    <tr><td><code>SafeArea</code></td><td>Menjauhkan isi dari notch / status bar</td><td>Halaman Masuk, Daftar, Setup</td></tr>
+    <tr><td><code>ListView</code></td><td>Daftar yang bisa digulir (semua anak dibuat sekaligus)</td><td>Formulir Masuk/Daftar, Profil</td></tr>
+    <tr><td><code>ListView.builder</code></td><td>Daftar panjang; item dibuat saat terlihat saja</td><td>Daftar resep</td></tr>
+    <tr><td><code>SingleChildScrollView</code></td><td>Satu anak yang boleh digulir bila kepanjangan</td><td>EmptyState</td></tr>
+    <tr><td><code>CustomScrollView</code> + Sliver</td><td>Gabungan app bar dan daftar yang menggulir bersama</td><td>Detail resep</td></tr>
+    <tr><td><code>IndexedStack</code></td><td>Menumpuk halaman, hanya satu yang tampil, semuanya tetap hidup</td><td>Empat tab MainPage</td></tr>
+    <tr><td><code>Card</code></td><td>Permukaan bersudut membulat dengan bayangan</td><td>Kartu resep, bahan, langkah, nutrisi</td></tr>
+    <tr><td><code>ClipRRect</code></td><td>Memotong anak dengan sudut membulat</td><td>Gambar di FoodImage</td></tr>
+    <tr><td><code>AspectRatio</code></td><td>Menjaga rasio lebar : tinggi</td><td>Foto resep 16 : 9 di detail</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ───────────────────────────────────────────── 7 -->
+<h2 id="container">8. Container vs Padding vs SizedBox</h2>
+<p>Ketiganya sering bisa saling menggantikan. Aturan praktis di Racik:</p>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Butuh…</th><th>Pakai</th></tr></thead>
+  <tbody>
+    <tr><td>Membungkus <code>Row</code> / <code>Column</code></td><td><code>Container</code>, wajib menurut konvensi praktikum. Kalau butuh jarak, isi properti <code>padding</code>-nya</td></tr>
+    <tr><td>Jarak di sekeliling widget lain (TextField, Chip)</td><td><code>Padding</code></td></tr>
+    <tr><td>Jarak kosong di antara dua widget</td><td><code>SizedBox(height: …)</code> atau <code>SizedBox(width: …)</code></td></tr>
+    <tr><td>Ukuran pasti</td><td><code>SizedBox(width: …, height: …)</code></td></tr>
+    <tr><td>Warna latar, border, sudut membulat</td><td><code>Container(decoration: BoxDecoration(...))</code> atau <code>Card</code></td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code><span class="c">// Konvensi praktikum: Row/Column selalu di dalam Container</span>
+Container(
+  padding: <span class="k">const</span> EdgeInsets.all(AppSpacing.lg),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [ ... ],
+  ),
+)</code></pre>
+<div class="note"><b>Catatan lint.</b> Analyzer Flutter menganggap <code>Container</code> tanpa properti itu mubazir (<code>avoid_unnecessary_containers</code>). Karena konvensi praktikum mewajibkannya, aturan itu dimatikan di <code>analysis_options.yaml</code>.</div>
+
+<!-- ───────────────────────────────────────────── routing -->
+<h2 id="routing">9. Navigasi &amp; routing</h2>
+<p>Racik punya <b>dua cara</b> pindah halaman, dan keduanya bekerja berbeda.</p>
+<div class="rules">
+  <div class="rule-card"><span class="n">TAB</span><b>Index (IndexedStack)</b>Mengganti angka <code>_selectedIndex</code> lewat <code>setState</code>. Bukan routing: tidak ada tumpukan, dan tombol Back tidak kembali ke tab sebelumnya.</div>
+  <div class="rule-card"><span class="n">ROUTE</span><b>Navigator</b>Halaman ditumpuk seperti kartu. <code>push</code> menaruh kartu di atas, sedangkan Back atau <code>pop</code> mengambil kartu teratas.</div>
+</div>
+
+<h3>Empat tab di <code>MainPage</code></h3>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Index</th><th>Tab</th><th>Halaman</th><th>Saat tamu (belum login)</th></tr></thead>
+  <tbody>
+    <tr><td>0</td><td>Resep</td><td><code>FoodListPage</code></td><td>Bisa dipakai penuh</td></tr>
+    <tr><td>1</td><td>Pindai</td><td><code>ScanPage</code></td><td>Ajakan masuk (<code>LoginRequired</code>)</td></tr>
+    <tr><td>2</td><td>Riwayat</td><td><code>HistoryPage</code></td><td>Ajakan masuk</td></tr>
+    <tr><td>3</td><td>Profil</td><td><code>ProfilePage</code></td><td>Ajakan masuk</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Sembilan perpindahan lewat Navigator</h3>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>No</th><th>Dari → Ke</th><th>Perintah</th><th>File</th></tr></thead>
+  <tbody>
+    <tr><td>0</td><td>Aplikasi dibuka → <code>SplashPage</code></td><td><code>home:</code> di MaterialApp</td><td>main.dart</td></tr>
+    <tr><td>1</td><td><code>SplashPage</code> → <code>MainPage</code></td><td><code>pushReplacement</code> (fade)</td><td>splash_page.dart</td></tr>
+    <tr><td>2</td><td>Kartu resep → <code>FoodDetailPage</code></td><td><code>push</code></td><td>food_list_page.dart</td></tr>
+    <tr><td>3</td><td>Tombol “Masuk” di tab tamu → <code>LoginPage</code></td><td><code>push</code></td><td>widget/state_views.dart</td></tr>
+    <tr><td>4</td><td>Tautan “Daftar” di tab tamu → <code>RegisterPage</code></td><td><code>push</code></td><td>widget/state_views.dart</td></tr>
+    <tr><td>5</td><td><code>LoginPage</code> → <code>RegisterPage</code></td><td><code>pushReplacement</code></td><td>login_page.dart</td></tr>
+    <tr><td>6</td><td>Login berhasil → kembali ke <code>MainPage</code></td><td><code>popUntil(route.isFirst)</code></td><td>login_page.dart</td></tr>
+    <tr><td>7</td><td>Daftar berhasil → kembali ke <code>MainPage</code></td><td><code>popUntil(route.isFirst)</code></td><td>register_page.dart</td></tr>
+    <tr><td>8</td><td>Daftar perlu konfirmasi email → dialog → <code>LoginPage</code></td><td><code>showDialog</code>, lalu <code>pop</code>, lalu <code>pushReplacement</code></td><td>register_page.dart</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Logout <b>tidak</b> memakai Navigator: <code>ListenableBuilder</code> di tab Profil langsung menggambar ulang dirinya menjadi ajakan masuk. <code>SetupPage</code> (tampil tanpa <code>env.json</code>) adalah aplikasi terpisah yang tidak pernah berpindah halaman.</p>
+
+<h3>Arti tiap perintah</h3>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Perintah</th><th>Yang terjadi pada tumpukan</th><th>Dipakai saat</th></tr></thead>
+  <tbody>
+    <tr><td><code>push</code></td><td>Kartu baru ditaruh di atas; Back kembali ke halaman sebelumnya</td><td>Membuka detail, membuka halaman Masuk</td></tr>
+    <tr><td><code>pushReplacement</code></td><td>Kartu teratas <b>diganti</b>; halaman lama hilang</td><td>Splash → Main (Back tidak kembali ke splash), Masuk ↔ Daftar</td></tr>
+    <tr><td><code>popUntil(route.isFirst)</code></td><td>Buang semua kartu sampai tersisa yang paling bawah</td><td>Setelah login/daftar berhasil</td></tr>
+    <tr><td><code>pop</code></td><td>Buang satu kartu teratas</td><td>Menutup dialog, tombol Back</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Contoh isi tumpukan</h3>
+<div class="tree">Buka aplikasi        [Splash]
+Splash selesai       [Main · tab Resep]     <span class="p">← pushReplacement</span>
+Ketuk "Soto Ayam"    [Main, Detail]         <span class="p">← push</span>
+Tekan Back           [Main]                 <span class="p">← pop</span>
+
+Ketuk tab Pindai     [Main · tab Pindai]    <span class="p">← hanya index berubah</span>
+Ketuk "Masuk"        [Main, Masuk]          <span class="p">← push</span>
+Ketuk "Daftar"       [Main, Daftar]         <span class="p">← pushReplacement</span>
+Daftar berhasil      [Main · tab Pindai]    <span class="p">← popUntil(isFirst)</span></div>
+<pre><code><span class="c">// Simpan Navigator SEBELUM await, lalu cek mounted setelahnya</span>
+<span class="k">final</span> navigator = Navigator.of(context);
+<span class="k">final</span> success = <span class="k">await</span> auth.login(_email.text, _password.text);
+<span class="k">if</span> (!mounted) <span class="k">return</span>;
+<span class="k">if</span> (success) navigator.popUntil((route) =&gt; route.isFirst);</code></pre>
+
+<!-- ───────────────────────────────────────────── 8 -->
+<h2 id="error">10. Error: tampilan di aplikasi &amp; error layout</h2>
+<p>Ada dua jenis “error” yang perlu dibedakan: <b>error untuk pengguna</b> (misalnya password salah atau internet mati) dan <b>error layout</b> yang muncul di konsol saat kamu menyusun widget.</p>
+
+<h3>10A. Tampilan error di aplikasi — satu aturan, dua widget</h3>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Situasi</th><th>Widget</th><th>Isi</th><th>Contoh di Racik</th></tr></thead>
+  <tbody>
+    <tr><td>Aksi di form gagal</td><td><code>InlineError</code></td><td>Ikon + pesan di kotak <code>errorContainer</code>, tepat di atas tombol utama</td><td>Masuk, Daftar</td></tr>
+    <tr><td>Halaman gagal memuat data</td><td><code>ErrorState</code></td><td>Ikon + judul + pesan + tombol “Coba lagi”, di tengah layar</td><td>Daftar resep</td></tr>
+    <tr><td>Isian form belum benar</td><td><code>validator</code> di <code>TextFormField</code></td><td>Teks merah bawaan di bawah kolom isian</td><td>Email, Password, Username</td></tr>
+  </tbody>
+</table>
+</div>
+<div class="screen pair">
+  <figure><img src="cheatsheet-layout/error-form.png" alt="InlineError di halaman Masuk" width="375" height="535" loading="lazy"><figcaption>InlineError · form</figcaption></figure>
+  <figure><img src="cheatsheet-layout/error-halaman.png" alt="ErrorState saat data gagal dimuat" width="375" height="535" loading="lazy"><figcaption>ErrorState · halaman</figcaption></figure>
+</div>
+<pre><code><span class="c">// widget/state_views.dart — dipakai di semua form</span>
+Container(
+  padding: <span class="k">const</span> EdgeInsets.all(AppSpacing.md),
+  decoration: BoxDecoration(
+    color: scheme.errorContainer,
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    Icon(Icons.error_outline, color: scheme.onErrorContainer),
+    <span class="k">const</span> SizedBox(width: AppSpacing.sm),
+    Expanded(child: Text(message, style: TextStyle(color: scheme.onErrorContainer))),
+  ]),
+)
+
+<span class="c">// pages/login_page.dart</span>
+<span class="k">if</span> (_error != <span class="k">null</span>) ...[
+  <span class="k">const</span> SizedBox(height: AppSpacing.lg),
+  InlineError(message: _error!),
+],
+<span class="k">const</span> SizedBox(height: AppSpacing.xl),
+FilledButton(...)</code></pre>
+<div class="note"><b>Kenapa seragam?</b> Pesan error selalu memakai ikon + teks (tidak hanya warna), warnanya diambil dari tema sehingga ikut berubah di mode gelap, dan teksnya berasal dari <code>friendlyError()</code> di <code>core/errors.dart</code>. Dengan begitu “Email atau password salah.” tampil sama di mana pun.</div>
+
+<h3>10B. Error layout saat coding &amp; obatnya</h3>
+<div class="scroll-x">
+<table>
+  <thead><tr><th>Gejala &amp; pesan di konsol</th><th>Penyebab</th><th>Obat</th><th>Contoh di Racik</th></tr></thead>
+  <tbody>
+    <tr><td><b>Overflow</b> (garis kuning-hitam)<br><code>A RenderFlex overflowed by … pixels on the right</code></td><td>Isi <code>Row</code> lebih lebar dari layar</td><td>Bungkus teks dengan <code>Expanded</code>, atau ganti <code>Row</code> dengan <code>Wrap</code></td><td>FoodCard, chip detail resep</td></tr>
+    <tr><td><b>Daftar tanpa batas tinggi</b><br><code>Vertical viewport was given unbounded height</code></td><td><code>ListView</code> di dalam <code>Column</code></td><td>Bungkus <code>ListView</code> dengan <code>Expanded</code></td><td>Daftar resep</td></tr>
+    <tr><td><b>Daftar horizontal tanpa tinggi</b><br><code>Horizontal viewport was given unbounded height</code></td><td><code>ListView</code> horizontal di dalam <code>Column</code></td><td>Beri tinggi pasti dengan <code>SizedBox(height: …)</code></td><td>Chip kategori</td></tr>
+    <tr><td><b>Form tertutup keyboard</b><br><code>A RenderFlex overflowed by … pixels on the bottom</code></td><td>Isi form memakai <code>Column</code> yang tidak bisa digulir</td><td>Ganti dengan <code>ListView</code> di dalam <code>SafeArea</code></td><td>Masuk, Daftar</td></tr>
+    <tr><td><b>Isi tidak di tengah</b><br><i>tidak ada pesan di konsol</i></td><td><code>Column</code> memenuhi seluruh tinggi layar</td><td><code>Center</code> + <code>mainAxisSize: MainAxisSize.min</code></td><td>Splash, EmptyState</td></tr>
+    <tr><td><b>Kartu tidak sejajar</b><br><i>tidak ada pesan di konsol</i></td><td>Margin bawaan <code>Card</code> 4 di semua sisi</td><td>Atur <code>cardTheme.margin</code> di tema (bagian 3)</td><td>Kartu resep, bahan, nutrisi</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ───────────────────────────────────────────── 9 -->
+<h2 id="checklist">11. Checklist sebelum menambah halaman baru</h2>
+<ul class="check">
+  <li>Mulai dari <code>Scaffold</code>; pakai <code>SafeArea</code> bila tidak ada <code>AppBar</code>.</li>
+  <li>Tepi halaman memakai <code>AppSpacing.page</code> (16), tidak ada angka padding lepas.</li>
+  <li>Semua jarak diambil dari <code>AppSpacing</code> (kelipatan 4).</li>
+  <li>Setiap <code>Row</code> dan <code>Column</code> dibungkus <code>Container</code>.</li>
+  <li>Teks yang bisa panjang di dalam <code>Row</code> dibungkus <code>Expanded</code>.</li>
+  <li>Daftar di dalam <code>Column</code> dibungkus <code>Expanded</code> atau diberi tinggi pasti.</li>
+  <li>Halaman berisi formulir memakai <code>ListView</code>, bukan <code>Column</code>.</li>
+  <li>Isi di tengah layar: <code>Center</code> + <code>Column(mainAxisSize: MainAxisSize.min)</code>.</li>
+  <li>Error di form memakai <code>InlineError</code>; halaman yang gagal memuat data memakai <code>ErrorState</code>.</li>
+  <li>Cek di layar sempit (375 px) dan dengan keyboard terbuka.</li>
+</ul>
+
+<footer>Racik · Progress UTS · dibedah dari branch <code>uts</code> di github.com/nfgcode/racik_app</footer>
+</main>
+</body>
+</html>

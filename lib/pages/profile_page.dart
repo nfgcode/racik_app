@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controller/auth_controller.dart';
+import '../core/spacing.dart';
 import '../model/app_user.dart';
 import '../widget/state_views.dart';
 
@@ -26,10 +27,10 @@ class ProfilePage extends StatelessWidget {
             );
           }
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.page,
             children: [
               Center(child: UserAvatar(user: user, radius: 48)),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 user.displayName,
                 style: Theme.of(context).textTheme.headlineSmall,
@@ -39,7 +40,7 @@ class ProfilePage extends StatelessWidget {
                 '@${user.username} · ${authController.email ?? ''}',
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.logout),

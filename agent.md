@@ -46,14 +46,29 @@ lib/
   enum/            LoadState (initial, loading, loaded, error), AuthStatus
   model/           AppUser, Food, Nutrition, Ingredient, FoodIngredient, RecipeStep (fromJson)
   service/         AuthService, FoodService — hanya bicara ke Supabase, tanpa widget
-  pages/           main, food_list, food_detail, login, register, scan, history, profile, setup
+  pages/           splash, main, food_list, food_detail, login, register, scan, history, profile, setup
   widget/          food_card, food_image, nutrition_card, recipe_sections, state_views
   core/            config, errors (friendlyError), formatters, theme
+assets/images/     logo_racik.png (dipakai SplashPage)
 supabase/          schema.sql, seed.sql (skema lengkap, dipakai juga oleh branch uas)
 test/              models_test, widget_test (service palsu, tanpa internet)
 ```
 
-## 5. Use case → kode (progress)
+## 5. Splash screen
+
+Tiga lapis, semuanya memakai logo yang sama (`LOGO_PAPB.png` di root repo):
+- **Android bawaan**: `res/drawable*/launch_background.xml` (Android < 12) dan
+  `res/values*-v31/styles.xml` (Android 12+, ikon `splash_icon` diberi ruang agar muat di lingkaran).
+  Warna latar `@color/splash_background` = `colorScheme.surface` Flutter.
+- **Web**: `#splash` di `web/index.html`, dihapus saat event `flutter-first-frame`.
+- **Flutter**: `SplashPage` (animasi fade + scale), pindah ke `MainPage` setelah minimal
+  1,8 detik dan sesi login selesai dibaca.
+
+Bila logo diganti, buat ulang `assets/images/logo_racik.png`, `drawable-xxhdpi/splash_logo.png`
+(432 px), `drawable-xxhdpi/splash_icon.png` (864 px, logo ±390 px di tengah), dan
+`web/icons/splash_logo.png`.
+
+## 6. Use case → kode (progress)
 
 | Aktor | Use case | Halaman | Logika |
 |---|---|---|---|
@@ -65,20 +80,22 @@ test/              models_test, widget_test (service palsu, tanpa internet)
 | Pengguna | Melihat Hasil Pemindaian | `HistoryPage` | tampilan saja — fitur di branch `uas` |
 | Pengguna | Mengubah Profil Akun | `ProfilePage` | baru tampil profil + Keluar — ubah profil di branch `uas` |
 
-## 6. Konvensi kode
+## 7. Konvensi kode
 
 - Komentar dan teks UI berbahasa Indonesia; identifier berbahasa Inggris.
 - Ikuti pola template: controller punya `LoadState` + `errorMessage`, halaman memakai
   `ListenableBuilder` dan `switch (controller.loadState)`.
 - Setiap `Row` dan `Column` dibungkus `Container` (konvensi praktikum). Karena itu lint
   `avoid_unnecessary_containers` dimatikan di `analysis_options.yaml`.
-- Error ditampilkan lewat `friendlyError(e)` di `core/errors.dart`.
+- Error ditampilkan lewat `friendlyError(e)` di `core/errors.dart`. Error aksi di form memakai
+  `InlineError`; halaman yang gagal memuat data memakai `ErrorState` (keduanya di `widget/state_views.dart`).
+- Semua jarak memakai `AppSpacing` (`core/spacing.dart`); tepi halaman `AppSpacing.page` (16).
 - Navigator/ScaffoldMessenger disimpan ke variabel sebelum `await`; setelah `await`, cek `mounted`.
 - `TextEditingController` dan `Timer` selalu di-dispose.
 - Aksesibilitas: setiap `IconButton` punya tooltip, baris label–nilai dibungkus `MergeSemantics`.
 - API terbaru: `Supabase.initialize(publishableKey: ...)` (bukan `anonKey`).
 
-## 7. Larangan
+## 8. Larangan
 
 - Jangan memasukkan secret/service_role key ke kode, env, atau repo.
 - Jangan membuat query Supabase langsung dari widget. Selalu lewat service.

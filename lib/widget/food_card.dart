@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/formatters.dart';
+import '../core/spacing.dart';
 import '../model/food.dart';
 import 'food_image.dart';
 
@@ -26,11 +27,11 @@ class FoodCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(
             children: [
               FoodImage(url: food.imageUrl, size: 72),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Container(
                   child: Column(

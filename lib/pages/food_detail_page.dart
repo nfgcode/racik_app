@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/spacing.dart';
 import '../model/food.dart';
 import '../widget/food_image.dart';
 import '../widget/nutrition_card.dart';
@@ -25,7 +26,12 @@ class FoodDetailPage extends StatelessWidget {
         slivers: [
           SliverAppBar.large(title: Text(food.name)),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.xxl,
+            ),
             sliver: SliverList.list(
               children: [
                 if (food.imageUrl != null)
@@ -33,10 +39,10 @@ class FoodDetailPage extends StatelessWidget {
                     aspectRatio: 16 / 9,
                     child: FoodImage(url: food.imageUrl),
                   ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
                   children: [
                     if (food.category != null)
                       Chip(
@@ -61,10 +67,10 @@ class FoodDetailPage extends StatelessWidget {
                   ],
                 ),
                 if (food.description != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.md),
                   Text(food.description!, style: textTheme.bodyLarge),
                 ],
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 IngredientList(items: food.ingredients),
                 StepList(steps: food.steps),
                 if (food.nutrition != null)

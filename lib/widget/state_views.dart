@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controller/auth_controller.dart';
+import '../core/spacing.dart';
 import '../pages/login_page.dart';
 import '../pages/register_page.dart';
 
@@ -25,7 +26,7 @@ class EmptyState extends StatelessWidget {
     return Center(
       child: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(AppSpacing.xxl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -34,19 +35,60 @@ class EmptyState extends StatelessWidget {
                 size: 56,
                 color: Theme.of(context).colorScheme.outline,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               Text(
                 title,
                 style: textTheme.titleMedium,
                 textAlign: TextAlign.center,
               ),
               if (message != null) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.sm),
                 Text(message!, textAlign: TextAlign.center),
               ],
-              if (action != null) ...[const SizedBox(height: 16), action!],
+              if (action != null) ...[
+                const SizedBox(height: AppSpacing.lg),
+                action!,
+              ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Pesan error di dalam form (Masuk, Daftar): ikon + teks di kotak
+/// berwarna errorContainer. Untuk halaman yang gagal memuat data, pakai
+/// [ErrorState].
+class InlineError extends StatelessWidget {
+  const InlineError({super.key, required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    // liveRegion: pembaca layar langsung membacakan pesan saat muncul.
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: scheme.errorContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.error_outline, color: scheme.onErrorContainer),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: scheme.onErrorContainer),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -106,7 +148,7 @@ class LoginRequired extends StatelessWidget {
               ),
               child: const Text('Masuk'),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             TextButton(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(

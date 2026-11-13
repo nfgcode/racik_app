@@ -17,6 +17,7 @@
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Racik — aplikasi pemindai makanan berbasis kecerdasan buatan.">
 
@@ -31,8 +32,33 @@
 
   <title>Racik</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Splash sebelum Flutter selesai dimuat; dihapus saat frame pertama tampil. -->
+  <style>
+    body { margin: 0; background: #f6fbf3; }
+    #splash {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 20px; font-family: Roboto, Arial, sans-serif; color: #42493f;
+    }
+    #splash img { width: 168px; height: 168px; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #101510; }
+      #splash { color: #c0c9bc; }
+    }
+  </style>
 </head>
 <body>
+  <div id="splash" aria-label="Memuat Racik">
+    <img src="icons/splash_logo.png" alt="Logo Racik">
+    <div>Pemindai makanan berbasis AI</div>
+  </div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var splash = document.getElementById('splash');
+      if (splash) splash.remove();
+    });
+  </script>
   <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader

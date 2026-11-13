@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/spacing.dart';
+
 /// Ditampilkan bila aplikasi dijalankan tanpa env.json.
 class SetupPage extends StatelessWidget {
   const SetupPage({super.key});
@@ -9,13 +11,13 @@ class SetupPage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: AppSpacing.page,
           children: [
             Text(
               'Racik belum terhubung ke Supabase',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             const Text(
               '1. Salin env.example.json menjadi env.json lalu isi '
               'SUPABASE_URL dan SUPABASE_KEY dari dashboard Supabase '

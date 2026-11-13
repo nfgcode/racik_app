@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controller/food_controller.dart';
+import '../core/spacing.dart';
 import '../enum/load_state.dart';
 import '../widget/food_card.dart';
 import '../widget/state_views.dart';
@@ -38,7 +39,12 @@ class _FoodListPageState extends State<FoodListPage> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                  ),
                   child: TextField(
                     controller: _query,
                     onChanged: controller.search,
@@ -64,11 +70,15 @@ class _FoodListPageState extends State<FoodListPage> {
                     height: 48,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                      ),
                       children: [
                         for (final c in [null, ...controller.categories])
                           Padding(
-                            padding: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.only(
+                              right: AppSpacing.sm,
+                            ),
                             child: ChoiceChip(
                               label: Text(c ?? 'Semua'),
                               selected: controller.selectedCategory == c,
@@ -108,7 +118,12 @@ class _FoodListPageState extends State<FoodListPage> {
         return RefreshIndicator(
           onRefresh: controller.loadFoods,
           child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.lg,
+            ),
             itemCount: controller.allFoods.length,
             itemBuilder: (context, index) {
               final food = controller.allFoods[index];

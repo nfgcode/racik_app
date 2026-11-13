@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/formatters.dart';
+import '../core/spacing.dart';
 import '../model/nutrition.dart';
 
 /// Use case "Menampilkan Informasi Nutrisi".
@@ -27,20 +28,20 @@ class NutritionCard extends StatelessWidget {
 
     return Card(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Informasi nutrisi', style: textTheme.titleMedium),
             if (servingSize != null)
               Text('per porsi · $servingSize', style: textTheme.bodySmall),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             for (final (name, value, unit) in rows)
               // MergeSemantics: pembaca layar membaca satu baris utuh,
               // "Protein 12 g", bukan dua potongan terpisah.
               MergeSemantics(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   child: Row(
                     children: [
                       Expanded(child: Text(name)),

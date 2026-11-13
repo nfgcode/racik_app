@@ -5,9 +5,8 @@ import 'controller/auth_controller.dart';
 import 'controller/food_controller.dart';
 import 'core/config.dart';
 import 'core/theme.dart';
-import 'enum/auth_status.dart';
-import 'pages/main_page.dart';
 import 'pages/setup_page.dart';
+import 'pages/splash_page.dart';
 import 'service/auth_service.dart';
 import 'service/food_service.dart';
 
@@ -57,20 +56,11 @@ class RacikApp extends StatelessWidget {
       title: 'Racik',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      home: ListenableBuilder(
-        listenable: authController,
-        builder: (context, _) {
-          // Tunggu sampai sesi login yang tersimpan selesai dibaca.
-          if (authController.status == AuthStatus.unknown) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-          return MainPage(
-            authController: authController,
-            foodController: foodController,
-          );
-        },
+      debugShowCheckedModeBanner: false,
+      // SplashPage pindah ke MainPage setelah sesi login selesai dibaca.
+      home: SplashPage(
+        authController: authController,
+        foodController: foodController,
       ),
     );
   }

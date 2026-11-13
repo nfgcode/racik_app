@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../controller/auth_controller.dart';
+import '../core/spacing.dart';
+import '../widget/state_views.dart';
 import 'login_page.dart';
 
 /// Use case: Mendaftar Akun (Guest).
@@ -84,7 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.all(24),
+            padding: AppSpacing.page,
             children: [
               TextFormField(
                 controller: _fullName,
@@ -95,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Nama wajib diisi' : null,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
               TextFormField(
                 controller: _username,
                 textInputAction: TextInputAction.next,
@@ -109,7 +111,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ? null
                     : 'Minimal 3 karakter: a–z, 0–9, atau _',
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
               TextFormField(
                 controller: _email,
                 keyboardType: TextInputType.emailAddress,
@@ -119,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ? 'Masukkan email yang valid'
                     : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               TextFormField(
                 controller: _password,
                 obscureText: true,
@@ -132,13 +134,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     : null,
               ),
               if (_error != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
+                const SizedBox(height: AppSpacing.lg),
+                InlineError(message: _error!),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
               ListenableBuilder(
                 listenable: widget.authController,
                 builder: (context, _) {

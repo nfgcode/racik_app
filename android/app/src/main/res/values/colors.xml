@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Sama dengan colorScheme.surface tema terang Flutter (AppTheme), supaya
+         perpindahan dari splash Android ke SplashPage Flutter tidak berkedip. -->
+    <color name="splash_background">#F6FBF3</color>
+</resources>

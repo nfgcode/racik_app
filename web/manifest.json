@@ -3,7 +3,7 @@
     "short_name": "Racik",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#FFFFFF",
+    "background_color": "#F6FBF3",
     "theme_color": "#2F7D4F",
     "description": "Racik — aplikasi pemindai makanan berbasis kecerdasan buatan.",
     "orientation": "portrait-primary",
