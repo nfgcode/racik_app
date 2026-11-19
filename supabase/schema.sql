@@ -210,6 +210,26 @@ create trigger scan_history_increment_count
   after insert on public.scan_history
   for each row execute function public.increment_scan_count();
 
+-- ...dan turun lagi saat riwayat dihapus (pengguna menghapus riwayat, atau
+-- akunnya dihapus), supaya statistik "paling sering dipindai" tetap akurat.
+create or replace function public.decrement_scan_count()
+returns trigger
+language plpgsql security definer set search_path = ''
+as $$
+begin
+  if old.food_id is not null then
+    update public.foods
+       set scan_count = greatest(coalesce(scan_count, 0) - 1, 0)
+     where id = old.food_id;
+  end if;
+  return old;
+end;
+$$;
+
+create trigger scan_history_decrement_count
+  after delete on public.scan_history
+  for each row execute function public.decrement_scan_count();
+
 -- Simpan makanan hasil pindai AI yang belum ada di foods (dipanggil
 -- FoodService.createFromAi lewat RPC). Pengguna biasa tidak boleh menulis ke
 -- foods, jadi fungsi ini SECURITY DEFINER, tetapi dibatasi ketat:
@@ -341,20 +361,32 @@ create policy "foods: admin ubah" on public.foods
 create policy "foods: admin hapus" on public.foods
   for delete to authenticated using (public.is_admin());
 
--- Tabel anak resep + master bahan: semua boleh baca, hanya admin menulis.
+-- Tabel anak resep (nutrisi, langkah, bahan resep): hanya boleh dibaca bila
+-- resepnya boleh dibaca, yaitu sudah terverifikasi atau yang membaca admin.
+-- Tanpa syarat ini, isi resep draf bisa dibaca lewat API walau resepnya
+-- sendiri tersembunyi. Hanya admin yang menulis.
 do $$
 declare t text;
 begin
-  foreach t in array array['nutritions', 'steps', 'food_ingredients', 'ingredients'] loop
+  foreach t in array array['nutritions', 'steps', 'food_ingredients'] loop
     execute format(
-      'create policy "%1$s: semua boleh baca" on public.%1$I
-         for select to anon, authenticated using (true)', t);
+      'create policy "%1$s: baca bila resep terlihat" on public.%1$I
+         for select to anon, authenticated
+         using (exists (select 1 from public.foods f
+                        where f.id = food_id and (f.is_verified or public.is_admin())))', t);
     execute format(
       'create policy "%1$s: admin menulis" on public.%1$I
          for all to authenticated
          using (public.is_admin()) with check (public.is_admin())', t);
   end loop;
 end $$;
+
+-- Master bahan: daftar nama bahan umum, semua boleh baca, hanya admin menulis.
+create policy "ingredients: semua boleh baca" on public.ingredients
+  for select to anon, authenticated using (true);
+create policy "ingredients: admin menulis" on public.ingredients
+  for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
 
 -- scan_history: Pengguna hanya melihat, menambah, dan menghapus miliknya.
 -- Admin boleh membaca semua (Melihat Statistik Pemindaian Pengguna).

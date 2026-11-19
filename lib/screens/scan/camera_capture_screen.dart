@@ -53,6 +53,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
   Future<void> _setupCamera() async {
     try {
       final cameras = await availableCameras();
+      if (!mounted) return; // layar mungkin sudah ditutup selama menunggu
       if (cameras.isEmpty) {
         setState(() => _error = 'Perangkat ini tidak memiliki kamera.');
         return;
@@ -93,6 +94,7 @@ class _CameraCaptureScreenState extends State<CameraCaptureScreen>
     final next = !_torchOn;
     try {
       await controller.setFlashMode(next ? FlashMode.torch : FlashMode.off);
+      if (!mounted) return;
       setState(() => _torchOn = next);
     } on CameraException {
       // Sebagian HP tidak punya lampu kilat; abaikan saja.

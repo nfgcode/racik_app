@@ -61,7 +61,32 @@ class StatsService {
           .limit(5),
     ]);
 
-    final recent = results[2] as List<Map<String, dynamic>>;
+    return summarize(
+      totalScans: results[0] as int,
+      totalUsers: results[1] as int,
+      recent: results[2] as List<Map<String, dynamic>>,
+      topFoods: (results[3] as List<Map<String, dynamic>>)
+          .map(Food.fromMap)
+          .toList(),
+      today: today,
+    );
+  }
+
+  /// Mengolah baris mentah 7 hari terakhir menjadi ringkasan. Dipisah dari
+  /// [load] supaya bisa dites tanpa Supabase.
+  ///
+  /// Kolom `scan_status` dan `created_at` boleh kosong di database, jadi
+  /// keduanya ditangani: status kosong dihitung sebagai `tidak_diketahui`,
+  /// baris tanpa tanggal tidak masuk hitungan per hari.
+  static ScanStats summarize({
+    required int totalScans,
+    required int totalUsers,
+    required List<Map<String, dynamic>> recent,
+    required List<Food> topFoods,
+    required DateTime today,
+  }) {
+    final start = DateTime(today.year, today.month, today.day)
+        .subtract(const Duration(days: 6));
     final days = List.generate(7, (i) => start.add(Duration(days: i)));
     final perDay = {for (final d in days) d: 0};
     final byStatus = <String, int>{};
@@ -70,34 +95,35 @@ class StatsService {
     var confidenceCount = 0;
 
     for (final row in recent) {
-      final created = DateTime.parse(row['created_at'] as String).toLocal();
-      final day = DateTime(created.year, created.month, created.day);
-      if (perDay.containsKey(day)) perDay[day] = perDay[day]! + 1;
+      final createdRaw = row['created_at'] as String?;
+      if (createdRaw != null) {
+        final created = DateTime.parse(createdRaw).toLocal();
+        final day = DateTime(created.year, created.month, created.day);
+        if (perDay.containsKey(day)) perDay[day] = perDay[day]! + 1;
+      }
 
-      final status = row['scan_status'] as String;
+      final status = row['scan_status'] as String? ?? 'tidak_diketahui';
       byStatus[status] = (byStatus[status] ?? 0) + 1;
 
       final label = row['fuzzy_label'] as String?;
       if (label != null) byLabel[label] = (byLabel[label] ?? 0) + 1;
 
-      final confidence = row['ai_confidence'];
+      final confidence = double.tryParse(row['ai_confidence']?.toString() ?? '');
       if (confidence != null) {
-        confidenceSum += double.parse(confidence.toString());
+        confidenceSum += confidence;
         confidenceCount++;
       }
     }
 
     return ScanStats(
-      totalScans: results[0] as int,
-      totalUsers: results[1] as int,
+      totalScans: totalScans,
+      totalUsers: totalUsers,
       last7Days: [for (final d in days) DailyCount(d, perDay[d]!)],
       byStatus: byStatus,
       byLabel: byLabel,
       averageConfidence:
           confidenceCount == 0 ? null : confidenceSum / confidenceCount,
-      topFoods: (results[3] as List<Map<String, dynamic>>)
-          .map(Food.fromMap)
-          .toList(),
+      topFoods: topFoods,
     );
   }
 }

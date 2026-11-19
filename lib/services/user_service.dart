@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/query_text.dart';
 import '../models/app_user.dart';
 
 /// Use case: Mengelola Akun Pengguna (Admin).
@@ -13,13 +14,34 @@ class UserService {
   final SupabaseClient _client;
 
   Future<List<AppUser>> list({String query = ''}) async {
-    var request = _client.from('users').select();
-    if (query.trim().isNotEmpty) {
-      final q = query.trim();
-      request = request.or('username.ilike.%$q%,full_name.ilike.%$q%');
+    if (query.trim().isEmpty) {
+      final rows = await _client
+          .from('users')
+          .select()
+          .order('created_at', ascending: false);
+      return rows.map(AppUser.fromMap).toList();
     }
-    final rows = await request.order('created_at', ascending: false);
-    return rows.map(AppUser.fromMap).toList();
+
+    // Cari di username ATAU nama lengkap. Dua query terpisah, bukan
+    // `.or('username.ilike.…,full_name.ilike.…')`: teks pencarian yang memuat
+    // koma atau tanda kurung akan merusak sintaks filter or() PostgREST.
+    final pattern = containsPattern(query);
+    final results = await Future.wait([
+      for (final column in ['username', 'full_name'])
+        _client
+            .from('users')
+            .select()
+            .ilike(column, pattern)
+            .order('created_at', ascending: false),
+    ]);
+
+    final byId = <String, AppUser>{
+      for (final rows in results)
+        for (final row in rows) row['id'] as String: AppUser.fromMap(row),
+    };
+    final users = byId.values.toList()
+      ..sort((a, b) => (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)));
+    return users;
   }
 
   Future<void> updateAccess(AppUser user) {

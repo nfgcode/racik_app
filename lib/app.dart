@@ -17,6 +17,7 @@ import 'services/scan_service.dart';
 import 'services/stats_service.dart';
 import 'services/storage_service.dart';
 import 'services/user_service.dart';
+import 'widgets/state_views.dart';
 
 class RacikApp extends StatelessWidget {
   const RacikApp({super.key});
@@ -91,7 +92,43 @@ class _AuthGateState extends State<AuthGate> {
         ),
       Actor.admin => const AdminShell(),
       Actor.guest || Actor.pengguna => const MainShell(),
+      Actor.gagalMemuat => const _ProfileErrorScreen(),
     };
+  }
+}
+
+/// Sesi login ada, tetapi profil gagal dimuat (mis. HP offline saat
+/// aplikasi dibuka). Pengguna bisa mencoba lagi atau keluar, alih-alih
+/// diam-diam dianggap tamu.
+class _ProfileErrorScreen extends StatelessWidget {
+  const _ProfileErrorScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    return Scaffold(
+      body: SafeArea(
+        child: EmptyState(
+          icon: Icons.cloud_off,
+          title: 'Profil belum bisa dimuat',
+          message: auth.profileError,
+          action: Column(
+            children: [
+              FilledButton.icon(
+                onPressed: auth.isBusy ? null : auth.retryProfile,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Coba lagi'),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: auth.isBusy ? null : auth.logout,
+                child: const Text('Keluar'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

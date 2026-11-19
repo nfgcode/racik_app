@@ -104,6 +104,7 @@ memilih kerangka layar berdasarkan nilai itu:
 | memuat | spinner (sesi belum terbaca) |
 | guest / pengguna | `MainShell`: Resep · Pindai · Riwayat · Profil. Guest melihat `LoginRequired` di tiga tab terakhir |
 | admin | `AdminShell`: Resep · Bahan · Statistik · Akun |
+| gagalMemuat | layar "Profil belum bisa dimuat" (sesi ada, profil gagal dimuat, mis. offline): Coba lagi / Keluar |
 
 Peran diambil dari `users.role`. Ada dua kondisi yang membuat pengguna langsung di-logout dengan pesan:
 - `is_active = false`;

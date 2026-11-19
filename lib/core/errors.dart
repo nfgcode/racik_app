@@ -13,14 +13,31 @@ String friendlyError(Object error) {
     return 'Tidak ada koneksi internet. Periksa jaringan lalu coba lagi.';
   }
   if (error is AuthException) {
+    // Kode error Supabase Auth lebih tepat daripada isi pesan; pesan dipakai
+    // sebagai cadangan untuk versi server yang belum mengirim kode.
+    final code = error.code;
     final msg = error.message.toLowerCase();
-    if (msg.contains('invalid login')) return 'Email atau password salah.';
-    if (msg.contains('already registered')) return 'Email sudah terdaftar.';
-    if (msg.contains('email not confirmed')) {
+    if (code == 'invalid_credentials' || msg.contains('invalid login')) {
+      return 'Email atau password salah.';
+    }
+    if (code == 'user_already_exists' ||
+        code == 'email_exists' ||
+        msg.contains('already registered')) {
+      return 'Email sudah terdaftar.';
+    }
+    if (code == 'email_not_confirmed' || msg.contains('email not confirmed')) {
       return 'Email belum dikonfirmasi. Buka tautan di email Anda dulu.';
     }
-    if (msg.contains('password')) {
+    if (code == 'same_password') {
+      return 'Password baru harus berbeda dari password lama.';
+    }
+    if (msg.contains('at least 6 characters')) {
       return 'Password minimal 6 karakter.';
+    }
+    if (code == 'weak_password') {
+      // Aturan kekuatan password lain (huruf besar, angka, dsb.) diatur di
+      // dashboard Supabase; tampilkan pesan aslinya supaya jelas syaratnya.
+      return 'Password terlalu lemah. ${error.message}';
     }
     if (msg.contains('database error')) {
       return 'Pendaftaran gagal. Username mungkin sudah dipakai.';

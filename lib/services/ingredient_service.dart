@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/query_text.dart';
 import '../models/ingredient.dart';
 
 /// Use case: Mengelola Data Bahan (Admin).
@@ -11,7 +12,7 @@ class IngredientService {
   Future<List<Ingredient>> list({String query = ''}) async {
     var request = _client.from('ingredients').select();
     if (query.trim().isNotEmpty) {
-      request = request.ilike('name', '%${query.trim()}%');
+      request = request.ilike('name', containsPattern(query));
     }
     final rows = await request.order('name');
     return rows.map(Ingredient.fromMap).toList();

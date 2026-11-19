@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/query_text.dart';
 import '../models/food.dart';
 import '../models/food_ingredient.dart';
 import '../models/nutrition.dart';
@@ -27,7 +28,7 @@ class FoodService {
   }) async {
     var request = _client.from('foods').select('*, nutritions(*)');
     if (query.trim().isNotEmpty) {
-      request = request.ilike('name', '%${query.trim()}%');
+      request = request.ilike('name', containsPattern(query));
     }
     if (category != null) request = request.eq('category', category);
     if (!includeUnverified) request = request.eq('is_verified', true);
@@ -64,11 +65,12 @@ class FoodService {
     final cleanName = name.trim();
     if (cleanName.isEmpty) return null;
 
-    // 1. Cocokkan persis (case-insensitive)
+    // 1. Cocokkan persis (case-insensitive). Label di-escape supaya % dan _
+    //    dari AI tidak dianggap wildcard.
     final rows = await _client
         .from('foods')
         .select(_detailColumns)
-        .ilike('name', cleanName)
+        .ilike('name', escapeLike(cleanName))
         .eq('is_verified', true)
         .limit(1);
     if (rows.isNotEmpty) return Food.fromMap(rows.first);
@@ -77,7 +79,7 @@ class FoodService {
     final partial = await _client
         .from('foods')
         .select(_detailColumns)
-        .ilike('name', '%$cleanName%')
+        .ilike('name', containsPattern(cleanName))
         .eq('is_verified', true)
         .limit(1);
     if (partial.isNotEmpty) return Food.fromMap(partial.first);
@@ -90,7 +92,7 @@ class FoodService {
       final leadMatch = await _client
           .from('foods')
           .select(_detailColumns)
-          .ilike('name', '%$lead%')
+          .ilike('name', containsPattern(lead))
           .eq('is_verified', true)
           .limit(1);
       if (leadMatch.isNotEmpty) return Food.fromMap(leadMatch.first);

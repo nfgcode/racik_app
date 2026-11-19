@@ -183,6 +183,8 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
         folder: 'foods',
         bytes: await file.readAsBytes(),
       );
+      // Admin bisa saja sudah menutup form selama foto diunggah.
+      if (!mounted) return;
       setState(() => _imageUrl.text = url);
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(friendlyError(e))));
