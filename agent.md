@@ -336,7 +336,7 @@ Belum dibuat:
 - [ ] `test/models_test.dart`, untuk parsing hasil join.
 - [ ] `README.md` proyek dan dokumen belajar Flutter.
 - [ ] Model `racik_food.tflite`. Sampai model ini ada, aplikasi berjalan dalam mode demo.
-- [x] `applicationId` sudah `com.nfgcode.racik` (permanen setelah upload pertama ke Play Store).
+- [x] `applicationId` sudah `com.racik.app` (permanen setelah upload pertama ke Play Store).
 - [ ] Warna `HealthStyle` belum disesuaikan untuk tema gelap.
 - [ ] Proyek belum memakai git. Jalankan `git init` sebelum perubahan berikutnya.
 
@@ -352,7 +352,7 @@ Belum dibuat:
 
 ## 15. Rilis Google Play
 
-- Package name `com.nfgcode.racik`, versi di `pubspec.yaml` (`x.y.z+versionCode`).
+- Package name `com.racik.app`, versi di `pubspec.yaml` (`x.y.z+versionCode`).
 - Rilis ditandatangani upload key dari `android/key.properties` (tidak masuk git; dibuat dengan
   `tool/buat_upload_key.ps1`). Tanpa file itu rilis memakai kunci debug dan DITOLAK Play Store.
 - Kunci OpenRouter TIDAK boleh ada di aplikasi; hanya sebagai secret Edge Function `recognize-food`.

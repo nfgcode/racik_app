@@ -50,7 +50,7 @@ Aplikasi mengenali makanan dengan model Vision AI **Qwen 2.5 VL 72B** lewat Supa
 `recognize-food` (atau mode demo). Makanan yang belum terdaftar disimpan sebagai resep yang menunggu
 verifikasi admin, lalu skor kesehatannya dihitung dengan **Logika Fuzzy Sugeno**.
 
-Rilis ke Google Play (package `com.nfgcode.racik`, upload key, kebijakan privasi, hapus akun):
+Rilis ke Google Play (package `com.racik.app`, upload key, kebijakan privasi, hapus akun):
 lihat `store/PANDUAN-PUBLIKASI.md`.
 
 ## Struktur

@@ -1,4 +1,4 @@
-package com.nfgcode.racik
+package com.racik.app
 
 import io.flutter.embedding.android.FlutterActivity
 

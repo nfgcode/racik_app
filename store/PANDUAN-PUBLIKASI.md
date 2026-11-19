@@ -92,7 +92,7 @@ flutter build appbundle --release --dart-define-from-file=env.json
 
 | Syarat | Di mana |
 |---|---|
-| Package name unik `com.nfgcode.racik` | `android/app/build.gradle.kts` |
+| Package name unik `com.racik.app` | `android/app/build.gradle.kts` |
 | Target API 36 (terbaru) | `flutter.targetSdkVersion` |
 | Penandatanganan rilis dengan upload key | `android/app/build.gradle.kts` + `tool/buat_upload_key.ps1` |
 | Versi 1.0.0 (versionCode 1) | `pubspec.yaml` |

@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     // Package name di Play Store. TIDAK bisa diganti setelah upload pertama.
-    namespace = "com.nfgcode.racik"
+    namespace = "com.racik.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -27,7 +27,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.nfgcode.racik"
+        applicationId = "com.racik.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion // Play Store mewajibkan API terbaru (36)
         versionCode = flutter.versionCode // dari pubspec.yaml: version: x.y.z+versionCode
