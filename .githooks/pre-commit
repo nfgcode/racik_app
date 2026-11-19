@@ -23,8 +23,10 @@ fi
 
 # 2. Isi yang mirip rahasia (hanya baris yang ditambahkan, file teks)
 patterns='sk-or-v1-[A-Za-z0-9]{20,}|sb_secret_[A-Za-z0-9_-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|"type": *"service_account"|(store|key)Password=[^$[:space:]]'
-hits=$(git diff --cached -U0 --diff-filter=ACMR --text -- . ':(exclude).githooks/pre-commit' \
-  | grep -E '^\+' | grep -Ev '^\+\+\+ ' | grep -En "$patterns" | cut -c1-120)
+# Tanpa --text, file biner (foto) hanya muncul sebagai "Binary files differ",
+# sehingga grep tidak menganggap seluruh diff biner dan tetap memeriksa file teks.
+hits=$(git diff --cached -U0 --diff-filter=ACMR -- . ':(exclude).githooks/pre-commit' \
+  | grep -aE '^\+' | grep -aEv '^\+\+\+ ' | grep -aEn "$patterns" | cut -c1-120)
 if [ -n "$hits" ]; then
   echo "DITOLAK: ada isi yang mirip API key, secret, atau password:" >&2
   printf '%s\n' "$hits" >&2
