@@ -26,4 +26,22 @@ class StorageService {
         );
     return _client.storage.from(bucket).getPublicUrl(path);
   }
+
+  /// Menghapus semua file di satu folder (dipakai saat hapus akun).
+  /// `list` mengembalikan paling banyak 100 file, jadi diulang sampai kosong.
+  Future<void> removeFolder({
+    required String bucket,
+    required String folder,
+  }) async {
+    final storage = _client.storage.from(bucket);
+    while (true) {
+      final files = await storage.list(
+        path: folder,
+        searchOptions: const SearchOptions(limit: 100),
+      );
+      if (files.isEmpty) return;
+      await storage.remove([for (final f in files) '$folder/${f.name}']);
+      if (files.length < 100) return;
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'ai/food_recognizer.dart';
 import 'controller/auth_controller.dart';
 import 'controller/food_controller.dart';
 import 'controller/history_controller.dart';
@@ -49,6 +50,7 @@ Future<void> main() async {
     foodService: foodService,
     scanService: scanService,
     storageService: storageService,
+    recognizer: createFoodRecognizer(client),
   );
   final historyController = HistoryController(
     scanService: scanService,

@@ -20,7 +20,7 @@ Branch:
 | Flutter / Dart | 3.44.1 / 3.12.1 (`sdk: ^3.12.1`) |
 | Platform | Android + Web (Chrome) |
 | Backend | Supabase (Postgres + Auth + Storage) |
-| AI | OpenRouter Vision (`OPENROUTER_API_KEY` di env.json) atau mode demo + logika fuzzy Sugeno (Dart) |
+| AI | OpenRouter Vision lewat Supabase Edge Function `recognize-food` (kunci di server) + logika fuzzy Sugeno (Dart). `--dart-define=AI_DEMO=true` untuk mode demo |
 | State | `ChangeNotifier` + `ListenableBuilder`, controller dioper lewat konstruktor (tanpa paket `provider`) |
 
 Paket: `supabase_flutter`, `http`, `camera`, `image_picker`, `image` (kompres foto), `flutter_tts`.
@@ -49,16 +49,17 @@ lib/
   enum/            LoadState (initial, loading, loaded, error), AuthStatus
   model/           AppUser, Food, Nutrition, Ingredient, FoodIngredient, RecipeStep, ScanHistory
   service/         AuthService, FoodService, ScanService, StorageService — hanya bicara ke Supabase
-  ai/              FoodRecognizer (OpenRouter / demo), FuzzyHealthScore (Sugeno, Dart murni)
+  ai/              FoodRecognizer (EdgeFoodRecognizer / demo), FuzzyHealthScore (Sugeno, Dart murni)
   pages/           splash, main, food_list, food_detail, login, register, scan, camera,
                    scan_result, history, history_detail, profile, edit_profile, setup
   widget/          food_card, food_image, nutrition_card, recipe_sections, health_score_card,
                    scan_widgets, state_views
   core/            config, errors (friendlyError), formatters, spacing, theme
 assets/images/     logo_racik.png (dipakai SplashPage)
-supabase/          schema.sql, seed.sql (skema lengkap, dipakai juga oleh branch uas)
+supabase/          schema.sql, seed.sql, hapus_akun.sql, functions/recognize-food (Edge Function AI)
+store/             aset & teks listing Google Play + PANDUAN-PUBLIKASI.md
 test/              models_test, fuzzy_health_score_test, widget_test (service palsu, tanpa internet)
-tool/              test_supabase_api.ps1 (uji endpoint Supabase, baca env.json)
+tool/              test_supabase_api.ps1, buat_upload_key.ps1, buat_aset_playstore.py
 ```
 
 ## 5. Splash screen
@@ -84,7 +85,7 @@ Bila logo diganti, buat ulang `assets/images/logo_racik.png`, `drawable-xxhdpi/s
 | Guest | Mencari Resep | `FoodListPage` | `FoodController.loadFoods`, `search` (debounce 400 ms), `selectCategory` |
 | Guest | Melihat Detail Resep (+ bahan, langkah, nutrisi) | `FoodDetailPage` | data sudah lengkap dari `FoodService.getFoods` |
 | Pengguna | Memindai Makanan | `ScanPage` → `CameraPage` / galeri → `ScanResultPage` | `ScanController.scan` |
-| ↳ include | Mengidentifikasi Citra Makanan | | `FoodRecognizer.recognize` (OpenRouter / demo) |
+| ↳ include | Mengidentifikasi Citra Makanan | | `FoodRecognizer.recognize` → Edge Function `recognize-food` |
 | ↳ include | Detail Skor Kesehatan & Informasi Nutrisi | `HealthScoreCard`, `NutritionCard` | `FuzzyHealthScore.evaluate` |
 | Pengguna | Melihat Hasil Pemindaian | `HistoryPage`, `HistoryDetailPage` | `HistoryController.loadHistory`, `delete` |
 | Pengguna | Mengubah Profil Akun | `ProfilePage` → `EditProfilePage` | `AuthController.updateProfile`, `uploadAvatar` (bucket `avatars`) |
@@ -102,7 +103,16 @@ Bila logo diganti, buat ulang `assets/images/logo_racik.png`, `drawable-xxhdpi/s
 `HistoryController` mengikuti akun yang login lewat listener di `main.dart`
 (`authController.addListener(() => historyController.setUser(...))`).
 
-## 7. Konvensi kode
+## 7. Rilis Google Play
+
+- Package name `com.nfgcode.racik` (permanen), target API 36, versi di `pubspec.yaml` (`x.y.z+versionCode`).
+- Rilis ditandatangani upload key dari `android/key.properties` (tidak masuk git); tanpa file itu
+  rilis memakai kunci debug dan DITOLAK Play Store.
+- Kunci OpenRouter TIDAK boleh ada di aplikasi; hanya sebagai secret Edge Function.
+- Hapus akun wajib ada: Profil → Hapus akun (`delete_my_account`) + `docs/hapus-akun.html`.
+- Langkah lengkap: `store/PANDUAN-PUBLIKASI.md`.
+
+## 8. Konvensi kode
 
 - Komentar dan teks UI berbahasa Indonesia; identifier berbahasa Inggris.
 - Ikuti pola template: controller punya `LoadState` + `errorMessage`, halaman memakai
@@ -117,7 +127,7 @@ Bila logo diganti, buat ulang `assets/images/logo_racik.png`, `drawable-xxhdpi/s
 - Aksesibilitas: setiap `IconButton` punya tooltip, baris label–nilai dibungkus `MergeSemantics`.
 - API terbaru: `Supabase.initialize(publishableKey: ...)` (bukan `anonKey`).
 
-## 8. Larangan
+## 9. Larangan
 
 - Jangan memasukkan secret/service_role key ke kode, env, atau repo.
 - Jangan membuat query Supabase langsung dari widget. Selalu lewat service.

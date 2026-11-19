@@ -25,6 +25,17 @@ String friendlyError(Object error) {
     }
     return error.message;
   }
+  if (error is FunctionException) {
+    if (error.status == 401) return 'Sesi berakhir. Silakan masuk lagi.';
+    if (error.status == 404) {
+      return 'Layanan AI belum siap (fungsi recognize-food belum di-deploy).';
+    }
+    final details = error.details;
+    if (details is Map && details['error'] is String) {
+      return details['error'] as String;
+    }
+    return 'Layanan AI sedang bermasalah. Coba lagi sebentar lagi.';
+  }
   if (error is PostgrestException) return error.message;
   if (error is FormatException) return error.message;
   return 'Terjadi kesalahan: $error';

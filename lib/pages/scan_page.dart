@@ -115,8 +115,8 @@ class ScanPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Mode demo: OPENROUTER_API_KEY belum diisi di env.json, '
-                    'jadi hasil tebakan adalah contoh, bukan hasil AI.',
+                    'Mode demo aktif (AI_DEMO=true), jadi hasil tebakan '
+                    'adalah contoh, bukan hasil AI.',
                     style: TextStyle(color: scheme.onTertiaryContainer),
                   ),
                 ),

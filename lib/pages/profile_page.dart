@@ -59,9 +59,60 @@ class ProfilePage extends StatelessWidget {
                 title: const Text('Keluar'),
                 onTap: authController.logout,
               ),
+              ListTile(
+                leading: Icon(
+                  Icons.delete_forever_outlined,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(
+                  'Hapus akun',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                onTap: () => _confirmDelete(context),
+              ),
             ],
           );
         },
+      ),
+    );
+  }
+
+  /// Hapus akun (syarat Google Play) dengan konfirmasi dulu.
+  Future<void> _confirmDelete(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning_amber_rounded),
+        title: const Text('Hapus akun?'),
+        content: const Text(
+          'Akun, profil, foto, dan seluruh riwayat pindai Anda akan dihapus '
+          'permanen dan tidak bisa dikembalikan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Hapus permanen'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final success = await authController.deleteAccount();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          success ? 'Akun Anda sudah dihapus.' : authController.errorMessage,
+        ),
       ),
     );
   }

@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'food_recognizer.dart';
 
-/// Pengenal PURA-PURA, dipakai bila OPENROUTER_API_KEY belum diisi di env.json.
+/// Pengenal PURA-PURA, dipakai bila aplikasi dijalankan dengan AI_DEMO=true.
 ///
 /// Tebakannya diturunkan dari isi byte foto, jadi foto yang sama selalu
 /// menghasilkan tebakan yang sama. Label di bawah sama dengan data contoh

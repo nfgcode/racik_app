@@ -61,3 +61,8 @@ docs/*.zip
 
 # Salinan dokumen di root (versi resmi ada di docs/)
 /Racik - Penjelasan Aplikasi.pdf
+
+# Kunci tanda tangan rilis Play Store (simpan cadangannya di tempat aman, JANGAN di-commit)
+android/key.properties
+*.jks
+*.keystore

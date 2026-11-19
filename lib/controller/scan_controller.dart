@@ -52,16 +52,14 @@ class ScanController extends ChangeNotifier {
     required this.foodService,
     required this.scanService,
     required this.storageService,
-    FoodRecognizer? testRecognizer, // diisi tes; aplikasi memakai default
-  }) : _recognizer = testRecognizer;
+    required this.recognizer,
+  });
 
-  FoodRecognizer? _recognizer;
+  final FoodRecognizer recognizer;
   LoadState _loadState = LoadState.initial;
   String _errorMessage = '';
   ScanOutcome? _outcome;
 
-  /// Mesin pengenal dibuat saat pertama dibutuhkan (lazy).
-  FoodRecognizer get recognizer => _recognizer ??= createFoodRecognizer();
   bool get isDemo => recognizer.isDemo;
   LoadState get loadState => _loadState;
   String get errorMessage => _errorMessage;
@@ -153,7 +151,7 @@ class ScanController extends ChangeNotifier {
 
   @override
   void dispose() {
-    _recognizer?.dispose();
+    recognizer.dispose();
     super.dispose();
   }
 }

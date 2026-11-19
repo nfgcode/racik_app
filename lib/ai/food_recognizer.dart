@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/config.dart';
 import '../model/nutrition.dart';
 import 'demo_food_recognizer.dart';
-import 'openrouter_food_recognizer.dart';
+import 'edge_food_recognizer.dart';
 
 /// Satu tebakan model: label makanan + tingkat keyakinan 0..1 + estimasi gizi opsional.
 class Prediction {
@@ -34,7 +35,7 @@ class RecognitionResult {
 /// Kontrak untuk semua mesin pengenal makanan.
 ///
 /// ScanController hanya mengenal kelas abstrak ini, sehingga mesinnya bisa
-/// diganti (API cloud atau mode demo) tanpa mengubah halaman mana pun.
+/// diganti (Edge Function atau mode demo) tanpa mengubah halaman mana pun.
 abstract class FoodRecognizer {
   bool get isDemo;
 
@@ -43,18 +44,13 @@ abstract class FoodRecognizer {
   void dispose();
 }
 
-/// OpenRouter Vision bila OPENROUTER_API_KEY ada di env.json; kalau tidak,
-/// mode demo supaya alur pindai tetap bisa dicoba.
-FoodRecognizer createFoodRecognizer() {
-  if (AppConfig.isOpenRouterConfigured) {
-    debugPrint(
-      'Memakai OpenRouter Food Recognizer (${AppConfig.openRouterModel})',
-    );
-    return OpenRouterFoodRecognizer(
-      apiKey: AppConfig.openRouterApiKey,
-      model: AppConfig.openRouterModel,
-    );
+/// Supabase Edge Function `recognize-food` (OpenRouter Vision di server).
+/// Mode demo hanya dipakai bila dijalankan dengan `--dart-define=AI_DEMO=true`,
+/// mis. saat fungsi belum di-deploy.
+FoodRecognizer createFoodRecognizer(SupabaseClient client) {
+  if (AppConfig.aiDemo) {
+    debugPrint('AI_DEMO=true, memakai mode demo.');
+    return DemoFoodRecognizer();
   }
-  debugPrint('OPENROUTER_API_KEY kosong, memakai mode demo.');
-  return DemoFoodRecognizer();
+  return EdgeFoodRecognizer(client);
 }

@@ -1,7 +1,7 @@
 name: racik_app
 description: "Racik — aplikasi mobile pemindai makanan berbasis kecerdasan buatan."
 publish_to: 'none'
-version: 0.3.0+3
+version: 1.0.0+1
 
 environment:
   sdk: ^3.12.1

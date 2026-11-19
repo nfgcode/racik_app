@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:racik_app/ai/edge_food_recognizer.dart';
 import 'package:racik_app/ai/food_recognizer.dart';
 import 'package:racik_app/controller/auth_controller.dart';
 import 'package:racik_app/controller/food_controller.dart';
@@ -104,6 +105,14 @@ class FakeAuthService implements AuthService {
   @override
   Future<void> logout() async {}
 
+  @override
+  Future<AppUser> updateProfile(AppUser user) async => user;
+
+  bool deleted = false;
+
+  @override
+  Future<void> deleteAccount() async => deleted = true;
+
   /// Selalu gagal, seperti Supabase saat password salah.
   @override
   Future<void> login({required String email, required String password}) =>
@@ -145,6 +154,14 @@ class FakeScanService implements ScanService {
 }
 
 class FakeStorageService implements StorageService {
+  final removedFolders = <String>[];
+
+  @override
+  Future<void> removeFolder({
+    required String bucket,
+    required String folder,
+  }) async => removedFolders.add('$bucket/$folder');
+
   @override
   Future<String> uploadJpeg({
     required String bucket,
@@ -185,7 +202,7 @@ ScanController scanControllerWith(
   foodService: FakeFoodService(),
   scanService: scans ?? FakeScanService(),
   storageService: FakeStorageService(),
-  testRecognizer: recognizer,
+  recognizer: recognizer,
 );
 
 void main() {
@@ -294,6 +311,37 @@ void main() {
     c.setUser(null); // logout
     expect(c.items, isEmpty);
     expect(c.loadState, LoadState.initial);
+  });
+
+  test('EdgeFoodRecognizer.parseRecognition membaca jawaban Edge Function', () {
+    final r = EdgeFoodRecognizer.parseRecognition({
+      'label': 'Ayam Goreng',
+      'confidence': 0.98,
+      'calories': 450,
+      'fat_g': '25',
+      'alternatives': [
+        {'label': 'Ayam Bakar', 'confidence': 0.6},
+        {'label': 'ayam goreng', 'confidence': 0.5}, // duplikat diabaikan
+      ],
+      'model': 'qwen/qwen-2.5-vl-72b-instruct',
+    });
+    expect(r.top.label, 'Ayam Goreng');
+    expect(r.top.percent, 98);
+    expect(r.top.estimatedNutrition!.fatG, 25);
+    expect(r.alternatives.map((p) => p.label), ['Ayam Bakar']);
+  });
+
+  test('AuthController.deleteAccount menghapus foto lalu akun', () async {
+    final authService = FakeAuthService();
+    final storage = FakeStorageService();
+    final auth = AuthController(
+      authService: authService,
+      storageService: storage,
+    );
+    await auth.updateProfile(AppUser(id: 'u1', username: 'racik'));
+    expect(await auth.deleteAccount(), isTrue);
+    expect(storage.removedFolders, ['scan-images/u1', 'avatars/u1']);
+    expect(authService.deleted, isTrue);
   });
 
   testWidgets('Tamu melihat daftar resep, detail, dan ajakan masuk', (

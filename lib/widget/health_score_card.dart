@@ -109,6 +109,11 @@ class HealthScoreCard extends StatelessWidget {
                 color: style.color,
               ),
             ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Skor ini perkiraan dari data gizi, bukan saran medis.',
+              style: textTheme.bodySmall,
+            ),
             if (result != null) ...[
               if (result!.hasMissingData) ...[
                 const SizedBox(height: AppSpacing.md),

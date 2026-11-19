@@ -19,17 +19,10 @@ class AppConfig {
   static bool get isSupabaseConfigured =>
       supabaseUrl.isNotEmpty && supabaseKey.isNotEmpty;
 
-  /// Kunci API OpenRouter untuk model Vision pengenal makanan. Bila kosong,
-  /// aplikasi memakai mode demo.
-  static const openRouterApiKey = String.fromEnvironment('OPENROUTER_API_KEY');
-
-  /// Model Vision OpenRouter yang dipakai.
-  static const openRouterModel = String.fromEnvironment(
-    'OPENROUTER_MODEL',
-    defaultValue: 'qwen/qwen-2.5-vl-72b-instruct',
-  );
-
-  static bool get isOpenRouterConfigured => openRouterApiKey.isNotEmpty;
+  /// Kunci OpenRouter TIDAK ada di aplikasi: tersimpan sebagai secret di
+  /// Supabase Edge Function `recognize-food`. `AI_DEMO=true` memakai pengenal
+  /// contoh tanpa memanggil AI.
+  static const aiDemo = bool.fromEnvironment('AI_DEMO');
 
   /// Di bawah angka ini hasil AI dianggap "tidak yakin".
   static const confidenceThreshold = 0.60;

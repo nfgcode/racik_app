@@ -106,6 +106,18 @@ class AuthController extends ChangeNotifier {
     });
   }
 
+  /// Hapus akun (syarat Google Play): foto di Storage dihapus dulu, lalu akun
+  /// beserta profil dan riwayat pindainya. Mengembalikan true bila berhasil.
+  Future<bool> deleteAccount() {
+    final userId = _user!.id;
+    return _run(() async {
+      for (final bucket in [AppConfig.scanBucket, AppConfig.avatarBucket]) {
+        await storageService.removeFolder(bucket: bucket, folder: userId);
+      }
+      await authService.deleteAccount();
+    });
+  }
+
   /// Unggah foto profil ke bucket `avatars`, mengembalikan URL publiknya.
   Future<String> uploadAvatar(Uint8List bytes) {
     return storageService.uploadJpeg(
