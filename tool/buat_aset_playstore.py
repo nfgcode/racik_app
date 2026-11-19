@@ -8,6 +8,7 @@ Hasil:
   store/icon-512.png               ikon Play Store (512×512)
   store/feature-graphic.png        feature graphic (1024×500)
   store/screenshots/*.png          screenshot HP (dipotong: tanpa status bar, pita DEBUG, tombol navigasi)
+  web/favicon.png, web/icons/*     ikon versi web (tab browser, PWA, ikon layar utama iPhone)
 
 Screenshot riwayat sengaja tidak dipakai karena memuat foto wajah orang.
 """
@@ -19,6 +20,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / 'android/app/src/main/res'
 STORE = ROOT / 'store'
+WEB = ROOT / 'web'
 GREEN_DARK = (23, 84, 55)
 GREEN = (38, 112, 74)
 
@@ -63,6 +65,46 @@ def launcher_icons(logo: Image.Image) -> None:
         '    <color name="ic_launcher_background">#FFFFFF</color>\n</resources>\n',
         encoding='utf-8',
     )
+
+
+def square(logo: Image.Image) -> Image.Image:
+    """Logo dijadikan persegi dengan menambah ruang transparan (tanpa melar)."""
+    side = max(logo.size)
+    canvas = Image.new('RGBA', (side, side), (0, 0, 0, 0))
+    canvas.paste(logo, ((side - logo.width) // 2, (side - logo.height) // 2), logo)
+    return canvas
+
+
+def full_bleed(logo: Image.Image, px: int, scale: float) -> Image.Image:
+    """Kotak penuh tanpa bagian transparan: latar gradasi hijau dari tepi logo,
+    lalu logo di tengah. Dipakai untuk ikon iPhone (iOS mengisi bagian
+    transparan dengan hitam) dan ikon maskable Android."""
+    w, h = logo.size
+    top = logo.getpixel((w // 2, int(h * 0.03)))[:3]
+    bottom = logo.getpixel((w // 2, int(h * 0.97)))[:3]
+    canvas = Image.new('RGBA', (px, px))
+    draw = ImageDraw.Draw(canvas)
+    for y in range(px):
+        t = y / max(px - 1, 1)
+        color = tuple(round(a + (b - a) * t) for a, b in zip(top, bottom))
+        draw.line([(0, y), (px, y)], fill=color + (255,))
+    size = round(px * scale)
+    scaled = square(logo).resize((size, size), Image.LANCZOS)
+    canvas.alpha_composite(scaled, ((px - size) // 2, (px - size) // 2))
+    return canvas.convert('RGB')
+
+
+def web_icons(logo: Image.Image) -> None:
+    """Ikon versi web. Sebelumnya masih ikon bawaan Flutter."""
+    icons = WEB / 'icons'
+    icons.mkdir(parents=True, exist_ok=True)
+    sq = square(logo)
+    sq.resize((32, 32), Image.LANCZOS).save(WEB / 'favicon.png', optimize=True)
+    for px in (192, 512):
+        sq.resize((px, px), Image.LANCZOS).save(icons / f'Icon-{px}.png', optimize=True)
+        # Maskable: konten penting harus di dalam lingkaran 80% di tengah.
+        full_bleed(logo, px, 0.8).save(icons / f'Icon-maskable-{px}.png', optimize=True)
+    full_bleed(logo, 180, 1.0).save(icons / 'apple-touch-icon.png', optimize=True)
 
 
 def store_icon(logo: Image.Image) -> None:
@@ -135,6 +177,7 @@ if __name__ == '__main__':
     launcher_icons(logo)
     store_icon(logo)
     feature_graphic(logo)
+    web_icons(logo)
     if len(sys.argv) > 1:
         screenshots(Path(sys.argv[1]))
     print('Selesai:', STORE)
