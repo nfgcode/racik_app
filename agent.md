@@ -363,6 +363,8 @@ Belum dibuat:
 ## 16. Larangan
 
 - Jangan memasukkan secret/service_role key ke kode, env, atau repo.
+- Aktifkan pengaman rahasia sekali per clone: `git config core.hooksPath .githooks` (menolak commit
+  berisi `env.json`, keystore, `key.properties`, atau isi mirip API key/password).
 - Jangan mengganti nama tabel atau kolom tanpa memperbarui model, service, SQL, dan dokumen ini sekaligus.
 - Jangan membuat query Supabase langsung dari widget. Selalu lewat service.
 - Jangan menampilkan hasil `DemoFoodRecognizer` tanpa pita "Mode demo".

@@ -31,6 +31,13 @@ Aplikasi mobile pemindai makanan berbasis kecerdasan buatan (Flutter + Supabase 
    supabase functions deploy recognize-food --project-ref <ref>
    ```
 
+   Aktifkan juga pengaman rahasia (sekali per clone). Commit akan ditolak bila memuat
+   `env.json`, keystore, `key.properties`, atau isi yang mirip API key/password:
+
+   ```bash
+   git config core.hooksPath .githooks
+   ```
+
 4. Jalankan:
 
    ```bash
