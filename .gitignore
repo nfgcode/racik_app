@@ -1,5 +1,39 @@
-# Kunci Supabase lokal — jangan di-commit (contohnya ada di env.example.json)
+# =====================================================================
+# RAHASIA — jangan pernah di-commit. Pengaman tambahan: .githooks/pre-commit
+# (aktifkan sekali per clone: git config core.hooksPath .githooks)
+# =====================================================================
+# Konfigurasi aplikasi (URL & publishable key Supabase). Contoh: env.example.json
 env.json
+env.*.json
+!env.example.json
+
+# File .env, mis. secret Edge Function untuk `supabase functions serve --env-file`
+.env
+.env.*
+!.env.example
+supabase/.env
+supabase/functions/.env
+
+# Folder kerja Supabase CLI (project ref, URL pooler)
+supabase/.temp/
+supabase/.branches/
+
+# Kunci tanda tangan rilis Play Store (upload key) dan sertifikat lain.
+# Simpan cadangannya di tempat aman, misalnya password manager.
+android/key.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+*.p8
+
+# Kredensial service account Google/Supabase
+service-account*.json
+*-service-account.json
+
+# Cadangan git (bundle / mirror) yang tidak sengaja tersimpan di folder proyek
+*.bundle
+*-backup.git/
 
 # Miscellaneous
 *.class
@@ -47,7 +81,3 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Kunci tanda tangan rilis Play Store (simpan cadangannya di tempat aman, JANGAN di-commit)
-android/key.properties
-*.jks
-*.keystore
