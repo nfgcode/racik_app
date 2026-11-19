@@ -83,7 +83,7 @@ flutter build appbundle --release --dart-define-from-file=env.json
 | Dienkripsi saat dikirim? | Ya (HTTPS) |
 | Pengguna bisa minta hapus data? | Ya (Profil → Hapus akun, dan halaman web) |
 | Info pribadi | Nama, Alamat email, ID pengguna (username) — fungsi aplikasi & manajemen akun |
-| Foto dan video | Foto — fungsi aplikasi (foto makanan dipindai, foto profil opsional) |
+| Foto dan video | Foto — fungsi aplikasi (foto makanan dipindai, foto profil opsional). Foto pindai hanya tampil untuk pengguna lain bila pemiliknya menyalakan “Jadikan foto resep” dan admin memilihnya; tanpa nama pemilik |
 | Aktivitas aplikasi | Interaksi di aplikasi (riwayat pindai) — fungsi aplikasi |
 | Lokasi, kontak, keuangan, kesehatan pribadi, pesan | Tidak dikumpulkan |
 | Wajib atau opsional? | Email & username wajib untuk membuat akun; foto profil opsional; resep bisa dibuka tanpa akun |
@@ -95,7 +95,7 @@ flutter build appbundle --release --dart-define-from-file=env.json
 | Package name unik `com.racik.app` | `android/app/build.gradle.kts` |
 | Target API 36 (terbaru) | `flutter.targetSdkVersion` |
 | Penandatanganan rilis dengan upload key | `android/app/build.gradle.kts` + `tool/buat_upload_key.ps1` |
-| Versi 1.0.0 (versionCode 1) | `pubspec.yaml` |
+| Versi 1.0.0 (versionCode 2; AAB pertama yang dibuat memakai versionCode 1) | `pubspec.yaml` |
 | Ikon adaptif + ikon semua ukuran | `android/app/src/main/res/mipmap-*` |
 | Kunci AI tidak ada di APK | `supabase/functions/recognize-food` |
 | Hapus akun di aplikasi | Profil → Hapus akun (`AuthProvider.deleteAccount`) |

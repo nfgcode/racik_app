@@ -184,6 +184,7 @@ Nilai domain (tulis persis):
 6. Foto kandidat untuk resep yang belum punya foto:
    - Layar hasil menampilkan "Jadikan foto resep" hanya bila `ScanOutcome.canSharePhoto` (riwayat tersimpan, tertaut ke resep, dan `foods.image_url` kosong). Kalau resep sudah punya foto, pengguna tidak ditanya.
    - Izin disimpan lewat RPC `share_scan_photo` ke `scan_history.share_photo`. RPC menolak (mengembalikan `false`) bila resepnya sudah punya foto.
+   - Sakelar yang sama (`widgets/share_photo_tile.dart`) ada di detail riwayat, supaya izin bisa ditarik kapan saja. Di sana sakelar muncul bila resep belum punya foto atau izin sudah pernah diberikan.
    - Admin melihat kandidat di form resep, hanya selama URL foto kosong (`ScanService.photoCandidates`). Mengetuk kandidat menyalin file ke `food-images/foods/` lewat `StorageService.copyFromPublicUrl` (Storage copy di server), jadi foto resep tidak ikut hilang saat pemiliknya menghapus akun.
 
 Aksesibilitas di layar hasil:
@@ -321,32 +322,22 @@ File SQL **belum dibuat**. Kode aplikasi bergantung pada semua hal di bawah ini.
 - Saat pengembangan, "Confirm email" boleh dimatikan. Kalau tetap aktif, dialog konfirmasi di aplikasi sudah menanganinya.
 - `seed.sql` berisi resep contoh yang namanya sama dengan label `DemoFoodRecognizer`. Nilai gizinya ditandai sebagai perkiraan.
 
-## 13. Status (11 Sep 2026)
+## 13. Status (19 Nov 2026)
 
-Selesai:
-- Seluruh `lib/`: model, service, provider, AI, fuzzy, dan layar untuk ketiga aktor.
-- Dependensi di `pubspec.yaml` dan aset `assets/models/`.
-- Izin Android: INTERNET, CAMERA, dan query TTS.
-- Label aplikasi "Racik".
-- `env.example.json`, dan `env.json` sudah masuk `.gitignore`.
+Selesai dan terverifikasi:
+- Seluruh `lib/` untuk ketiga aktor, `supabase/schema.sql` + `seed.sql` + patch 01–03, Edge Function `recognize-food`.
+- `flutter analyze` bersih; `flutter test` 53 tes lolos (8 file di `test/`); build web lolos kompilasi.
+- Tes SQL dijalankan di Postgres lokal dengan stub Supabase (RLS, RPC, trigger, patch dijalankan dua kali).
+- Rilis Android: `com.racik.app`, ditandatangani upload key (`android/key.properties`, tidak di-commit). Versi sekarang `1.0.0+2`; AAB pertama memakai versionCode 1.
+- Foto 6 resep contoh (`supabase/gambar-resep/`, kredit di `KREDIT.md`), foto kandidat dari hasil pindai, dan cache gambar.
+- Git aktif; pengaman rahasia pre-commit di `.githooks/` (`git config core.hooksPath .githooks`).
 
-Belum diverifikasi (kerjakan dulu):
-- [ ] `flutter analyze`. Sempat terhenti, jadi kode belum pernah dikompilasi.
-- [ ] `flutter build apk --debug`, untuk memastikan camera dan tflite_flutter cocok dengan AGP 9.
-- [ ] Uji di HP nyata: izin kamera, siklus hidup kamera, dan TTS bahasa Indonesia.
-
-Belum dibuat:
-- [ ] `supabase/schema.sql` dan `supabase/seed.sql` (lihat §12).
-- [ ] `test/fuzzy_health_score_test.dart`:
-  - jumlah derajat keanggotaan selalu 1;
-  - skor tidak naik ketika gula naik;
-  - contoh label untuk beberapa kasus.
-- [ ] `test/models_test.dart`, untuk parsing hasil join.
-- [ ] `README.md` proyek dan dokumen belajar Flutter.
-- [ ] Model `racik_food.tflite`. Sampai model ini ada, aplikasi berjalan dalam mode demo.
-- [x] `applicationId` sudah `com.racik.app` (permanen setelah upload pertama ke Play Store).
+Belum:
+- [ ] Model `racik_food.tflite` (opsional, untuk mode offline). Tanpa model ini, aplikasi memakai Edge Function.
+- [ ] Nilai gizi seed dan batas fuzzy masih perkiraan; validasi dengan TKPI/Kemenkes.
 - [ ] Warna `HealthStyle` belum disesuaikan untuk tema gelap.
-- [ ] Proyek belum memakai git. Jalankan `git init` sebelum perubahan berikutnya.
+- [ ] `saveFood` belum atomik (resep bisa tersimpan sebagian bila koneksi putus).
+- [ ] Uji build Android terbaru di HP nyata setelah menambah `cached_network_image` (butuh NDK/CMake).
 
 ## 14. Celah di diagram (bawa ke tim)
 

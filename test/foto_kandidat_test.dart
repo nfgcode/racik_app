@@ -7,12 +7,16 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:racik_app/ai/food_recognizer.dart';
 import 'package:racik_app/models/food.dart';
+import 'package:provider/provider.dart';
 import 'package:racik_app/models/scan_history.dart';
+import 'package:racik_app/screens/history/scan_history_detail_screen.dart';
+import 'package:racik_app/services/food_service.dart';
 import 'package:racik_app/services/scan_pipeline.dart';
 import 'package:racik_app/services/scan_service.dart';
 import 'package:racik_app/services/storage_service.dart';
@@ -48,7 +52,101 @@ const tersimpan = ScanHistory(
   scanStatus: ScanHistory.statusBerhasil,
 );
 
+class FakeFoodService implements FoodService {
+  FakeFoodService(this.food);
+
+  final Food? food;
+
+  @override
+  Future<Food?> getDetail(String id) async => food;
+
+  @override
+  dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
+}
+
+class FakeScanService implements ScanService {
+  final shareCalls = <bool>[];
+
+  @override
+  Future<bool> setSharePhoto(String scanId, {required bool share}) async {
+    shareCalls.add(share);
+    return true;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation i) => super.noSuchMethod(i);
+}
+
+/// Detail riwayat. Foto pindai dikosongkan ('') supaya tes tidak mengunduh
+/// gambar; aturan izin hanya melihat apakah image_url terisi (bukan null).
+Future<FakeScanService> openDetail(
+  WidgetTester tester, {
+  required bool sharePhoto,
+  Food? food,
+}) async {
+  // Layar tinggi supaya seluruh isi ListView terbangun tanpa digulir.
+  tester.view.physicalSize = const Size(1080, 4000);
+  tester.view.devicePixelRatio = 2.0;
+  addTearDown(tester.view.reset);
+
+  final scans = FakeScanService();
+  await tester.pumpWidget(MultiProvider(
+    providers: [
+      Provider<FoodService>.value(value: FakeFoodService(food)),
+      Provider<ScanService>.value(value: scans),
+    ],
+    child: MaterialApp(
+      home: ScanHistoryDetailScreen(
+        scan: ScanHistory(
+          id: 's1',
+          userId: 'u1',
+          foodId: 'f1',
+          imageUrl: '',
+          scanStatus: ScanHistory.statusBerhasil,
+          sharePhoto: sharePhoto,
+        ),
+      ),
+    ),
+  ));
+  await tester.pumpAndSettle();
+  return scans;
+}
+
+/// Resep yang sudah punya foto (foto resep tidak ditampilkan di detail
+/// riwayat, jadi URL ini tidak pernah diunduh).
+const berfoto = Food(
+  id: 'f1',
+  name: 'Bakso',
+  isVerified: true,
+  imageUrl: 'https://contoh/foto-resep.jpg',
+);
+
 void main() {
+  group('Detail riwayat: izin foto bisa ditarik', () {
+    testWidgets('izin yang sudah diberikan bisa dimatikan', (tester) async {
+      final scans = await openDetail(tester, sharePhoto: true, food: berfoto);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+
+      expect(scans.shareCalls, [false]);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+      expect(find.textContaining('Izin ditarik'), findsOneWidget);
+    });
+
+    testWidgets('resep sudah berfoto dan belum ada izin: tidak ditanya', (tester) async {
+      await openDetail(tester, sharePhoto: false, food: berfoto);
+      expect(find.text('Jadikan foto resep'), findsNothing);
+    });
+
+    testWidgets('resep belum diverifikasi: pesan jelas + izin ditawarkan', (tester) async {
+      await openDetail(tester, sharePhoto: false);
+      expect(find.textContaining('masih menunggu verifikasi admin'), findsOneWidget);
+      expect(find.text('Jadikan foto resep'), findsOneWidget);
+    });
+  });
+
   group('ScanOutcome.canSharePhoto', () {
     test('ditawarkan bila resep tersimpan dan belum punya foto', () {
       expect(

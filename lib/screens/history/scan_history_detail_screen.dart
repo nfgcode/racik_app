@@ -12,6 +12,7 @@ import '../../widgets/food_image.dart';
 import '../../widgets/health_score_card.dart';
 import '../../widgets/nutrition_card.dart';
 import '../../widgets/scan_widgets.dart';
+import '../../widgets/share_photo_tile.dart';
 import '../recipe/recipe_detail_screen.dart';
 
 /// Detail satu riwayat pindai. Memakai ulang widget yang sama dengan
@@ -36,6 +37,14 @@ class _ScanHistoryDetailScreenState extends State<ScanHistoryDetailScreen> {
     final foodId = widget.scan.foodId;
     if (foodId != null) _food = context.read<FoodService>().getDetail(foodId);
   }
+
+  /// Sakelar izin foto muncul bila resepnya belum punya foto, atau izin
+  /// sudah pernah diberikan (supaya bisa ditarik). Resep yang belum
+  /// diverifikasi tidak terbaca (food == null); keputusan akhirnya di RPC.
+  bool _canSharePhoto(Food? food) =>
+      widget.scan.id != null &&
+      widget.scan.imageUrl != null &&
+      (widget.scan.sharePhoto || (food?.imageUrl ?? '').isEmpty);
 
   Future<void> _delete() async {
     final confirmed = await showDialog<bool>(
@@ -111,6 +120,13 @@ class _ScanHistoryDetailScreenState extends State<ScanHistoryDetailScreen> {
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
+                if (snapshot.hasError) {
+                  return Text(
+                    'Detail resep belum bisa dimuat: '
+                    '${friendlyError(snapshot.error!)}',
+                    style: textTheme.bodyMedium,
+                  );
+                }
                 final food = snapshot.data;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -144,11 +160,21 @@ class _ScanHistoryDetailScreenState extends State<ScanHistoryDetailScreen> {
                         label: const Text('Lihat resep lengkap'),
                       ),
                     ],
+                    // RLS menyembunyikan resep yang belum diverifikasi.
                     if (food == null)
                       Text(
-                        'Resep untuk pindaian ini sudah tidak tersedia.',
+                        'Detail resep belum bisa dibuka. Resepnya mungkin '
+                        'masih menunggu verifikasi admin.',
                         style: textTheme.bodyMedium,
                       ),
+                    if (_canSharePhoto(food)) ...[
+                      const SizedBox(height: 16),
+                      SharePhotoTile(
+                        scanId: widget.scan.id!,
+                        foodName: food?.name,
+                        initialValue: widget.scan.sharePhoto,
+                      ),
+                    ],
                   ],
                 );
               },

@@ -96,12 +96,14 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen> {
                           score: scan.fuzzyScore,
                         ),
                   onTap: () async {
-                    final deleted = await Navigator.of(context).push<bool>(
+                    await Navigator.of(context).push<bool>(
                       MaterialPageRoute(
                         builder: (_) => ScanHistoryDetailScreen(scan: scan),
                       ),
                     );
-                    if (deleted == true) _refresh();
+                    // Muat ulang setelah detail ditutup: riwayatnya mungkin
+                    // dihapus, atau izin "Jadikan foto resep" diubah.
+                    if (mounted) _refresh();
                   },
                 );
               },
