@@ -13,6 +13,9 @@ Aplikasi mobile pemindai makanan berbasis kecerdasan buatan (Flutter + Supabase 
    Project yang sudah memakai `schema.sql` versi lama cukup menjalankan
    `supabase/patch-01-perbaikan-bug.sql`, `supabase/hapus_akun.sql`, lalu
    `supabase/patch-02-perbaikan-bug.sql` sekali.
+   Foto resep contoh: unggah isi `supabase/gambar-resep/` ke Storage
+   `food-images/resep/`, lalu jalankan `supabase/foto-resep-contoh.sql`
+   (kredit foto: `supabase/gambar-resep/KREDIT.md`).
 2. Untuk masa pengembangan, matikan **Authentication → Sign In / Providers → Email → Confirm email**.
 3. Salin `env.example.json` menjadi `env.json`, lalu isi dengan URL dan **publishable key** Supabase:
 

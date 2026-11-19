@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../ai/fuzzy_health_score.dart';
 import '../../core/errors.dart';
+import '../../core/photo_credits.dart';
 import '../../models/food.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/favorite_service.dart';
@@ -105,6 +106,14 @@ class _DetailView extends StatelessWidget {
                     aspectRatio: 16 / 9,
                     child: FoodImage(url: food.imageUrl),
                   ),
+                if (photoCreditFor(food.imageUrl) case final credit?)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      credit.caption,
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  ),
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
@@ -178,24 +187,28 @@ class _FavoriteButtonState extends State<_FavoriteButton> {
         .read<FavoriteService>()
         .isFavorite(userId: userId, foodId: widget.foodId)
         .then((value) {
-      if (mounted) setState(() => _isFavorite = value);
-    }).catchError((_) {
-      if (mounted) setState(() => _isFavorite = false);
-    });
+          if (mounted) setState(() => _isFavorite = value);
+        })
+        .catchError((_) {
+          if (mounted) setState(() => _isFavorite = false);
+        });
   }
 
   Future<void> _toggle() async {
     final messenger = ScaffoldMessenger.of(context);
     final userId = context.read<AuthProvider>().user!.id;
     try {
-      final value = await context
-          .read<FavoriteService>()
-          .toggle(userId: userId, foodId: widget.foodId);
+      final value = await context.read<FavoriteService>().toggle(
+        userId: userId,
+        foodId: widget.foodId,
+      );
       if (!mounted) return;
       setState(() => _isFavorite = value);
-      messenger.showSnackBar(SnackBar(
-        content: Text(value ? 'Disimpan ke favorit' : 'Dihapus dari favorit'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(value ? 'Disimpan ke favorit' : 'Dihapus dari favorit'),
+        ),
+      );
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(friendlyError(e))));
     }
