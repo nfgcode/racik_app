@@ -1,5 +1,5 @@
 {
-  // Semua konfigurasi membaca env.json supaya Supabase & OpenRouter terhubung.
+  // Semua konfigurasi membaca env.json supaya Supabase terhubung (AI lewat Edge Function recognize-food).
   // Tanpa --dart-define-from-file, aplikasi menampilkan layar "Racik belum terhubung ke Supabase".
   "version": "0.2.0",
   "configurations": [

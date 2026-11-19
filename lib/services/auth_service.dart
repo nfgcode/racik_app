@@ -2,7 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/app_user.dart';
 
-/// Use case: Mendaftar Akun, Melakukan Login, Mengubah Profil Akun (+ Logout).
+/// Use case: Mendaftar Akun, Melakukan Login, Mengubah Profil Akun (+ Logout, Hapus akun).
 ///
 /// Service hanya berbicara dengan Supabase. Ia tidak tahu apa pun tentang
 /// widget — tugas memberi tahu UI ada di AuthProvider.
@@ -70,5 +70,13 @@ class AuthService {
         .select()
         .single();
     return AppUser.fromMap(row);
+  }
+
+  /// Memanggil fungsi SQL `delete_my_account` (supabase/hapus_akun.sql), lalu
+  /// membersihkan sesi di HP. Profil, riwayat pindai, dan favorit ikut
+  /// terhapus lewat ON DELETE CASCADE.
+  Future<void> deleteAccount() async {
+    await _client.rpc('delete_my_account');
+    await _client.auth.signOut(scope: SignOutScope.local);
   }
 }

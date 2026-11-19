@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/config.dart';
 import '../core/errors.dart';
 import '../models/app_user.dart';
 import '../services/auth_service.dart';
+import '../services/storage_service.dart';
 
 /// Tiga aktor pada diagram use case + satu status sebelum sesi terbaca.
 enum Actor { memuat, guest, pengguna, admin }
@@ -103,6 +105,19 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() => _service.logout();
+
+  /// Hapus akun (syarat Google Play): foto di Storage dihapus dulu, lalu akun
+  /// beserta profil, riwayat pindai, dan favoritnya. Mengembalikan `null` bila
+  /// berhasil, atau pesan error.
+  Future<String?> deleteAccount(StorageService storage) {
+    final userId = _user!.id;
+    return _run(() async {
+      for (final bucket in [AppConfig.scanBucket, AppConfig.avatarBucket]) {
+        await storage.removeFolder(bucket: bucket, folder: userId);
+      }
+      await _service.deleteAccount();
+    });
+  }
 
   Future<String?> _run(Future<void> Function() action) async {
     _busy = true;

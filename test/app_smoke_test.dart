@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:provider/provider.dart';
+import 'package:racik_app/ai/demo_food_recognizer.dart';
 import 'package:racik_app/app.dart';
 import 'package:racik_app/models/app_user.dart';
 import 'package:racik_app/models/food.dart';
@@ -219,7 +220,9 @@ Widget racikWith(AppUser? profile, {Widget? home}) {
       ChangeNotifierProvider(
         create: (_) => AuthProvider(FakeAuthService(profile)),
       ),
-      ChangeNotifierProvider(create: (_) => RecognizerProvider()),
+      ChangeNotifierProvider(
+        create: (_) => RecognizerProvider(() async => DemoFoodRecognizer()),
+      ),
     ],
     child: MaterialApp(home: home ?? const AuthGate()),
   );

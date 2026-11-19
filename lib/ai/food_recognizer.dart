@@ -1,12 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/config.dart';
 import '../models/nutrition.dart';
 import 'demo_food_recognizer.dart';
-import 'openrouter_food_recognizer.dart';
-// TFLite butuh dart:ffi yang tidak ada di web, jadi web memakai versi stub.
-import 'tflite_food_recognizer_stub.dart'
-    if (dart.library.ffi) 'tflite_food_recognizer.dart';
+import 'edge_food_recognizer.dart';
 
 /// Satu tebakan model: label makanan + tingkat keyakinan 0..1 + estimasi gizi opsional.
 class Prediction {
@@ -51,25 +49,16 @@ abstract class FoodRecognizer {
   void dispose();
 }
 
-/// Coba muat model pengenal makanan dengan urutan prioritas:
-/// 1. OpenRouter Vision API (bila OPENROUTER_API_KEY ada di env.json)
-/// 2. Model TFLite lokal (assets/models/racik_food.tflite)
-/// 3. DemoFoodRecognizer (fallback simulasi bila keduanya belum disiapkan)
-Future<FoodRecognizer> loadFoodRecognizer() async {
-  if (AppConfig.isOpenRouterConfigured) {
-    debugPrint(
-      'Memakai OpenRouter Food Recognizer (Model: ${AppConfig.openRouterModel})',
-    );
-    return OpenRouterFoodRecognizer(
-      apiKey: AppConfig.openRouterApiKey,
-      model: AppConfig.openRouterModel,
-    );
-  }
-
-  try {
-    return await TfliteFoodRecognizer.load();
-  } catch (e) {
-    debugPrint('Model TFLite tidak dimuat, memakai mode demo: $e');
+/// Pilih mesin pengenal makanan:
+/// - `--dart-define=AI_DEMO=true` → [DemoFoodRecognizer] (tanpa AI, untuk latihan
+///   atau saat Edge Function belum di-deploy);
+/// - selain itu → [EdgeFoodRecognizer]: foto dikirim ke Supabase Edge Function
+///   `recognize-food`, yang memanggil OpenRouter Vision dengan kunci yang
+///   tersimpan di server (tidak ikut ke APK).
+Future<FoodRecognizer> loadFoodRecognizer(SupabaseClient client) async {
+  if (AppConfig.aiDemo) {
+    debugPrint('AI_DEMO=true, memakai mode demo.');
     return DemoFoodRecognizer();
   }
+  return EdgeFoodRecognizer(client);
 }

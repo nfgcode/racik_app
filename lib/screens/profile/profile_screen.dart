@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/app_user.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/storage_service.dart';
 import '../../widgets/state_views.dart';
 import 'edit_profile_screen.dart';
 import 'favorites_screen.dart';
@@ -62,8 +63,59 @@ class ProfileScreen extends StatelessWidget {
             title: const Text('Keluar'),
             onTap: () => context.read<AuthProvider>().logout(),
           ),
+          ListTile(
+            leading: Icon(
+              Icons.delete_forever_outlined,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(
+              'Hapus akun',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            onTap: () => _confirmDelete(context),
+          ),
         ],
       ),
+    );
+  }
+
+  /// Use case: Hapus akun (syarat Google Play), dengan konfirmasi dulu.
+  Future<void> _confirmDelete(BuildContext context) async {
+    // Ambil dependensi dari context SEBELUM await pertama.
+    final auth = context.read<AuthProvider>();
+    final storage = context.read<StorageService>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.warning_amber_rounded),
+        title: const Text('Hapus akun?'),
+        content: const Text(
+          'Akun, profil, foto, resep favorit, dan seluruh riwayat pindai Anda '
+          'akan dihapus permanen dan tidak bisa dikembalikan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Hapus permanen'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final error = await auth.deleteAccount(storage);
+    messenger.showSnackBar(
+      SnackBar(content: Text(error ?? 'Akun Anda sudah dihapus.')),
     );
   }
 }

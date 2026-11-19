@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'ai/food_recognizer.dart';
 import 'core/config.dart';
 import 'core/theme.dart';
 import 'providers/auth_provider.dart';
@@ -45,7 +46,9 @@ class RacikApp extends StatelessWidget {
         Provider(create: (_) => UserService(client)),
         Provider(create: (_) => StatsService(client)),
         ChangeNotifierProvider(create: (_) => AuthProvider(AuthService(client))),
-        ChangeNotifierProvider(create: (_) => RecognizerProvider()),
+        ChangeNotifierProvider(
+          create: (_) => RecognizerProvider(() => loadFoodRecognizer(client)),
+        ),
       ],
       child: MaterialApp(
         title: 'Racik',

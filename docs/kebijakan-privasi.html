@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kebijakan Privasi Racik</title>
+<meta name="description" content="Kebijakan privasi aplikasi Racik, pemindai makanan berbasis AI.">
+<style>
+:root { --bg: #F6FBF3; --surface: #FFFFFF; --ink: #17211C; --ink-2: #4E5B54; --rule: #D6DED8; --accent: #26704A; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #101510; --surface: #161E1A; --ink: #E3EAE5; --ink-2: #A5B2AA; --rule: #2A352F; --accent: #74C495; }
+}
+:root[data-theme="dark"] { --bg: #101510; --surface: #161E1A; --ink: #E3EAE5; --ink-2: #A5B2AA; --rule: #2A352F; --accent: #74C495; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 system-ui, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 40px 16px 64px; }
+h1 { font-size: 2rem; margin: 0 0 4px; }
+h2 { font-size: 1.2rem; margin: 32px 0 8px; }
+p, li { color: var(--ink); }
+.meta { color: var(--ink-2); margin-bottom: 24px; }
+a { color: var(--accent); }
+table { width: 100%; border-collapse: collapse; background: var(--surface); margin: 8px 0 16px; font-size: .95rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border: 1px solid var(--rule); }
+.wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+<h1>Kebijakan Privasi Racik</h1>
+<p class="meta">Berlaku sejak 13 November 2026 · Aplikasi: Racik (com.nfgcode.racik)</p>
+
+<p>Racik adalah aplikasi untuk mencari resep makanan Indonesia dan memindai foto makanan guna mengetahui perkiraan kandungan gizi serta skor kesehatannya. Halaman ini menjelaskan data apa yang dikumpulkan, untuk apa, dan bagaimana kamu bisa menghapusnya.</p>
+
+<h2>1. Data yang dikumpulkan</h2>
+<div class="wrap">
+<table>
+  <thead><tr><th>Data</th><th>Kapan</th><th>Untuk apa</th></tr></thead>
+  <tbody>
+    <tr><td>Email dan password</td><td>Saat mendaftar dan masuk</td><td>Membuat dan mengamankan akun. Password disimpan dalam bentuk terenkripsi (hash) oleh Supabase Auth dan tidak bisa kami baca.</td></tr>
+    <tr><td>Nama lengkap, username, foto profil</td><td>Saat mendaftar atau mengubah profil</td><td>Menampilkan profil di aplikasi. Foto profil bersifat opsional.</td></tr>
+    <tr><td>Foto makanan yang dipindai</td><td>Saat kamu memotret atau memilih foto untuk dipindai</td><td>Dikirim ke layanan AI untuk dikenali, lalu disimpan agar muncul di Riwayat pindai.</td></tr>
+    <tr><td>Hasil pindai (nama makanan, tingkat keyakinan AI, skor dan label kesehatan, waktu)</td><td>Setiap kali memindai</td><td>Menampilkan Riwayat pindai milikmu.</td></tr>
+    <tr><td>Nama makanan dan perkiraan gizi dari AI, bila makanan itu belum ada di katalog resep</td><td>Saat memindai makanan yang belum terdaftar</td><td>Disimpan sebagai calon resep yang menunggu ditinjau admin sebelum tampil di katalog. Fotomu tidak ikut disimpan di resep, dan namamu tidak ditampilkan ke pengguna lain.</td></tr>
+    <tr><td>Resep favorit</td><td>Saat kamu menekan ikon hati di detail resep</td><td>Menampilkan daftar Resep favorit milikmu.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Pengguna yang belum masuk (tamu) bisa mencari dan membaca resep tanpa memberikan data pribadi apa pun.</p>
+<p>Racik <strong>tidak</strong> menampilkan iklan, <strong>tidak</strong> menjual data, dan <strong>tidak</strong> memakai pelacak analitik pihak ketiga.</p>
+
+<h2>2. Izin perangkat</h2>
+<ul>
+  <li><strong>Kamera</strong> — hanya dipakai saat kamu menekan “Buka kamera” untuk memotret makanan.</li>
+  <li><strong>Foto/galeri</strong> — dipilih lewat pemilih foto bawaan sistem; Racik hanya menerima foto yang kamu pilih.</li>
+  <li><strong>Internet</strong> — untuk memuat resep, menyimpan riwayat, dan mengenali foto.</li>
+</ul>
+
+<h2>3. Pihak yang memproses data</h2>
+<ul>
+  <li><strong>Supabase</strong> — menyimpan akun, profil, riwayat pindai, resep favorit, dan foto (database dan penyimpanan file).</li>
+  <li><strong>OpenRouter dan penyedia model AI</strong> — menerima foto makanan yang kamu pindai untuk dikenali. Foto dikirim melalui server Racik (Supabase Edge Function) dan tunduk pada kebijakan privasi masing-masing penyedia.</li>
+</ul>
+<p>Foto pindai dan foto profil disimpan di penyimpanan yang dapat dibuka melalui tautan unik. Tautan itu hanya ditampilkan di akunmu, tetapi siapa pun yang memiliki tautannya dapat membuka fotonya. Jangan memindai foto yang berisi informasi pribadi.</p>
+
+<h2>4. Penyimpanan dan keamanan</h2>
+<p>Data dikirim melalui koneksi terenkripsi (HTTPS). Akses database dibatasi Row Level Security: setiap pengguna hanya bisa membaca dan menghapus riwayat pindai dan resep favoritnya sendiri. Admin Racik dapat melihat data pindai untuk statistik penggunaan dan untuk meninjau calon resep. Data disimpan selama akunmu aktif.</p>
+
+<h2>5. Menghapus data dan akun</h2>
+<ul>
+  <li><strong>Satu riwayat pindai</strong> — buka Riwayat → pilih pindaian → ikon tempat sampah.</li>
+  <li><strong>Seluruh akun</strong> — buka Profil → <strong>Hapus akun</strong>. Akun, profil, foto, resep favorit, dan seluruh riwayat pindai dihapus permanen.</li>
+  <li>Tidak bisa membuka aplikasi? Ikuti langkah di halaman <a href="hapus-akun.html">Hapus akun Racik</a>.</li>
+</ul>
+
+<h2>6. Anak-anak</h2>
+<p>Racik tidak ditujukan untuk anak di bawah 13 tahun dan tidak dengan sengaja mengumpulkan data dari mereka.</p>
+
+<h2>7. Perubahan kebijakan</h2>
+<p>Bila kebijakan ini berubah, tanggal di bagian atas halaman akan diperbarui.</p>
+
+<h2>8. Kontak</h2>
+<p>Pertanyaan tentang privasi: <a href="mailto:[EMAIL-KONTAK]">[EMAIL-KONTAK]</a><br>
+Pengembang: Nurfauzan Gymnastiar · <a href="https://github.com/nfgcode/racik_app">github.com/nfgcode/racik_app</a></p>
+</main>
+</body>
+</html>

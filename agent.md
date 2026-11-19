@@ -18,10 +18,10 @@ Rujukan desain utama adalah `PAPB-Asik.Project-Racik.pdf`: halaman 1 berisi use 
 | | |
 |---|---|
 | Flutter / Dart | 3.44.1 / 3.12.1 (`sdk: ^3.12.1`) |
-| Platform | **Android** (AGP 9.0.1, Kotlin 2.3.20, Gradle 9.1.0, Java 17) + **Web/Chrome** untuk demo & dokumentasi tampilan. Tidak ada `ios/`. Di web TFLite tidak tersedia (butuh `dart:ffi`), jadi pindai memakai OpenRouter atau mode demo |
+| Platform | **Android** (AGP 9.0.1, Kotlin 2.3.20, Gradle 9.1.0, Java 17) + **Web/Chrome** untuk demo & dokumentasi tampilan. Tidak ada `ios/`. Di web TFLite tidak tersedia (butuh `dart:ffi`), jadi pindai memakai Edge Function atau mode demo |
 | Backend | Supabase (Postgres + Auth + Storage) |
 | State | `provider` (ChangeNotifier) |
-| AI | Multimodal Vision (OpenRouter Qwen 2.5 VL 72B / TFLite) + Logika Fuzzy Sugeno (Dart) |
+| AI | OpenRouter Vision (Qwen 2.5 VL 72B) lewat Supabase Edge Function `recognize-food` (kunci di server) + Logika Fuzzy Sugeno (Dart). `--dart-define=AI_DEMO=true` untuk mode demo. Kode TFLite masih ada tetapi tidak dipilih lagi |
 
 Paket: `supabase_flutter ^2.17.2`, `provider ^6.1.5+1`, `camera ^0.12.1`,
 `image_picker ^1.2.3`, `tflite_flutter ^0.12.1`, `image ^4.9.2`, `flutter_tts ^4.2.5`.
@@ -57,7 +57,7 @@ providers/            AuthProvider (siapa yang login), RecognizerProvider (model
 services/             akses data, satu service per kelompok use case
       │               hanya bicara ke Supabase, tanpa import widget; kembalikan model
       ▼
-Supabase              ai/  → FoodRecognizer (TFLite/demo), FuzzyHealthScore (Dart murni)
+Supabase              ai/  → FoodRecognizer (Edge Function/demo), FuzzyHealthScore (Dart murni)
 models/               satu kelas per tabel ERD (fromMap / toMap)
 core/                 config, errors (friendlyError), formatters, theme
 ```
@@ -335,7 +335,7 @@ Belum dibuat:
 - [ ] `test/models_test.dart`, untuk parsing hasil join.
 - [ ] `README.md` proyek dan dokumen belajar Flutter.
 - [ ] Model `racik_food.tflite`. Sampai model ini ada, aplikasi berjalan dalam mode demo.
-- [ ] `applicationId` masih `com.example.racik_app`.
+- [x] `applicationId` sudah `com.nfgcode.racik` (permanen setelah upload pertama ke Play Store).
 - [ ] Warna `HealthStyle` belum disesuaikan untuk tema gelap.
 - [ ] Proyek belum memakai git. Jalankan `git init` sebelum perubahan berikutnya.
 
@@ -349,7 +349,17 @@ Belum dibuat:
 6. `foods.scan_count` adalah data turunan yang dijaga trigger. Jangan diubah manual.
 7. Halaman 3 PDF duplikat halaman 2.
 
-## 15. Larangan
+## 15. Rilis Google Play
+
+- Package name `com.nfgcode.racik`, versi di `pubspec.yaml` (`x.y.z+versionCode`).
+- Rilis ditandatangani upload key dari `android/key.properties` (tidak masuk git; dibuat dengan
+  `tool/buat_upload_key.ps1`). Tanpa file itu rilis memakai kunci debug dan DITOLAK Play Store.
+- Kunci OpenRouter TIDAK boleh ada di aplikasi; hanya sebagai secret Edge Function `recognize-food`.
+- Hapus akun wajib ada: Profil → Hapus akun (`AuthProvider.deleteAccount` → RPC `delete_my_account`,
+  `supabase/hapus_akun.sql`) + halaman `docs/hapus-akun.html`.
+- Langkah lengkap: `store/PANDUAN-PUBLIKASI.md`.
+
+## 16. Larangan
 
 - Jangan memasukkan secret/service_role key ke kode, env, atau repo.
 - Jangan mengganti nama tabel atau kolom tanpa memperbarui model, service, SQL, dan dokumen ini sekaligus.

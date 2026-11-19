@@ -46,3 +46,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Kunci tanda tangan rilis Play Store (simpan cadangannya di tempat aman, JANGAN di-commit)
+android/key.properties
+*.jks
+*.keystore

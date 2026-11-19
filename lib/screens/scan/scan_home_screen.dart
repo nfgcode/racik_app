@@ -107,8 +107,8 @@ class _ScanHomeScreenState extends State<ScanHomeScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'Mode demo: model AI belum dipasang di assets/models, jadi '
-                'hasil tebakan adalah contoh, bukan hasil AI.',
+                'Mode demo aktif (AI_DEMO=true), jadi hasil tebakan adalah '
+                'contoh, bukan hasil AI.',
                 style: TextStyle(color: scheme.onTertiaryContainer),
               ),
             ),

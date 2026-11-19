@@ -11,17 +11,23 @@ Aplikasi mobile pemindai makanan berbasis kecerdasan buatan (Flutter + Supabase 
 1. Buat project di [supabase.com](https://supabase.com), buka **SQL Editor**, jalankan
    `supabase/schema.sql` lalu `supabase/seed.sql`.
    Project yang sudah memakai `schema.sql` versi lama cukup menjalankan
-   `supabase/patch-01-perbaikan-bug.sql` sekali.
+   `supabase/patch-01-perbaikan-bug.sql` dan `supabase/hapus_akun.sql` sekali.
 2. Untuk masa pengembangan, matikan **Authentication → Sign In / Providers → Email → Confirm email**.
-3. Pastikan file `env.json` berisi `SUPABASE_URL`, `SUPABASE_KEY`, dan `OPENROUTER_API_KEY` (Vision AI):
+3. Salin `env.example.json` menjadi `env.json`, lalu isi dengan URL dan **publishable key** Supabase:
 
    ```json
    {
      "SUPABASE_URL": "https://<ref>.supabase.co",
-     "SUPABASE_KEY": "sb_publishable_...",
-     "OPENROUTER_API_KEY": "sk-or-v1-...",
-     "OPENROUTER_MODEL": "qwen/qwen-2.5-vl-72b-instruct"
+     "SUPABASE_KEY": "sb_publishable_..."
    }
+   ```
+
+   Kunci OpenRouter **tidak** disimpan di aplikasi. Kunci itu dipasang sebagai secret
+   Supabase Edge Function `recognize-food`:
+
+   ```bash
+   supabase secrets set OPENROUTER_API_KEY=sk-or-... --project-ref <ref>
+   supabase functions deploy recognize-food --project-ref <ref>
    ```
 
 4. Jalankan:
@@ -31,13 +37,20 @@ Aplikasi mobile pemindai makanan berbasis kecerdasan buatan (Flutter + Supabase 
    flutter run --dart-define-from-file=env.json
    ```
 
+   Belum men-deploy Edge Function? Tambahkan `--dart-define=AI_DEMO=true` untuk mode demo.
+
 5. Daftar akun lewat aplikasi, lalu jadikan admin di SQL Editor:
 
    ```sql
    update public.users set role = 'admin' where username = 'username_anda';
    ```
 
-Aplikasi menggunakan model Vision AI **Qwen 2.5 VL 72B** (atau TFLite/Demo lokal). AI otomatis mengenali makanan lokal Indonesia dan mengestimasi nilai gizinya ke database jika belum terdaftar, lalu mengevaluasi skor kesehatan menggunakan **Logika Fuzzy Sugeno**.
+Aplikasi mengenali makanan dengan model Vision AI **Qwen 2.5 VL 72B** lewat Supabase Edge Function
+`recognize-food` (atau mode demo). Makanan yang belum terdaftar disimpan sebagai resep yang menunggu
+verifikasi admin, lalu skor kesehatannya dihitung dengan **Logika Fuzzy Sugeno**.
+
+Rilis ke Google Play (package `com.nfgcode.racik`, upload key, kebijakan privasi, hapus akun):
+lihat `store/PANDUAN-PUBLIKASI.md`.
 
 ## Struktur
 
