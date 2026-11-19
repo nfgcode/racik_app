@@ -91,11 +91,25 @@ class FakeStorageService implements StorageService {
 
 void main() {
   group('FoodService.createFromAi', () {
-    test('menyimpan lewat RPC create_food_from_ai dan mengembalikan id-nya', () async {
+    test('menyimpan lewat RPC create_food_from_ai dan memakai data tersimpan', () async {
       late http.Request request;
       final service = FoodService(clientWith((r) async {
         request = r;
-        return jsonResponse(r, '9f0c2a1e-0000-4000-8000-000000000001', 200);
+        return jsonResponse(r, {
+          'id': '9f0c2a1e-0000-4000-8000-000000000001',
+          'name': 'Bakso',
+          'description': 'Resep makanan teridentifikasi secara otomatis oleh AI.',
+          'image_url': null,
+          'category': 'Hasil Pindai AI',
+          'serving_size': '1 porsi',
+          'source': 'ai',
+          'is_verified': false,
+          'nutritions': {
+            'id': 'n1', 'food_id': '9f0c2a1e-0000-4000-8000-000000000001',
+            'calories': 300, 'protein_g': 15, 'fat_g': 12, 'carbs_g': 30,
+            'sugar_g': 2, 'sodium_mg': 800, 'fiber_g': 1,
+          },
+        }, 200);
       }));
 
       final food = await service.createFromAi(name: 'Bakso', nutrition: baksoNutrition);
@@ -116,6 +130,38 @@ void main() {
       expect(food.isVerified, isFalse); // menunggu ditinjau admin
       expect(food.source, Food.sourceAi);
       expect(food.nutrition!.sodiumMg, 800);
+    });
+
+    test('pindaian kedua memakai gizi TERSIMPAN, bukan tebakan AI yang baru', () async {
+      // Pengguna lain sudah memindai Bakso (300 kkal). Tebakan AI kali ini
+      // 999 kkal, tetapi database mengembalikan angka yang tersimpan.
+      final service = FoodService(clientWith((r) async => jsonResponse(r, {
+            'id': 'ai-bakso',
+            'name': 'Bakso',
+            'source': 'ai',
+            'is_verified': false,
+            'nutritions': {'calories': 300, 'sodium_mg': 800},
+          }, 200)));
+
+      final food = await service.createFromAi(
+        name: 'bakso',
+        nutrition: const Nutrition(calories: 999, sodiumMg: 1),
+      );
+
+      expect(food.id, 'ai-bakso');
+      expect(food.name, 'Bakso');
+      expect(food.nutrition!.calories, 300);
+      expect(food.nutrition!.sodiumMg, 800);
+    });
+
+    test('database lama (belum patch-03) yang mengembalikan id: pakai Food lokal', () async {
+      final service = FoodService(clientWith(
+          (r) async => jsonResponse(r, '9f0c2a1e-0000-4000-8000-000000000001', 200)));
+
+      final food = await service.createFromAi(name: 'Bakso', nutrition: baksoNutrition);
+
+      expect(food.id, isNull);
+      expect(food.nutrition!.calories, 300);
     });
 
     test('bila RPC gagal, tetap mengembalikan Food tanpa id beserta nutrisi AI', () async {

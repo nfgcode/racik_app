@@ -13,6 +13,7 @@ class ScanHistory {
     this.fuzzyScore,
     this.fuzzyLabel,
     required this.scanStatus,
+    this.sharePhoto = false,
     this.createdAt,
     this.foodName,
   });
@@ -25,6 +26,7 @@ class ScanHistory {
   final double? fuzzyScore; // numeric(5,2) — 0..100
   final String? fuzzyLabel; // varchar(20) — 'Sehat' | 'Cukup Sehat' | 'Kurang Sehat'
   final String scanStatus; // varchar(20) — lihat konstanta di bawah
+  final bool sharePhoto; // boolean — pemilik mengizinkan foto ini jadi foto resep
   final DateTime? createdAt; // timestamptz
 
   /// Nama makanan dari join `foods(name)`. Tidak disimpan ke tabel ini.
@@ -58,6 +60,7 @@ class ScanHistory {
       fuzzyLabel: map['fuzzy_label'] as String?,
       // Kolom ini tidak NN di ERD, jadi siapkan nilai cadangan.
       scanStatus: map['scan_status'] as String? ?? 'tidak_diketahui',
+      sharePhoto: map['share_photo'] as bool? ?? false,
       createdAt: map['created_at'] == null
           ? null
           : DateTime.parse(map['created_at'] as String),

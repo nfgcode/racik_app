@@ -109,15 +109,19 @@ class FoodService {
   /// (menunggu ditinjau admin), dan resep + nutrisi tersimpan dalam satu
   /// transaksi sehingga tidak ada resep tanpa nutrisi.
   ///
+  /// Fungsi itu mengembalikan resep + gizi yang TERSIMPAN. Bila makanan yang
+  /// sama sudah pernah dipindai orang lain, angka gizi dari pindaian pertama
+  /// yang dipakai, bukan tebakan AI kali ini, sehingga semua pengguna melihat
+  /// angka yang sama.
+  ///
   /// Bila penyimpanan gagal (mis. offline), tetap mengembalikan [Food] tanpa
   /// `id` supaya skor kesehatan dan nutrisi hasil AI tetap tampil.
   Future<Food> createFromAi({
     required String name,
     required Nutrition nutrition,
   }) async {
-    String? foodId;
     try {
-      foodId = await _client.rpc('create_food_from_ai', params: {
+      final row = await _client.rpc('create_food_from_ai', params: {
         'p_name': name,
         'p_calories': nutrition.calories,
         'p_protein_g': nutrition.proteinG,
@@ -126,13 +130,21 @@ class FoodService {
         'p_sugar_g': nutrition.sugarG,
         'p_sodium_mg': nutrition.sodiumMg,
         'p_fiber_g': nutrition.fiberG,
-      }) as String?;
+      });
+      if (row is Map<String, dynamic>) {
+        return Food.fromMap({
+          ...row,
+          // Seharusnya selalu ada; jaga-jaga memakai tebakan AI.
+          if (row['nutritions'] == null) 'nutritions': nutrition.toMap(),
+        });
+      }
+      debugPrint('Info: balasan create_food_from_ai tidak dikenal ($row). '
+          'Sudah menjalankan supabase/patch-03-foto-kandidat.sql?');
     } catch (e) {
       debugPrint('Info: hasil AI tidak tersimpan ke database ($e), memakai objek Food lokal.');
     }
 
     return Food(
-      id: foodId,
       name: name,
       description: 'Resep makanan teridentifikasi secara otomatis oleh AI.',
       category: 'Hasil Pindai AI',

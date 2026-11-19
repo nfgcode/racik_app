@@ -122,6 +122,9 @@ class FakeFoodService implements FoodService {
 }
 
 class FakeScanService implements ScanService {
+  /// Nilai `share` setiap kali pengguna menyentuh "Jadikan foto resep".
+  final shareCalls = <bool>[];
+
   @override
   Future<List<ScanHistory>> historyOf(String userId) async => [
         ScanHistory(
@@ -138,7 +141,23 @@ class FakeScanService implements ScanService {
       ];
 
   @override
-  Future<ScanHistory> save(ScanHistory scan) async => scan;
+  Future<ScanHistory> save(ScanHistory scan) async => ScanHistory(
+        id: 's-baru',
+        userId: scan.userId,
+        foodId: scan.foodId,
+        imageUrl: scan.imageUrl,
+        scanStatus: scan.scanStatus,
+      );
+
+  @override
+  Future<bool> setSharePhoto(String scanId, {required bool share}) async {
+    shareCalls.add(share);
+    return true;
+  }
+
+  @override
+  Future<List<ScanHistory>> photoCandidates(String foodId, {int limit = 12}) async =>
+      [];
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -207,12 +226,12 @@ class FakeStatsService implements StatsService {
 
 // ------------------------------------------------------------- helper ---
 
-Widget racikWith(AppUser? profile, {Widget? home}) {
+Widget racikWith(AppUser? profile, {Widget? home, FakeScanService? scans}) {
   return MultiProvider(
     providers: [
       Provider<FoodService>.value(value: FakeFoodService()),
       Provider<IngredientService>.value(value: FakeIngredientService()),
-      Provider<ScanService>.value(value: FakeScanService()),
+      Provider<ScanService>.value(value: scans ?? FakeScanService()),
       Provider<StorageService>.value(value: FakeStorageService()),
       Provider<FavoriteService>.value(value: FakeFavoriteService()),
       Provider<UserService>.value(value: FakeUserService()),
@@ -285,8 +304,10 @@ void main() {
     // Foto PNG 4×4 piksel. Mode demo menebak dari byte pertama file (0x89
     // untuk PNG) → keyakinan 82 %; FakeFoodService mencocokkannya ke Gado-Gado.
     final foto = img.encodePng(img.Image(width: 4, height: 4));
+    final scans = FakeScanService();
     await tester.pumpWidget(racikWith(
       user(AppUser.rolePengguna),
+      scans: scans,
       // Sama seperti di aplikasi: layar hasil hanya terbuka setelah login.
       home: Builder(
         builder: (context) => context.watch<AuthProvider>().isLoggedIn
@@ -305,6 +326,13 @@ void main() {
       find.text('Hasil ini tersimpan di Riwayat.'),
       200,
     );
+
+    // Gado-Gado di data palsu belum punya foto → pengguna ditawari izin.
+    await tester.scrollUntilVisible(find.text('Jadikan foto resep'), 200);
+    await tester.tap(find.byType(Switch));
+    await tester.pumpAndSettle();
+    expect(scans.shareCalls, [true]);
+    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
   });
 
   testWidgets('Admin: keempat tab admin terbangun tanpa error',
@@ -328,6 +356,12 @@ void main() {
     await tester.tap(find.text('Gado-Gado'));
     await tester.pumpAndSettle();
     expect(find.text('Ubah resep'), findsOneWidget);
+    // Resep belum punya foto → foto kandidat dari pindaian pengguna dicari.
+    await tester.scrollUntilVisible(
+      find.text('Belum ada foto pindai pengguna yang diizinkan untuk resep ini.'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.scrollUntilVisible(
       find.text('Rebus sayuran.'),
       200,

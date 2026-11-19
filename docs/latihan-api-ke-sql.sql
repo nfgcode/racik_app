@@ -153,13 +153,17 @@ rollback;
 -- HTTP : POST /rest/v1/rpc/create_food_from_ai   body: {"p_name":"Bakso","p_calories":300,...}
 -- SQL  : dijalankan sebagai pengguna biasa. Resep + nutrisi tersimpan dalam
 --        satu transaksi, selalu is_verified = false (menunggu ditinjau admin).
---        Butuh supabase/patch-01-perbaikan-bug.sql (atau schema.sql terbaru).
+--        Hasilnya jsonb berisi resep + gizi yang TERSIMPAN: pemanggilan kedua
+--        dengan tebakan gizi berbeda (999 kkal) tetap mengembalikan 300 kkal.
+--        Butuh supabase/patch-03-foto-kandidat.sql (atau schema.sql terbaru).
 begin;
 select set_config('request.jwt.claims',
        json_build_object('sub', (select id from public.users where role = 'pengguna' order by created_at limit 1),
                          'role', 'authenticated')::text, true);
 set local role authenticated;
-select public.create_food_from_ai('Bakso', 300, 15, 12, 30, 2, 800, 1) as id_resep_baru;
+select public.create_food_from_ai('Bakso', 300, 15, 12, 30, 2, 800, 1) as pindaian_pertama;
+select public.create_food_from_ai('bakso', 999, 1, 1, 1, 1, 1, 1)->'nutritions'->>'calories'
+       as kalori_pindaian_kedua;                             -- 300, bukan 999
 reset role;                                                 -- kembali jadi postgres untuk melihat hasilnya
 select f.name, f.source, f.is_verified, n.calories, n.sodium_mg
 from public.foods f join public.nutritions n on n.food_id = f.id
@@ -203,6 +207,42 @@ order by s.created_at desc;
 -- Dart : _client.from('scan_history').delete().eq('id', id)
 -- HTTP : DELETE /rest/v1/scan_history?id=eq.<uuid>
 -- SQL  : delete from public.scan_history where id = '<uuid>';
+
+-- 2.4 setSharePhoto(scanId, share: true)  → "Jadikan foto resep" di layar hasil pindai
+-- Dart : _client.rpc('share_scan_photo', params: {'p_scan_id': scanId, 'p_share': true})
+-- HTTP : POST /rest/v1/rpc/share_scan_photo   body: {"p_scan_id":"<uuid>","p_share":true}
+-- SQL  : hanya riwayat milik sendiri. Mengembalikan false bila resepnya sudah
+--        punya foto (tidak perlu kandidat lagi). Gado-Gado di bawah dibuat
+--        tanpa foto dulu supaya hasilnya true.
+begin;
+update public.foods set image_url = null where name = 'Gado-Gado';
+insert into public.scan_history (id, user_id, food_id, image_url, scan_status)
+values ('aaaaaaaa-0000-4000-8000-000000000001',
+        (select id from public.users where role = 'pengguna' order by created_at limit 1),
+        (select id from public.foods where name = 'Gado-Gado'),
+        'https://contoh/foto.jpg', 'berhasil');
+select set_config('request.jwt.claims',
+       json_build_object('sub', (select id from public.users where role = 'pengguna' order by created_at limit 1),
+                         'role', 'authenticated')::text, true);
+set local role authenticated;
+select public.share_scan_photo('aaaaaaaa-0000-4000-8000-000000000001', true) as izin_tersimpan;
+reset role;
+select share_photo from public.scan_history where id = 'aaaaaaaa-0000-4000-8000-000000000001';
+rollback;
+
+-- 2.5 photoCandidates(foodId)  → form resep admin, selama resep belum punya foto
+-- Dart : _client.from('scan_history').select('id, user_id, food_id, image_url, ...')
+--          .eq('food_id', foodId).eq('share_photo', true).not('image_url', 'is', null)
+--          .order('created_at', ascending: false).limit(12)
+-- HTTP : GET /rest/v1/scan_history?select=...&food_id=eq.<uuid>&share_photo=eq.true
+--          &image_url=not.is.null&order=created_at.desc&limit=12
+-- SQL  : RLS hanya mengizinkan ADMIN membaca riwayat milik orang lain.
+select s.id, s.image_url, s.created_at
+from public.scan_history s
+where s.food_id = (select id from public.foods where name = 'Gado-Gado')
+  and s.share_photo and s.image_url is not null
+order by s.created_at desc
+limit 12;
 
 
 -- ---------------------------------------------------------------------

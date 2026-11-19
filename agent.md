@@ -171,6 +171,8 @@ Nilai domain (tulis persis):
 
 1. `FoodRecognizer.recognize(bytes)` menghasilkan tiga prediksi teratas.
 2. `FoodService.findByName(top.label)` mencari resep dengan `ilike` tanpa wildcard. Hanya resep `is_verified` yang dicari.
+   - Kalau tidak ketemu, keyakinan ≥ ambang, dan AI punya estimasi gizi → `FoodService.createFromAi` (RPC `create_food_from_ai`).
+   - Nama yang sudah ada tidak dibuat ulang. RPC mengembalikan resep + gizi yang **tersimpan** (jsonb, bentuknya sama dengan `select '*, nutritions(*)'`), jadi pengguna berikutnya melihat angka yang sama walau resepnya belum diverifikasi.
 3. Jika resep punya data nutrisi, `FuzzyHealthScore.evaluate` menghitung skornya.
 4. Status ditentukan begini:
    - keyakinan di bawah `AppConfig.confidenceThreshold` (0.60) → `tidak_yakin`;
@@ -179,6 +181,10 @@ Nilai domain (tulis persis):
 5. Foto diunggah ke `scan-images/<userId>/<millis>.jpg`, lalu baris baru di-insert ke `scan_history`.
    - Jika penyimpanan gagal, hasil pindai tetap ditampilkan.
    - Pesan gagalnya muncul lewat `saveError`.
+6. Foto kandidat untuk resep yang belum punya foto:
+   - Layar hasil menampilkan "Jadikan foto resep" hanya bila `ScanOutcome.canSharePhoto` (riwayat tersimpan, tertaut ke resep, dan `foods.image_url` kosong). Kalau resep sudah punya foto, pengguna tidak ditanya.
+   - Izin disimpan lewat RPC `share_scan_photo` ke `scan_history.share_photo`. RPC menolak (mengembalikan `false`) bila resepnya sudah punya foto.
+   - Admin melihat kandidat di form resep, hanya selama URL foto kosong (`ScanService.photoCandidates`). Mengetuk kandidat menyalin file ke `food-images/foods/` lewat `StorageService.copyFromPublicUrl` (Storage copy di server), jadi foto resep tidak ikut hilang saat pemiliknya menghapus akun.
 
 Aksesibilitas di layar hasil:
 - `SemanticsService.sendAnnouncement` membacakan hasil untuk pengguna TalkBack.
@@ -300,13 +306,15 @@ File SQL **belum dibuat**. Kode aplikasi bergantung pada semua hal di bawah ini.
 | Tabel | Baca | Tulis |
 |---|---|---|
 | foods dan tabel anaknya | publik jika `is_verified`; admin melihat semua | hanya admin |
-| scan_history | milik sendiri; admin membaca semua | milik sendiri |
+| scan_history | milik sendiri; admin membaca semua | milik sendiri; `share_photo` hanya lewat RPC `share_scan_photo` |
 | favorites | milik sendiri | milik sendiri |
 | users | milik sendiri + admin | kolom profil milik sendiri; `role`/`is_active` hanya admin (dijaga trigger) |
 
 **Storage**
 - Bucket publik: `scan-images`, `food-images`, `avatars`.
 - Pengguna hanya boleh mengunggah ke folder `<auth.uid()>/`. Admin juga boleh mengunggah ke `foods/`.
+- Admin boleh membaca file `scan-images` supaya bisa menyalin foto kandidat ke `food-images`.
+- `StorageService.uploadJpeg` memakai `cacheControl` setahun karena nama file selalu baru. Aplikasi menampilkan gambar lewat `cached_network_image` (`FoodImage`, `UserAvatar`), jadi gambar tidak diunduh ulang.
 
 **Lain-lain**
 - Admin pertama dibuat manual: `update public.users set role = 'admin' where username = '...';`

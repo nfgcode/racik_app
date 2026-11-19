@@ -101,6 +101,7 @@ create table public.scan_history (
   fuzzy_label    varchar(20),
   scan_status    varchar(20)
                  check (scan_status in ('berhasil', 'tidak_yakin', 'tidak_ditemukan')), -- [TAMBAHAN]
+  share_photo    boolean not null default false, -- [TAMBAHAN] izin foto dijadikan foto resep
   created_at     timestamptz default now()
 );
 
@@ -238,8 +239,12 @@ create trigger scan_history_decrement_count
 --   - resep + nutrisi disimpan dalam SATU transaksi: bila nutrisi gagal,
 --     resepnya ikut batal (tidak ada resep tanpa nutrisi);
 --   - nama yang sudah ada (tanpa beda huruf besar/kecil) tidak dibuat ulang;
---     id resep lama yang dikembalikan.
-create or replace function public.create_food_from_ai(
+--   - yang dikembalikan adalah data yang TERSIMPAN (bukan tebakan AI saat ini),
+--     sehingga semua pengguna yang memindai makanan yang sama melihat angka
+--     gizi yang sama walaupun resepnya belum diverifikasi admin.
+drop function if exists public.create_food_from_ai(text, numeric, numeric, numeric,
+  numeric, numeric, numeric, numeric);
+create function public.create_food_from_ai(
   p_name      text,
   p_calories  numeric,
   p_protein_g numeric default null,
@@ -249,7 +254,7 @@ create or replace function public.create_food_from_ai(
   p_sodium_mg numeric default null,
   p_fiber_g   numeric default null
 )
-returns uuid
+returns jsonb
 language plpgsql security definer set search_path = ''
 as $$
 declare
@@ -280,13 +285,59 @@ begin
           p_sugar_g, p_sodium_mg, p_fiber_g)
   on conflict (food_id) do nothing;
 
-  return v_id;
+  -- Bentuknya sama dengan select '*, nutritions(*)' supaya bisa dibaca
+  -- Food.fromMap. created_by sengaja tidak ikut (id pengguna lain).
+  return (
+    select jsonb_build_object(
+      'id', f.id, 'name', f.name, 'description', f.description,
+      'image_url', f.image_url, 'category', f.category,
+      'serving_size', f.serving_size, 'source', f.source,
+      'is_verified', f.is_verified,
+      'nutritions', (select to_jsonb(n) from public.nutritions n
+                     where n.food_id = f.id))
+    from public.foods f where f.id = v_id);
 end;
 $$;
 revoke execute on function public.create_food_from_ai(text, numeric, numeric, numeric,
   numeric, numeric, numeric, numeric) from public, anon;
 grant execute on function public.create_food_from_ai(text, numeric, numeric, numeric,
   numeric, numeric, numeric, numeric) to authenticated;
+
+-- [TAMBAHAN] Izin pengguna agar foto pindainya boleh dijadikan foto resep.
+-- Pengguna tidak punya hak UPDATE di scan_history, jadi lewat fungsi ini:
+--   - hanya riwayat milik sendiri;
+--   - memberi izin hanya bila resepnya BELUM punya foto (kalau sudah ada,
+--     tidak perlu kandidat lagi) → mengembalikan false;
+--   - menarik izin (p_share = false) selalu boleh.
+create or replace function public.share_scan_photo(
+  p_scan_id uuid,
+  p_share   boolean default true
+)
+returns boolean
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_count int;
+begin
+  if auth.uid() is null then
+    raise exception 'Harus login' using errcode = '42501';
+  end if;
+
+  update public.scan_history s
+     set share_photo = p_share
+   where s.id = p_scan_id
+     and s.user_id = auth.uid()
+     and s.image_url is not null
+     and (not p_share or exists (
+           select 1 from public.foods f
+            where f.id = s.food_id and coalesce(f.image_url, '') = ''));
+
+  get diagnostics v_count = row_count;
+  return v_count > 0;
+end;
+$$;
+revoke execute on function public.share_scan_photo(uuid, boolean) from public, anon;
+grant execute on function public.share_scan_photo(uuid, boolean) to authenticated;
 
 -- Stored procedure (materi Database Programmer). Keduanya SECURITY DEFINER,
 -- artinya melewati RLS, jadi TIDAK boleh bisa dipanggil anon/authenticated:
@@ -436,6 +487,11 @@ create policy "storage: hapus file sendiri" on storage.objects
 create policy "storage: admin unggah foto resep" on storage.objects
   for insert to authenticated
   with check (bucket_id = 'food-images' and public.is_admin());
+-- [TAMBAHAN] Admin menyalin foto pindai yang diizinkan pemiliknya ke
+-- food-images (Storage copy butuh hak baca pada file asal).
+create policy "storage: admin baca foto pindai" on storage.objects
+  for select to authenticated
+  using (bucket_id = 'scan-images' and public.is_admin());
 
 
 -- ---------------------------------------------------------------------

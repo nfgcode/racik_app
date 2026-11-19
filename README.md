@@ -12,7 +12,7 @@ Aplikasi mobile pemindai makanan berbasis kecerdasan buatan (Flutter + Supabase 
    `supabase/schema.sql` lalu `supabase/seed.sql`.
    Project yang sudah memakai `schema.sql` versi lama cukup menjalankan
    `supabase/patch-01-perbaikan-bug.sql`, `supabase/hapus_akun.sql`, lalu
-   `supabase/patch-02-perbaikan-bug.sql` sekali.
+   `supabase/patch-02-perbaikan-bug.sql`, lalu `supabase/patch-03-foto-kandidat.sql` sekali.
    Foto resep contoh: unggah isi `supabase/gambar-resep/` ke Storage
    `food-images/resep/`, lalu jalankan `supabase/foto-resep-contoh.sql`
    (kredit foto: `supabase/gambar-resep/KREDIT.md`).

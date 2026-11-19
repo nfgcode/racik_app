@@ -9,10 +9,13 @@ import '../../models/food_ingredient.dart';
 import '../../models/ingredient.dart';
 import '../../models/nutrition.dart';
 import '../../models/recipe_step.dart';
+import '../../models/scan_history.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/food_service.dart';
 import '../../services/ingredient_service.dart';
+import '../../services/scan_service.dart';
 import '../../services/storage_service.dart';
+import '../../widgets/food_image.dart';
 
 /// Use case: Mengelola Data Resep — tambah & ubah.
 ///
@@ -67,6 +70,7 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
 
   bool _loading = true;
   bool _saving = false;
+  bool _copying = false;
   String? _loadError;
 
   bool get _isNew => widget.foodId == null;
@@ -188,6 +192,32 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
       setState(() => _imageUrl.text = url);
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(friendlyError(e))));
+    }
+  }
+
+  /// Menjadikan foto pindai pengguna sebagai foto resep: file disalin ke
+  /// bucket food-images (bukan sekadar menautkan URL-nya), supaya foto resep
+  /// tidak ikut hilang saat pemiliknya menghapus riwayat atau akun.
+  Future<void> _useCandidate(String scanImageUrl) async {
+    final storage = context.read<StorageService>();
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _copying = true);
+    try {
+      final url = await storage.copyFromPublicUrl(
+        publicUrl: scanImageUrl,
+        fromBucket: AppConfig.scanBucket,
+        toBucket: AppConfig.foodBucket,
+        folder: 'foods',
+      );
+      if (!mounted) return;
+      setState(() => _imageUrl.text = url);
+      messenger.showSnackBar(const SnackBar(
+        content: Text('Foto disalin. Tekan Simpan untuk memakainya.'),
+      ));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(friendlyError(e))));
+    } finally {
+      if (mounted) setState(() => _copying = false);
     }
   }
 
@@ -369,6 +399,19 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                 ),
               ),
             ),
+            // Foto kandidat dari pindaian pengguna hanya dicari selama resep
+            // belum punya foto. Begitu URL foto terisi, bagian ini hilang.
+            if (!_isNew)
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _imageUrl,
+                builder: (context, value, _) => value.text.trim().isNotEmpty
+                    ? const SizedBox.shrink()
+                    : _PhotoCandidates(
+                        foodId: widget.foodId!,
+                        busy: _copying,
+                        onPick: _useCandidate,
+                      ),
+              ),
 
             const _SectionTitle('Nutrisi per porsi'),
             Wrap(
@@ -603,6 +646,96 @@ class _StepRowField extends StatelessWidget {
             icon: const Icon(Icons.close),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Foto pindai yang diizinkan pemiliknya untuk dijadikan foto resep ini.
+class _PhotoCandidates extends StatefulWidget {
+  const _PhotoCandidates({
+    required this.foodId,
+    required this.busy,
+    required this.onPick,
+  });
+
+  final String foodId;
+  final bool busy;
+  final ValueChanged<String> onPick;
+
+  @override
+  State<_PhotoCandidates> createState() => _PhotoCandidatesState();
+}
+
+class _PhotoCandidatesState extends State<_PhotoCandidates> {
+  late final Future<List<ScanHistory>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = context.read<ScanService>().photoCandidates(widget.foodId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: FutureBuilder<List<ScanHistory>>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const LinearProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text(
+              'Foto pindai pengguna belum bisa dimuat: '
+              '${friendlyError(snapshot.error!)}',
+              style: textTheme.bodySmall,
+            );
+          }
+          final items = snapshot.data!;
+          if (items.isEmpty) {
+            return Text(
+              'Belum ada foto pindai pengguna yang diizinkan untuk resep ini.',
+              style: textTheme.bodySmall,
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Foto dari pindaian pengguna — ketuk untuk dijadikan foto resep',
+                style: textTheme.labelLarge,
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 96,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (context, i) {
+                    final url = items[i].imageUrl!;
+                    return Semantics(
+                      button: true,
+                      label: 'Jadikan foto pindai ${i + 1} sebagai foto resep',
+                      child: InkWell(
+                        onTap: widget.busy ? null : () => widget.onPick(url),
+                        borderRadius: BorderRadius.circular(12),
+                        child: FoodImage(url: url, size: 96),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              if (widget.busy) ...[
+                const SizedBox(height: 8),
+                const LinearProgressIndicator(),
+              ],
+            ],
+          );
+        },
       ),
     );
   }

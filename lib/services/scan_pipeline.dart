@@ -29,6 +29,15 @@ class ScanOutcome {
   final HealthScoreResult? health;
   final ScanHistory? saved;
   final String? saveError;
+
+  /// Tawarkan izin "jadikan foto resep" hanya bila riwayatnya tersimpan,
+  /// tertaut ke resep, dan resep itu BELUM punya foto. Kalau sudah ada foto,
+  /// tidak perlu kandidat lagi, jadi pengguna tidak ditanya.
+  bool get canSharePhoto =>
+      saved?.id != null &&
+      saved?.imageUrl != null &&
+      food?.id != null &&
+      (food?.imageUrl ?? '').isEmpty;
 }
 
 /// Alur use case "Memindai Makanan" persis seperti diagram:

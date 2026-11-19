@@ -1,6 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 /// Gambar makanan dari URL, dengan pengganti bila URL kosong atau gagal.
+///
+/// Memakai cached_network_image: gambar yang sudah pernah diunduh disimpan
+/// di penyimpanan HP, jadi tidak diunduh ulang walau aplikasi ditutup.
+/// Di web, penyimpanannya diserahkan ke cache browser.
 class FoodImage extends StatelessWidget {
   const FoodImage({
     super.key,
@@ -29,14 +34,16 @@ class FoodImage extends StatelessWidget {
       borderRadius: BorderRadius.circular(borderRadius),
       child: (url?.isEmpty ?? true)
           ? placeholder
-          : Image.network(
-              url!,
-              width: size,
-              height: size,
-              fit: BoxFit.cover,
-              // Gambar dekoratif: nama makanan sudah dibacakan di sebelahnya.
-              excludeFromSemantics: true,
-              errorBuilder: (_, _, _) => placeholder,
+          // Gambar dekoratif: nama makanan sudah dibacakan di sebelahnya.
+          : ExcludeSemantics(
+              child: CachedNetworkImage(
+                imageUrl: url!,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                placeholder: (_, _) => placeholder,
+                errorWidget: (_, _, _) => placeholder,
+              ),
             ),
     );
   }

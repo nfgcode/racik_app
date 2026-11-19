@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -132,7 +133,7 @@ class UserAvatar extends StatelessWidget {
     final url = user.avatarUrl;
     return CircleAvatar(
       radius: radius,
-      foregroundImage: url == null ? null : NetworkImage(url),
+      foregroundImage: url == null ? null : CachedNetworkImageProvider(url),
       child: Text(
         user.displayName.characters.first.toUpperCase(),
         style: TextStyle(fontSize: radius * 0.8),

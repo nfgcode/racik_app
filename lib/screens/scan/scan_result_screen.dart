@@ -232,6 +232,10 @@ class _ResultBody extends StatelessWidget {
             label: const Text('Lihat resep lengkap'),
           ),
         ],
+        if (outcome.canSharePhoto) ...[
+          const SizedBox(height: 16),
+          _SharePhotoTile(scanId: outcome.saved!.id!, foodName: food!.name),
+        ],
         const SizedBox(height: 16),
         Text(
           outcome.saved != null
@@ -241,6 +245,73 @@ class _ResultBody extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+}
+
+/// Izin agar foto pindai ini boleh dijadikan foto resep oleh admin.
+/// Hanya muncul bila resepnya belum punya foto ([ScanOutcome.canSharePhoto]).
+class _SharePhotoTile extends StatefulWidget {
+  const _SharePhotoTile({required this.scanId, required this.foodName});
+
+  final String scanId;
+  final String foodName;
+
+  @override
+  State<_SharePhotoTile> createState() => _SharePhotoTileState();
+}
+
+class _SharePhotoTileState extends State<_SharePhotoTile> {
+  bool _shared = false;
+  bool _busy = false;
+
+  Future<void> _toggle(bool value) async {
+    final scans = context.read<ScanService>();
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() {
+      _busy = true;
+      _shared = value;
+    });
+
+    var result = value;
+    String? message;
+    try {
+      final ok = await scans.setSharePhoto(widget.scanId, share: value);
+      if (!ok) {
+        result = false;
+        if (value) {
+          message = 'Resep ini sudah punya foto, jadi fotomu tidak diperlukan.';
+        }
+      }
+    } catch (e) {
+      result = !value;
+      message = friendlyError(e);
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _shared = result;
+    });
+    if (message != null) {
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: SwitchListTile(
+        value: _shared,
+        onChanged: _busy ? null : _toggle,
+        secondary: const Icon(Icons.add_photo_alternate_outlined),
+        title: const Text('Jadikan foto resep'),
+        subtitle: Text(
+          'Resep ${widget.foodName} belum punya foto. Izinkan admin memakai '
+          'foto ini? Bila dipilih admin, salinannya tetap dipakai walau '
+          'riwayat atau akunmu dihapus.',
+        ),
+      ),
     );
   }
 }
