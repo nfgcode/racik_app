@@ -10,6 +10,8 @@ Aplikasi mobile pemindai makanan berbasis kecerdasan buatan (Flutter + Supabase 
 
 1. Buat project di [supabase.com](https://supabase.com), buka **SQL Editor**, jalankan
    `supabase/schema.sql` lalu `supabase/seed.sql`.
+   Project yang sudah memakai `schema.sql` versi lama cukup menjalankan
+   `supabase/patch-01-perbaikan-bug.sql` sekali.
 2. Untuk masa pengembangan, matikan **Authentication → Sign In / Providers → Email → Confirm email**.
 3. Pastikan file `env.json` berisi `SUPABASE_URL`, `SUPABASE_KEY`, dan `OPENROUTER_API_KEY` (Vision AI):
 

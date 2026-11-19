@@ -30,6 +30,13 @@ class ScanHistory {
   /// Nama makanan dari join `foods(name)`. Tidak disimpan ke tabel ini.
   final String? foodName;
 
+  /// Nama untuk daftar riwayat. Bila `food_id` terisi tetapi join
+  /// `foods(name)` kosong, resepnya ada tetapi disaring RLS karena belum
+  /// diverifikasi admin (resep hasil pindai AI).
+  String get displayName =>
+      foodName ??
+      (foodId != null ? 'Menunggu verifikasi admin' : 'Makanan belum terdata');
+
   /// AI yakin dan resepnya ada di database.
   static const statusBerhasil = 'berhasil';
 

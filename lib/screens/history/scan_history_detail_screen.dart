@@ -92,7 +92,7 @@ class _ScanHistoryDetailScreenState extends State<ScanHistoryDetailScreen> {
           ),
           const SizedBox(height: 16),
           ScanHeader(
-            foodName: scan.foodName ?? 'Makanan belum terdata',
+            foodName: scan.displayName,
             confidencePercent: scan.aiConfidence ?? 0,
           ),
           const SizedBox(height: 12),

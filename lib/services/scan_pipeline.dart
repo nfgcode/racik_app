@@ -71,7 +71,6 @@ class ScanPipeline {
       food = await foods.createFromAi(
         name: top.label,
         nutrition: top.estimatedNutrition!,
-        userId: userId,
       );
     }
 

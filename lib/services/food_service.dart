@@ -99,55 +99,44 @@ class FoodService {
     return null;
   }
 
-  /// Otomatis buatkan makanan dan nutrisi dari hasil pemindaian AI bila belum ada di database.
-  /// Jika database membatasi insert via RLS, fungsi ini menghasilkan objek Food virtual
-  /// sehingga skor kesehatan logika fuzzy dan nutrisi tetap tampil sempurna di layar pengguna.
+  /// Simpan makanan hasil pindai AI yang belum ada di database, lewat fungsi
+  /// SQL `create_food_from_ai` (lihat supabase/schema.sql).
+  ///
+  /// Pengguna biasa tidak boleh menulis ke tabel `foods` (RLS khusus admin),
+  /// jadi penyimpanan lewat fungsi itu. Resepnya selalu `is_verified = false`
+  /// (menunggu ditinjau admin), dan resep + nutrisi tersimpan dalam satu
+  /// transaksi sehingga tidak ada resep tanpa nutrisi.
+  ///
+  /// Bila penyimpanan gagal (mis. offline), tetap mengembalikan [Food] tanpa
+  /// `id` supaya skor kesehatan dan nutrisi hasil AI tetap tampil.
   Future<Food> createFromAi({
     required String name,
     required Nutrition nutrition,
-    required String userId,
   }) async {
+    String? foodId;
     try {
-      final insertedFood = await _client
-          .from('foods')
-          .insert({
-            'name': name,
-            'description': 'Resep makanan teridentifikasi secara otomatis oleh AI.',
-            'category': 'Hasil Pindai AI',
-            'serving_size': '1 porsi',
-            'source': 'ai',
-            'is_verified': true,
-            'created_by': userId,
-          })
-          .select()
-          .single();
-
-      final newFoodId = insertedFood['id'] as String;
-
-      await _client.from('nutritions').insert({
-        'food_id': newFoodId,
-        'calories': nutrition.calories,
-        'protein_g': nutrition.proteinG,
-        'fat_g': nutrition.fatG,
-        'carbs_g': nutrition.carbsG,
-        'sugar_g': nutrition.sugarG,
-        'sodium_mg': nutrition.sodiumMg,
-        'fiber_g': nutrition.fiberG,
-      });
-
-      final fullFood = await getDetail(newFoodId);
-      if (fullFood != null) return fullFood;
+      foodId = await _client.rpc('create_food_from_ai', params: {
+        'p_name': name,
+        'p_calories': nutrition.calories,
+        'p_protein_g': nutrition.proteinG,
+        'p_fat_g': nutrition.fatG,
+        'p_carbs_g': nutrition.carbsG,
+        'p_sugar_g': nutrition.sugarG,
+        'p_sodium_mg': nutrition.sodiumMg,
+        'p_fiber_g': nutrition.fiberG,
+      }) as String?;
     } catch (e) {
-      debugPrint('Info: Simpan ke DB dibatasi RLS ($e), menggunakan objek Food lokal.');
+      debugPrint('Info: hasil AI tidak tersimpan ke database ($e), memakai objek Food lokal.');
     }
 
     return Food(
+      id: foodId,
       name: name,
-      description: 'Resep teridentifikasi secara otomatis oleh AI.',
+      description: 'Resep makanan teridentifikasi secara otomatis oleh AI.',
       category: 'Hasil Pindai AI',
       servingSize: '1 porsi',
-      source: 'ai',
-      isVerified: true,
+      source: Food.sourceAi,
+      isVerified: false,
       nutrition: nutrition,
     );
   }

@@ -84,7 +84,7 @@ class _ScanHistoryScreenState extends State<ScanHistoryScreen> {
                 final scan = items[index];
                 return ListTile(
                   leading: FoodImage(url: scan.imageUrl, size: 56),
-                  title: Text(scan.foodName ?? 'Makanan belum terdata'),
+                  title: Text(scan.displayName),
                   subtitle: Text(
                     '${Fmt.dateTime(scan.createdAt)} · '
                     '${scanStatusText(scan.scanStatus)}',

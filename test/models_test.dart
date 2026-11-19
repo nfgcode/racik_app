@@ -57,6 +57,21 @@ void main() {
     expect(scan.aiConfidence, 87.5);
   });
 
+  test('ScanHistory.displayName membedakan resep tersembunyi dan tanpa resep', () {
+    ScanHistory scan({String? foodId, Map<String, dynamic>? foods}) =>
+        ScanHistory.fromMap({
+          'user_id': 'u1',
+          'food_id': foodId,
+          'scan_status': 'berhasil',
+          'foods': foods,
+        });
+
+    expect(scan(foodId: 'f1', foods: {'name': 'Rendang'}).displayName, 'Rendang');
+    // food_id terisi tetapi join kosong: resep AI belum diverifikasi (disaring RLS).
+    expect(scan(foodId: 'f9').displayName, 'Menunggu verifikasi admin');
+    expect(scan().displayName, 'Makanan belum terdata');
+  });
+
   test('label Teachable Machine dibersihkan dari nomor urut', () {
     final labels = TfliteFoodRecognizer.parseLabels(
       '0 Nasi Goreng\n1 Gado-Gado\r\n2 Soto Ayam\n\n',

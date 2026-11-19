@@ -218,7 +218,9 @@ class _ResultBody extends StatelessWidget {
         if (outcome.health != null) HealthScoreCard.fromResult(outcome.health!),
         if (food != null && food.nutrition != null)
           NutritionCard(nutrition: food.nutrition!, servingSize: food.servingSize),
-        if (food != null && food.id != null) ...[
+        // Resep hasil AI yang belum diverifikasi belum punya bahan & langkah,
+        // dan belum bisa dibuka Pengguna (RLS), jadi tombol ini disembunyikan.
+        if (food != null && food.id != null && food.isVerified) ...[
           const SizedBox(height: 8),
           FilledButton.icon(
             onPressed: () => Navigator.of(context).push(
