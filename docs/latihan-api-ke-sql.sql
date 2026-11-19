@@ -147,6 +147,25 @@ select (select count(*) from public.steps)            as steps_sesudah,
        (select count(*) from public.food_ingredients) as bahan_resep_sesudah;
 rollback;
 
+-- 1.8 createFromAi(name, nutrition)  → ScanPipeline, bila makanan belum ada di database
+-- Dart : _client.rpc('create_food_from_ai', params: {'p_name': 'Bakso',
+--          'p_calories': 300, 'p_protein_g': 15, ... 'p_fiber_g': 1})
+-- HTTP : POST /rest/v1/rpc/create_food_from_ai   body: {"p_name":"Bakso","p_calories":300,...}
+-- SQL  : dijalankan sebagai pengguna biasa. Resep + nutrisi tersimpan dalam
+--        satu transaksi, selalu is_verified = false (menunggu ditinjau admin).
+--        Butuh supabase/patch-01-perbaikan-bug.sql (atau schema.sql terbaru).
+begin;
+select set_config('request.jwt.claims',
+       json_build_object('sub', (select id from public.users where role = 'pengguna' order by created_at limit 1),
+                         'role', 'authenticated')::text, true);
+set local role authenticated;
+select public.create_food_from_ai('Bakso', 300, 15, 12, 30, 2, 800, 1) as id_resep_baru;
+reset role;                                                 -- kembali jadi postgres untuk melihat hasilnya
+select f.name, f.source, f.is_verified, n.calories, n.sodium_mg
+from public.foods f join public.nutritions n on n.food_id = f.id
+where f.name = 'Bakso';
+rollback;
+
 
 -- ---------------------------------------------------------------------
 -- 2. ScanService  (lib/services/scan_service.dart)
@@ -355,9 +374,10 @@ set local role authenticated;
 update public.users set role = 'admin' where id = auth.uid();
 rollback;
 
--- 8.4 Sebagai PENGGUNA [SENGAJA ERROR 42501] — mencoba menambah resep
---     Inilah yang terjadi di FoodService.createFromAi untuk pengguna biasa:
---     ditolak RLS, lalu aplikasi memakai objek Food "virtual".
+-- 8.4 Sebagai PENGGUNA [SENGAJA ERROR 42501] — mencoba menambah resep langsung
+--     Pengguna biasa tidak boleh insert ke foods. Karena itu
+--     FoodService.createFromAi menyimpan hasil AI lewat RPC
+--     create_food_from_ai (bagian 1.8), bukan insert langsung seperti ini.
 begin;
 select set_config('request.jwt.claims',
        json_build_object('sub', (select id from public.users where role = 'pengguna' order by created_at limit 1),
