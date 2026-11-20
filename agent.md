@@ -352,12 +352,13 @@ Belum:
 ## 15. Rilis Google Play
 
 - Package name `com.racik.app`, versi di `pubspec.yaml` (`x.y.z+versionCode`).
-- Rilis ditandatangani upload key dari `android/key.properties` (tidak masuk git; dibuat dengan
-  `tool/buat_upload_key.ps1`). Tanpa file itu rilis memakai kunci debug dan DITOLAK Play Store.
+- Rilis ditandatangani upload key dari `android/key.properties` (tidak masuk git). Upload key sudah
+  dibuat (alias `upload`, SHA1 `9B:83:B9:…:E0:A0`); JANGAN membuat kunci baru. Tanpa file itu rilis
+  memakai kunci debug dan DITOLAK Play Store.
 - Kunci OpenRouter TIDAK boleh ada di aplikasi; hanya sebagai secret Edge Function `recognize-food`.
 - Hapus akun wajib ada: Profil → Hapus akun (`AuthProvider.deleteAccount` → RPC `delete_my_account`,
   `supabase/hapus_akun.sql`) + halaman `docs/hapus-akun.html`.
-- Langkah lengkap: `store/PANDUAN-PUBLIKASI.md`.
+- Langkah lengkap, berurutan sampai Production: `store/PANDUAN-PUBLIKASI.md`.
 
 ## 16. Larangan
 
