@@ -196,18 +196,39 @@ class FakeFavoriteService implements FavoriteService {
 }
 
 class FakeIngredientService implements IngredientService {
+  final saved = <Ingredient>[];
+
   @override
   Future<List<Ingredient>> list({String query = ''}) async =>
       [const Ingredient(id: 'i1', name: 'Kacang tanah', unit: 'gram')];
+
+  @override
+  Future<void> save(Ingredient ingredient) async => saved.add(ingredient);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class FakeUserService implements UserService {
+  /// Akun lain (bukan yang sedang login) untuk dicoba diangkat jadi admin.
+  AppUser faiz = const AppUser(
+    id: 'u2',
+    username: 'faizini',
+    fullName: 'Faiz',
+    role: AppUser.rolePengguna,
+    isActive: true,
+  );
+  final updates = <AppUser>[];
+
   @override
   Future<List<AppUser>> list({String query = ''}) async =>
-      [user(AppUser.roleAdmin), user(AppUser.rolePengguna).copyWith()];
+      [user(AppUser.roleAdmin), faiz];
+
+  @override
+  Future<void> updateAccess(AppUser user) async {
+    updates.add(user);
+    if (user.id == faiz.id) faiz = user;
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -237,15 +258,21 @@ class FakeStatsService implements StatsService {
 
 // ------------------------------------------------------------- helper ---
 
-Widget racikWith(AppUser? profile, {Widget? home, FakeScanService? scans}) {
+Widget racikWith(
+  AppUser? profile, {
+  Widget? home,
+  FakeScanService? scans,
+  FakeUserService? users,
+  FakeIngredientService? ingredients,
+}) {
   return MultiProvider(
     providers: [
       Provider<FoodService>.value(value: FakeFoodService()),
-      Provider<IngredientService>.value(value: FakeIngredientService()),
+      Provider<IngredientService>.value(value: ingredients ?? FakeIngredientService()),
       Provider<ScanService>.value(value: scans ?? FakeScanService()),
       Provider<StorageService>.value(value: FakeStorageService()),
       Provider<FavoriteService>.value(value: FakeFavoriteService()),
-      Provider<UserService>.value(value: FakeUserService()),
+      Provider<UserService>.value(value: users ?? FakeUserService()),
       Provider<StatsService>.value(value: FakeStatsService()),
       ChangeNotifierProvider(
         create: (_) => AuthProvider(FakeAuthService(profile)),
@@ -371,6 +398,58 @@ void main() {
     expect(find.text('Ubah profil'), findsNothing); // layar profil tertutup
     expect(find.text('Kelola akun'), findsNothing); // bukan AdminShell lagi
     expect(find.text('Pindai'), findsWidgets); // tab milik tamu/pengguna
+  });
+
+  testWidgets('Admin: mengangkat admin baru lewat aplikasi, dengan konfirmasi',
+      (tester) async {
+    final users = FakeUserService();
+    await tester.pumpWidget(racikWith(user(AppUser.roleAdmin), users: users));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Akun'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Ketuk akun untuk mengubah peran'), findsOneWidget);
+    expect(find.textContaining('akun kamu'), findsOneWidget);
+
+    // Batal: tidak ada yang berubah.
+    await tester.tap(find.text('Faiz'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('admin').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Jadikan Faiz admin?'), findsOneWidget);
+    await tester.tap(find.text('Batal'));
+    await tester.pumpAndSettle();
+    expect(users.updates, isEmpty);
+
+    // Setuju: peran tersimpan dan ada pengingat login ulang.
+    await tester.tap(find.text('Faiz'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('admin').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Jadikan admin'));
+    await tester.pumpAndSettle();
+    expect(users.updates.single.role, AppUser.roleAdmin);
+    expect(find.textContaining('keluar lalu login lagi'), findsOneWidget);
+    // Daftar dimuat ulang tanpa error setState (bug lama di mode debug).
+    expect(find.textContaining('Terjadi kesalahan'), findsNothing);
+  });
+
+  testWidgets('Admin: menyimpan bahan memuat ulang daftar tanpa error',
+      (tester) async {
+    final ingredients = FakeIngredientService();
+    await tester.pumpWidget(
+        racikWith(user(AppUser.roleAdmin), ingredients: ingredients));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bahan'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Kacang tanah'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Simpan'));
+    await tester.pumpAndSettle();
+
+    expect(ingredients.saved.single.name, 'Kacang tanah');
+    expect(find.textContaining('Terjadi kesalahan'), findsNothing);
   });
 
   testWidgets('Admin: keempat tab admin terbangun tanpa error',

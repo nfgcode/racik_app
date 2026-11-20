@@ -24,7 +24,10 @@ class _AdminIngredientsScreenState extends State<AdminIngredientsScreen> {
     _load();
   }
 
-  void _load() => _future = context.read<IngredientService>().list();
+  // Badan blok, bukan `=>`: lihat catatan di AdminUsersScreen._load.
+  void _load() {
+    _future = context.read<IngredientService>().list();
+  }
 
   void _reload() => setState(_load);
 

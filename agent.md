@@ -251,6 +251,7 @@ Async dan lifecycle:
 - Setelah `await`, cek `mounted`.
 - `ScaffoldMessenger` dan `Navigator` disimpan ke variabel sebelum `await`.
 - Future disimpan di State (`initState`), tidak pernah dibuat di `build()`.
+- Fungsi yang dipanggil lewat `setState(_load)` memakai badan blok `{ }`, bukan `=>`. Fungsi panah ikut mengembalikan Future hasil assignment, dan `setState` menolaknya di mode debug.
 - `TextEditingController`, `CameraController`, dan `Timer` selalu di-dispose.
 - Pakai `context.select` bila hanya butuh satu nilai dari provider.
 
@@ -326,7 +327,7 @@ File SQL **belum dibuat**. Kode aplikasi bergantung pada semua hal di bawah ini.
 
 Selesai dan terverifikasi:
 - Seluruh `lib/` untuk ketiga aktor, `supabase/schema.sql` + `seed.sql` + patch 01–03, Edge Function `recognize-food`.
-- `flutter analyze` bersih; `flutter test` 54 tes lolos (8 file di `test/`); build web lolos kompilasi.
+- `flutter analyze` bersih; `flutter test` 56 tes lolos (8 file di `test/`); build web lolos kompilasi.
 - Tes SQL dijalankan di Postgres lokal dengan stub Supabase (RLS, RPC, trigger, patch dijalankan dua kali).
 - Rilis Android: `com.racik.app`, ditandatangani upload key (`android/key.properties`, tidak di-commit). Versi sekarang `1.0.0+2`; AAB pertama memakai versionCode 1.
 - Foto 6 resep contoh (`supabase/gambar-resep/`, kredit di `KREDIT.md`), foto kandidat dari hasil pindai, dan cache gambar.

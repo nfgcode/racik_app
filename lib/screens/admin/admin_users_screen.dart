@@ -37,15 +37,28 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     super.dispose();
   }
 
-  void _load() => _future = context.read<UserService>().list(query: _query.text);
+  // Badan blok, bukan `=>`: fungsi panah ikut mengembalikan Future hasil
+  // assignment, dan setState(_load) menolak callback yang mengembalikan Future
+  // (error "setState() callback argument returned a Future" di mode debug).
+  void _load() {
+    _future = context.read<UserService>().list(query: _query.text);
+  }
 
   void _reload() => setState(_load);
 
-  Future<void> _update(AppUser updated) async {
+  /// Menyimpan peran / status aktif. [successMessage] ditampilkan bila
+  /// berhasil (misalnya pengingat login ulang setelah peran berubah).
+  Future<void> _update(AppUser updated, {String? successMessage}) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await context.read<UserService>().updateAccess(updated);
       _reload();
+      if (successMessage != null) {
+        messenger.showSnackBar(SnackBar(
+          content: Text(successMessage),
+          duration: const Duration(seconds: 6),
+        ));
+      }
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(friendlyError(e))));
     }
@@ -76,6 +89,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               },
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(
+              'Ketuk akun untuk mengubah peran (pengguna/admin). '
+              'Sakelar di kanan untuk mengaktifkan atau menonaktifkan akun.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
           Expanded(
             child: FutureBuilder<List<AppUser>>(
               future: _future,
@@ -102,12 +123,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   itemBuilder: (context, index) {
                     final user = users[index];
                     final isMe = user.id == myId;
-                    return ListTile(
+                    final tile = ListTile(
                       leading: UserAvatar(user: user),
                       title: Text(user.displayName),
                       subtitle: Text(
                         '@${user.username} · ${user.role}'
-                        '${user.isActive ? '' : ' · nonaktif'}',
+                        '${user.isActive ? '' : ' · nonaktif'}'
+                        '${isMe ? ' · akun kamu' : ''}',
                       ),
                       onTap: isMe ? null : () => _showRoleDialog(user),
                       // Admin tidak bisa menonaktifkan akunnya sendiri,
@@ -119,6 +141,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             : (v) => _update(user.copyWith(isActive: v)),
                       ),
                     );
+                    // Pembaca layar mendengar "ketuk dua kali untuk ubah peran".
+                    return isMe
+                        ? tile
+                        : Semantics(onTapHint: 'ubah peran', child: tile);
                   },
                 );
               },
@@ -148,8 +174,45 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         ],
       ),
     );
-    if (role != null && role != user.role) {
-      _update(user.copyWith(role: role));
-    }
+    if (role == null || role == user.role || !mounted) return;
+
+    // Hak admin besar, jadi mengangkat maupun menurunkan admin dikonfirmasi.
+    final jadiAdmin = role == AppUser.roleAdmin;
+    final nama = user.displayName;
+    final setuju = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(jadiAdmin ? 'Jadikan $nama admin?' : 'Turunkan $nama jadi pengguna?'),
+        content: Text(
+          jadiAdmin
+              ? 'Admin bisa menambah, mengubah, dan menghapus resep dan bahan, '
+                  'melihat statistik, serta mengubah peran dan menonaktifkan '
+                  'akun lain.'
+              : '$nama tidak bisa lagi membuka menu admin.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(jadiAdmin ? 'Jadikan admin' : 'Turunkan'),
+          ),
+        ],
+      ),
+    );
+    if (setuju != true) return;
+
+    // Server langsung menerapkan peran baru (RLS membaca users.role), tetapi
+    // aplikasi di HP orang itu baru membaca ulang perannya saat ia login lagi.
+    _update(
+      user.copyWith(role: role),
+      successMessage: jadiAdmin
+          ? '$nama sekarang admin. Minta $nama keluar lalu login lagi '
+              'supaya menu admin muncul.'
+          : '$nama sekarang pengguna. Hak adminnya langsung dicabut; menu '
+              'admin di HP-nya hilang setelah ia login lagi.',
+    );
   }
 }
