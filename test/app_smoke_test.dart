@@ -3,6 +3,8 @@
 // Tujuannya menangkap error yang hanya muncul saat widget benar-benar dibangun
 // (layout overflow, assertion provider, null yang tak terduga).
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,27 +70,36 @@ AppUser user(String role) => AppUser(
 // `implements` + noSuchMethod: cukup tulis method yang dipakai layar.
 
 class FakeAuthService implements AuthService {
-  FakeAuthService(this.profile);
+  FakeAuthService(this.profile) {
+    // Seperti Supabase: sesi awal langsung dikirim saat aplikasi dibuka.
+    _changes.add(AuthState(
+      AuthChangeEvent.initialSession,
+      profile == null
+          ? null
+          : Session(
+              accessToken: 'token',
+              tokenType: 'bearer',
+              user: User(
+                id: profile!.id,
+                appMetadata: const {},
+                userMetadata: const {},
+                aud: 'authenticated',
+                createdAt: '2026-09-11T00:00:00Z',
+              ),
+            ),
+    ));
+  }
 
   final AppUser? profile;
+  final _changes = StreamController<AuthState>();
 
   @override
-  Stream<AuthState> get authChanges => Stream.value(AuthState(
-        AuthChangeEvent.initialSession,
-        profile == null
-            ? null
-            : Session(
-                accessToken: 'token',
-                tokenType: 'bearer',
-                user: User(
-                  id: profile!.id,
-                  appMetadata: const {},
-                  userMetadata: const {},
-                  aud: 'authenticated',
-                  createdAt: '2026-09-11T00:00:00Z',
-                ),
-              ),
-      ));
+  Stream<AuthState> get authChanges => _changes.stream;
+
+  /// Keluar: Supabase mengirim event signedOut, AuthProvider menjadikannya tamu.
+  @override
+  Future<void> logout() async =>
+      _changes.add(AuthState(AuthChangeEvent.signedOut, null));
 
   @override
   String? get currentEmail => profile == null ? null : 'nurfauzan@example.com';
@@ -333,6 +344,33 @@ void main() {
     await tester.pumpAndSettle();
     expect(scans.shareCalls, [true]);
     expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+  });
+
+  testWidgets('Admin: menu akun membuka profil sendiri dan bisa keluar',
+      (tester) async {
+    await tester.pumpWidget(racikWith(user(AppUser.roleAdmin)));
+    await tester.pumpAndSettle();
+
+    // Menu akun ada di setiap tab admin, termasuk tab Akun.
+    await tester.tap(find.text('Akun'));
+    await tester.pumpAndSettle();
+    expect(find.text('Kelola akun'), findsOneWidget);
+    await tester.tap(find.byTooltip('Akun saya').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Profil saya'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Profil'), findsOneWidget);
+    expect(find.text('Ubah profil'), findsOneWidget);
+    // Admin tidak bisa menghapus akunnya sendiri dari aplikasi.
+    expect(find.textContaining('Akun admin tidak bisa dihapus'), findsOneWidget);
+
+    // Keluar dari layar profil: kembali ke aplikasi sebagai tamu.
+    await tester.tap(find.text('Keluar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ubah profil'), findsNothing); // layar profil tertutup
+    expect(find.text('Kelola akun'), findsNothing); // bukan AdminShell lagi
+    expect(find.text('Pindai'), findsWidgets); // tab milik tamu/pengguna
   });
 
   testWidgets('Admin: keempat tab admin terbangun tanpa error',

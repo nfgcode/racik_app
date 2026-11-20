@@ -130,7 +130,7 @@ Peran diambil dari `users.role`. Ada dua kondisi yang membuat pengguna langsung 
 | Admin | Melihat Statistik Pemindaian | `AdminStatsScreen` | `StatsService.load` |
 | Admin | Mengelola Akun Pengguna | `AdminUsersScreen` | `UserService.updateAccess` (role, is_active) |
 | — | Favorit (tabel ada, use case belum) | tombol hati di detail resep, `FavoritesScreen` | `FavoriteService` |
-| semua | Logout | `ProfileScreen`, app bar `AdminFoodsScreen` | `AuthProvider.logout` |
+| semua | Logout | `ProfileScreen`; admin: menu akun (`AdminAccountMenu`) di app bar keempat tab admin | `AuthProvider.logout` |
 
 Setiap kali layar diubah atau ditambah, perbarui dua hal:
 - tabel ini;
@@ -326,7 +326,7 @@ File SQL **belum dibuat**. Kode aplikasi bergantung pada semua hal di bawah ini.
 
 Selesai dan terverifikasi:
 - Seluruh `lib/` untuk ketiga aktor, `supabase/schema.sql` + `seed.sql` + patch 01–03, Edge Function `recognize-food`.
-- `flutter analyze` bersih; `flutter test` 53 tes lolos (8 file di `test/`); build web lolos kompilasi.
+- `flutter analyze` bersih; `flutter test` 54 tes lolos (8 file di `test/`); build web lolos kompilasi.
 - Tes SQL dijalankan di Postgres lokal dengan stub Supabase (RLS, RPC, trigger, patch dijalankan dua kali).
 - Rilis Android: `com.racik.app`, ditandatangani upload key (`android/key.properties`, tidak di-commit). Versi sekarang `1.0.0+2`; AAB pertama memakai versionCode 1.
 - Foto 6 resep contoh (`supabase/gambar-resep/`, kredit di `KREDIT.md`), foto kandidat dari hasil pindai, dan cache gambar.

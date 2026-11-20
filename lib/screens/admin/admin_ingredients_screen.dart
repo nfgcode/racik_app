@@ -5,6 +5,7 @@ import '../../core/errors.dart';
 import '../../models/ingredient.dart';
 import '../../services/ingredient_service.dart';
 import '../../widgets/state_views.dart';
+import 'admin_account_menu.dart';
 
 /// Use case: Mengelola Data Bahan (Admin) — tambah, ubah, hapus.
 class AdminIngredientsScreen extends StatefulWidget {
@@ -60,7 +61,10 @@ class _AdminIngredientsScreenState extends State<AdminIngredientsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kelola bahan')),
+      appBar: AppBar(
+        title: const Text('Kelola bahan'),
+        actions: const [AdminAccountMenu()],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab-bahan', // lihat catatan heroTag di admin_foods_screen.dart
         onPressed: () => _edit(),

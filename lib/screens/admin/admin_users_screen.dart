@@ -9,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/user_service.dart';
 import '../../widgets/state_views.dart';
 import '../profile/profile_screen.dart';
+import 'admin_account_menu.dart';
 
 /// Use case: Mengelola Akun Pengguna (Admin) — ubah peran & status aktif.
 class AdminUsersScreen extends StatefulWidget {
@@ -55,7 +56,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     final myId = context.watch<AuthProvider>().user?.id;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Kelola akun')),
+      appBar: AppBar(
+        title: const Text('Kelola akun'),
+        actions: const [AdminAccountMenu()],
+      ),
       body: Column(
         children: [
           Padding(

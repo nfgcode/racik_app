@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/food_service.dart';
 import '../../widgets/food_card.dart';
 import '../../widgets/state_views.dart';
+import 'admin_account_menu.dart';
 import 'food_form_screen.dart';
 
 /// Use case: Mengelola Data Resep (Admin) — daftar, verifikasi, hapus.
@@ -90,13 +91,7 @@ class _AdminFoodsScreenState extends State<AdminFoodsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kelola resep'),
-        actions: [
-          IconButton(
-            tooltip: 'Keluar',
-            onPressed: () => context.read<AuthProvider>().logout(),
-            icon: const Icon(Icons.logout),
-          ),
-        ],
+        actions: const [AdminAccountMenu()],
       ),
       floatingActionButton: FloatingActionButton.extended(
         // heroTag unik: AdminShell menyimpan semua tab di IndexedStack, jadi

@@ -62,19 +62,38 @@ class ProfileScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Keluar'),
-            onTap: () => context.read<AuthProvider>().logout(),
+            onTap: () {
+              final auth = context.read<AuthProvider>();
+              // Admin membuka layar ini lewat menu akun (di atas AdminShell),
+              // jadi tutup dulu supaya setelah keluar langsung ke layar tamu.
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              auth.logout();
+            },
           ),
-          ListTile(
-            leading: Icon(
-              Icons.delete_forever_outlined,
-              color: Theme.of(context).colorScheme.error,
+          // Admin tidak menghapus akunnya dari aplikasi supaya Racik tidak
+          // kehilangan satu-satunya admin. Perannya diturunkan dulu oleh
+          // admin lain, atau minta hapus lewat halaman web hapus akun.
+          if (user.isAdmin)
+            const ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text('Hapus akun'),
+              subtitle: Text(
+                'Akun admin tidak bisa dihapus dari aplikasi. Minta admin lain '
+                'mengubah peranmu menjadi pengguna dulu.',
+              ),
+            )
+          else
+            ListTile(
+              leading: Icon(
+                Icons.delete_forever_outlined,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              title: Text(
+                'Hapus akun',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              onTap: () => _confirmDelete(context),
             ),
-            title: Text(
-              'Hapus akun',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            onTap: () => _confirmDelete(context),
-          ),
         ],
       ),
     );

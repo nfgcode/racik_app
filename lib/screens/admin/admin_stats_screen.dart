@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../services/stats_service.dart';
 import '../../widgets/scan_widgets.dart';
 import '../../widgets/state_views.dart';
+import 'admin_account_menu.dart';
 
 /// Use case: Melihat Statistik Pemindaian Pengguna (Admin).
 class AdminStatsScreen extends StatefulWidget {
@@ -34,7 +35,10 @@ class _AdminStatsScreenState extends State<AdminStatsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistik pemindaian')),
+      appBar: AppBar(
+        title: const Text('Statistik pemindaian'),
+        actions: const [AdminAccountMenu()],
+      ),
       body: FutureBuilder<ScanStats>(
         future: _future,
         builder: (context, snapshot) {
