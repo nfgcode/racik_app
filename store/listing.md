@@ -46,7 +46,7 @@ Catatan: skor dan nilai gizi di Racik adalah perkiraan untuk membantu memahami m
 |---|---|
 | Kategori aplikasi | Makanan & Minuman (Food & Drink) |
 | Tag | Makanan, Nutrisi, Resep |
-| Email kontak | [EMAIL-KONTAK] |
+| Email kontak | nurfauzangymna@gmail.com |
 | Situs web | https://github.com/nfgcode/racik_app |
 | Kebijakan privasi | https://nfgcode.github.io/racik_app/kebijakan-privasi.html |
 
