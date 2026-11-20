@@ -8,9 +8,9 @@ wajib selama 14 hari (Tahap 7), ditambah review Google beberapa hari.
 
 | Tahap | Isi | Status |
 |---|---|---|
-| 0 | Gabungkan kode terbaru | ⬜ |
-| 1 | Supabase siap dipakai orang lain | sebagian |
-| 2 | Halaman web wajib (kebijakan privasi, hapus akun) | ⬜ |
+| 0 | Gabungkan kode terbaru | ✅ |
+| 1 | Supabase siap dipakai orang lain | sebagian (patch, foto, Edge Function ✅) |
+| 2 | Halaman web wajib (kebijakan privasi, hapus akun) | email ✅, hosting ⬜ |
 | 3 | Build AAB rilis | upload key ✅, AAB ⬜ |
 | 4 | Akun Play Console | sebagian |
 | 5 | Isi data aplikasi di Play Console | ⬜ |
@@ -23,10 +23,10 @@ wajib selama 14 hari (Tahap 7), ditambah review Google beberapa hari.
 
 ## Tahap 0 — Gabungkan kode terbaru
 
-- [ ] Ambil bundle terakhir, push ke `main`, lalu merge di laptop (perintah ada di chat).
-- [ ] Pastikan `git log --oneline -1` menunjukkan commit terbaru dan `pubspec.yaml` berisi
+- [x] Ambil bundle terakhir, push ke `main`, lalu merge di laptop (perintah ada di chat).
+- [x] Pastikan `git log --oneline -1` menunjukkan commit terbaru dan `pubspec.yaml` berisi
       `version: 1.0.0+2`.
-- [ ] `flutter pub get`
+- [x] `flutter pub get`
 
 ## Tahap 1 — Supabase siap dipakai orang lain
 
@@ -34,23 +34,28 @@ wajib selama 14 hari (Tahap 7), ditambah review Google beberapa hari.
       di-pause setelah sekitar seminggu tanpa aktivitas. Selama closed testing (14 hari) dan
       setelah rilis, pastikan proyek tetap aktif, atau pertimbangkan paket berbayar.
 - [x] `hapus_akun.sql`, `patch-01-perbaikan-bug.sql`, dan `patch-02-perbaikan-bug.sql` sudah jalan.
-- [ ] Jalankan **`supabase/patch-03-foto-kandidat.sql`** di SQL Editor. Baris cek di akhir harus
-      menunjukkan tiga kolom `true`.
-- [ ] **Foto resep contoh**: Storage → `food-images` → buat folder `resep` → unggah semua `.jpg`
-      dari `supabase/gambar-resep/`. Lalu jalankan `supabase/foto-resep-contoh.sql` (ganti dulu
-      nilai `base` dengan `SUPABASE_URL` dari `env.json`).
-- [ ] **Buat kunci OpenRouter baru**, hapus yang lama di dashboard OpenRouter, dan pasang
-      **batas kredit** supaya tagihan tidak membengkak. Kunci lama pernah ikut ter-compile ke
-      build lama, jadi anggap sudah bocor.
-- [ ] **Deploy Edge Function** `recognize-food` dengan kunci baru:
+- [x] `patch-03-foto-kandidat.sql` sudah jalan (ketiga kolom cek `true`).
+- [x] **Foto resep contoh** sudah terpasang: keenam foto ada di `food-images/resep/` dan keenam
+      resep contoh sudah punya `image_url` (`foto-resep-contoh.sql`).
+- [x] **Edge Function** `recognize-food` sudah ter-deploy (dicek 20 Nov 2026: tanpa login
+      membalas 401, bukan 404).
+- [ ] **Ganti kunci OpenRouter.** Kunci lama pernah ikut ter-compile ke build lama, jadi anggap
+      sudah bocor:
+  1. Di dashboard OpenRouter, buat kunci baru dan pasang **batas kredit** supaya tagihan
+     tidak membengkak.
+  2. Dashboard Supabase → **Edge Functions → Secrets** → ubah nilai `OPENROUTER_API_KEY`
+     menjadi kunci baru, lalu simpan. Function tidak perlu di-deploy ulang.
+  3. Coba pindai satu makanan dari aplikasi. Kalau berhasil, **hapus kunci lama** di OpenRouter.
+- [ ] Bila kode Edge Function berubah dan perlu di-deploy ulang, pakai Supabase CLI lewat `npx`
+      (butuh Node.js; jangan `npm install -g supabase`, karena cara itu tidak didukung):
 
-```bash
-npm install -g supabase
-supabase login
-supabase secrets set OPENROUTER_API_KEY=sk-or-KUNCI_BARU --project-ref anpdybkgszizugifqrbw
-supabase functions deploy recognize-food --project-ref anpdybkgszizugifqrbw
+```powershell
+npx supabase@latest login
+npx supabase@latest functions deploy recognize-food --project-ref anpdybkgszizugifqrbw
 ```
 
+  Cara lain tanpa memasang apa pun: Dashboard → **Edge Functions** → `recognize-food` →
+  editor kode, lalu tempel isi `supabase/functions/recognize-food/index.ts` dan deploy.
 - [ ] Hapus baris `OPENROUTER_API_KEY` dari `env.json` bila masih ada. Aplikasi tidak memakainya lagi.
 - [ ] **Email konfirmasi.** Email bawaan Supabase hanya untuk uji coba: jumlahnya dibatasi
       dan tidak bisa diandalkan untuk tester atau pengguna umum. Pilih salah satu:
@@ -65,7 +70,7 @@ supabase functions deploy recognize-food --project-ref anpdybkgszizugifqrbw
 
 Play Console meminta dua URL publik: kebijakan privasi dan cara menghapus akun.
 
-- [ ] **Ganti `[EMAIL-KONTAK]`** dengan email untuk urusan aplikasi. Email ini akan terlihat
+- [x] **Ganti `[EMAIL-KONTAK]`** dengan email untuk urusan aplikasi. Email ini akan terlihat
       publik. Jalankan dari folder proyek (isi alamatmu di baris pertama):
 
 ```powershell
